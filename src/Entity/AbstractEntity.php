@@ -3,9 +3,7 @@
 namespace Computools\CLightORM\Entity;
 
 use Computools\CLightORM\{
-	Exception\EntityFieldDoesNotExistsException,
-	Mapper\Relations\ManyToMany,
-	Mapper\Relations\RelationInterface
+	Exception\EntityFieldDoesNotExistsException, Exception\PropertyDoesNotExistsException, Mapper\Relations\ManyToMany, Mapper\Relations\RelationInterface
 };
 
 abstract class AbstractEntity implements EntityInterface
@@ -15,14 +13,54 @@ abstract class AbstractEntity implements EntityInterface
 
 	private $relationChanges = [];
 
+	public function getIdValue(): ?int
+	{
+		return $this->getField($this->getMapper()->getIdentifierEntityField());
+	}
+
 	private function relatedEntityExists(array $list, EntityInterface $entity): bool
 	{
+		/**
+		 * @var EntityInterface $existedEntity
+		 */
 		foreach ($list as $existedEntity) {
-			if ($existedEntity->getId() === $entity->getId()) {
+			if ($existedEntity->getIdValue() === $entity->getIdValue()) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public function getField(string $field)
+	{
+		try {
+			if (method_exists($this, $getter = $this->getMapper()->defineGetterName($field))) {
+				return $this->$getter();
+			}
+			if (property_exists($this, $property = $this->getMapper()->defineGetterName($field, false))) {
+				return $this->$property;
+			}
+		} catch (\Throwable $e) {
+			throw new PropertyDoesNotExistsException(get_class($this), $field);
+		}
+		throw new PropertyDoesNotExistsException(get_class($this), $field);
+	}
+
+	public function setField(string $field, $value = null)
+	{
+		try {
+			if (method_exists($this, $setter = $this->getMapper()->defineSetterName($field))) {
+				$this->$setter($value);
+				return true;
+			}
+			if (property_exists($this, $property = $this->getMapper()->defineSetterName($field, false))) {
+				$this->$property = $value;
+				return true;
+			}
+		} catch (\Throwable $e) {
+			throw new PropertyDoesNotExistsException(get_class($this), $field);
+		}
+		throw new PropertyDoesNotExistsException(get_class($this), $field);
 	}
 
 	/**
@@ -42,7 +80,7 @@ abstract class AbstractEntity implements EntityInterface
 	 */
 	public function isNew(): bool
 	{
-		return $this->getId() ? false : true;
+		return $this->getField($this->getMapper()->getIdentifierEntityField()) ? false : true;
 	}
 
 	private function addRelationChange(string $relation, string $type, int $id): void
@@ -73,17 +111,16 @@ abstract class AbstractEntity implements EntityInterface
 	public function addRelation(EntityInterface $entity): void
 	{
 		list($relation, $relationType) = $this->getEntityRelationField($entity);
-		list($setter, $getter) = $this->getMapper()->defineMethodNames($relation);
 
-		if (!$list = $this->$getter()) {
+		if (!$list = $this->getField($relation)) {
 			$list = [];
 		}
 
 		if (!$this->relatedEntityExists($list, $entity)) {
 			$list[] = $entity;
-			$this->$setter($list);
+			$this->setField($relation, $list);
 		}
-		$this->addRelationChange($relation, self::RELATION_CHANGE_ADD, $entity->getId());
+		$this->addRelationChange($relation, self::RELATION_CHANGE_ADD, $entity->getIdValue());
 	}
 
 	/**
@@ -92,17 +129,20 @@ abstract class AbstractEntity implements EntityInterface
 	public function removeRelation(EntityInterface $entity): void
 	{
 		list($relation, $relationType) = $this->getEntityRelationField($entity);
-		list($setter, $getter) = $this->getMapper()->defineMethodNames($relation);
 
-		$list = $this->$getter();
+		$list = $this->getField($relation);
+
+		/**
+		 * @var EntityInterface $existedEntity
+		 */
 		foreach($list as $key => $existedEntity) {
-			if ($existedEntity->getId() === $entity->getId()) {
+			if ($existedEntity->getIdValue() === $entity->getIdValue()) {
 				unset($list[$key]);
 			}
 		}
 
-		$this->$setter($list);
+		$this->setField($relation, $list);
 
-		$this->addRelationChange($relation, self::RELATION_CHANGE_REMOVE, $entity->getId());
+		$this->addRelationChange($relation, self::RELATION_CHANGE_REMOVE, $entity->getIdValue());
 	}
 }

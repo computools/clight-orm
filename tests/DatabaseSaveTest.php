@@ -141,15 +141,15 @@ class DatabaseSaveTest extends BaseTest
 		 * @var Book $book
 		 */
 		$book = $bookRepository->findLast();
-		$book->setPrice(15.22);
+		$book->price = 15.22;
 		$book->addRelation($author);
 		$book->addRelation($theme);
 		$book = $bookRepository->save($book, ['themes', 'authors']);
 
 		$this->assertInstanceOf(Book::class, $book);
-		$this->assertInternalType('array', $book->getAuthors());
-		$this->assertInstanceOf(Author::class, $book->getAuthors()[0]);
-		$this->assertInternalType('array', $book->getThemes());
-		$this->assertInstanceOf(Theme::class, $book->getThemes()[0]);
+		$this->assertInternalType('array', $book->authors);
+		$this->assertInstanceOf(Author::class, $book->authors[0]);
+		$this->assertInternalType('array', $book->themes);
+		$this->assertInstanceOf(Theme::class, $book->themes[0]);
 	}
 }

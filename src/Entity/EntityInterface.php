@@ -6,9 +6,11 @@ use Computools\CLightORM\Mapper\MapperInterface;
 
 interface EntityInterface
 {
-	public function getId(): ?int;
+	public function getIdValue(): ?int;
 
-	public function setId(?int $id): void;
+	public function getField(string $field);
+
+	public function setField(string $field, $value = null);
 
 	public function getMapper(): MapperInterface;
 

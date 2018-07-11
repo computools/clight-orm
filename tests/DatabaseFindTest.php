@@ -95,13 +95,16 @@ class DatabaseFindTest extends BaseTest
 	{
 		$bookRepository = $this->entityRepositoryFactory->create(BookRepository::class);
 
+		/**
+		 * @var Book $book
+		 */
 		$book = $bookRepository->findLast(['themes', 'authors']);
 
 		$this->assertInstanceOf(Book::class, $book);
-		$this->assertInternalType('array', $book->getThemes());
-		$this->assertInstanceOf(Theme::class, $book->getThemes()[0]);
-		$this->assertInternalType('array', $book->getAuthors());
-		$this->assertInstanceOf(Author::class, $book->getAuthors()[0]);
+		$this->assertInternalType('array', $book->themes);
+		$this->assertInstanceOf(Theme::class, $book->themes[0]);
+		$this->assertInternalType('array', $book->authors);
+		$this->assertInstanceOf(Author::class, $book->authors[0]);
 	}
 
 	public function testOneToManyRelations()
@@ -136,9 +139,9 @@ class DatabaseFindTest extends BaseTest
 		$this->assertInternalType('array', $author->getBooks());
 		$this->assertNotEquals(0, count($author->getBooks()));
 		$this->assertInstanceOf(Book::class, $author->getBooks()[0]);
-		$this->assertInternalType('array', $author->getBooks()[0]->getThemes());
-		$this->assertNotEquals(0, count($author->getBooks()[0]->getThemes()));
-		$this->assertInstanceOf(Theme::class, $author->getBooks()[0]->getThemes()[0]);
+		$this->assertInternalType('array', $author->getBooks()[0]->themes);
+		$this->assertNotEquals(0, count($author->getBooks()[0]->themes));
+		$this->assertInstanceOf(Theme::class, $author->getBooks()[0]->themes[0]);
 
 		$userRepository = $this->entityRepositoryFactory->create(UserRepository::class);
 

@@ -24,9 +24,7 @@ interface MapperInterface
 
 	public function getIdentifierEntityField(): string;
 
-	public function defineGetterName(string $field): string;
+	public function defineGetterName(string $field, bool $addKeyword = true): string;
 
-	public function defineSetterName(string $field): string;
-
-	public function defineMethodNames(string $field): array;
+	public function defineSetterName(string $field, bool $addKeyword = true): string;
 }

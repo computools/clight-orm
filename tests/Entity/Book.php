@@ -13,64 +13,13 @@ class Book extends AbstractEntity
 		return new BookMapper();
 	}
 
-	private $id;
+	public $id;
 
-	private $name;
+	public $name;
 
-	private $authors;
+	public $authors;
 
-	private $themes;
+	public $themes;
 
-	private $price;
-
-	public function getId(): ?int
-	{
-		return $this->id;
-	}
-
-	public function setId(?int $id): void
-	{
-		$this->id = $id;
-	}
-
-	public function getName(): ?string
-	{
-		return $this->name;
-	}
-
-	public function setName(?string $name): void
-	{
-		$this->name = $name;
-	}
-
-	public function getAuthors(): ?array
-	{
-		return $this->authors;
-	}
-
-	public function setAuthors(?array $authors)
-	{
-		$this->authors = $authors;
-	}
-
-
-	public function getThemes(): ?array
-	{
-		return $this->themes;
-	}
-
-	public function setThemes(?array $themes): void
-	{
-		$this->themes = $themes;
-	}
-
-	public function getPrice(): ?float
-	{
-		return $this->price;
-	}
-
-	public function setPrice(?float $price)
-	{
-		$this->price = $price;
-	}
+	public $price;
 }

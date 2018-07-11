@@ -265,13 +265,13 @@ abstract class RepositoryCore
 				if ($actionType === AbstractEntity::RELATION_CHANGE_REMOVE) {
 					$ids = implode(',', $value);
 					$this->database->table($table)->where(
-						$relationMap->getRelationType()->getColumnName() . '=' . $entity->getId() . ' AND ' .
+						$relationMap->getRelationType()->getColumnName() . '=' . $entity->getIdValue() . ' AND ' .
 						$relationMap->getRelationType()->getReferencedColumnName() . ' IN (' . $ids . ')'
 					)->delete();
 				} else if ($actionType === AbstractEntity::RELATION_CHANGE_ADD) {
 					foreach($value as $relatedId) {
 						$criteria = [
-							$relationMap->getRelationType()->getColumnName() => $entity->getId(),
+							$relationMap->getRelationType()->getColumnName() => $entity->getIdValue(),
 							$relationMap->getRelationType()->getReferencedColumnName() => $relatedId
 						];
 						if (!$relationExistsCheck || !$this->database->$table()->where($criteria)->fetch()) {
@@ -308,7 +308,7 @@ abstract class RepositoryCore
 	 */
 	protected function update(EntityInterface $entity, array $data, $relationExistsCheck = false): Row
 	{
-		if (!$row = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $entity->getId())->fetch()) {
+		if (!$row = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $entity->getIdValue())->fetch()) {
 			throw new EntityDoesNotExistsException();
 		}
 		$this->database->begin();

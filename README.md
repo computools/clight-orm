@@ -56,7 +56,7 @@ Lets have a look:
 
 Keys must be specified as table column names.
 
-Entity field must be named in camel case, and map keys must be names as underscore. 
+No matter if it's camel case or underscore used for database columns and field map keys, entity fields supposed to be named in camel case.
  
 ### Allowed field types:
 * **IdType** with optional parameter 'identifierField', that need to be specified if tables identifier column name is not 'id'
@@ -161,6 +161,31 @@ Also if you want to use type hints, make sure that you always will set this para
 
 
 Id field must have ability to take null in case of new entity, that have not been saved to database yet.
+
+Another option is using public properties instead of getters and setters. This library supports that kind of entities.
+
+    use Computools\LessqlORM\Entity\AbstractEntity;
+    use Computools\LessqlORM\Mapper\MapperInterface;
+    use Computools\LessqlORM\Test\Mapper\BookMapper;
+        
+    class Book extends AbstractEntity
+    {
+        public function getMapper(): MapperInterface
+        {
+            return new BookMapper();
+        }
+
+        public $id;
+    
+        public $name;
+    
+        public $authors;
+    
+        public $themes;
+    
+        public $price; 
+    }
+
 
 ## Repository
     use Computools\LessqlORM\Repository\AbstractRepository;

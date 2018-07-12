@@ -67,7 +67,7 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testManyToOneSaveWithoutRelated()
 	{
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->find(1);
+		$user = $this->entityRepositoryFactory->create(UserRepository::class)->find(1, [], 60);
 		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
 
 		$post = new Post();

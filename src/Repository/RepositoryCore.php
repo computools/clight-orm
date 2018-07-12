@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\{
-	Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
+	Cache\CacheInterface, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
 };
 
 use Computools\CLightORM\Mapper\Relations\{
@@ -65,6 +65,11 @@ abstract class RepositoryCore
 	protected $relations = [];
 
 	protected $relatedFields = [];
+
+	/**
+	 * @var CacheInterface
+	 */
+	protected $cache;
 
 	/**
 	 * This method maps relations defined at mapper to $relations

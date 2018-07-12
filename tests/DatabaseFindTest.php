@@ -181,4 +181,30 @@ class DatabaseFindTest extends BaseTest
 		$this->assertInstanceOf(User::class, $post->getAuthor());
 		$this->assertInstanceOf(UserProfile::class, $post->getAuthor()->getProfile());
 	}
+
+	public function testCache()
+	{
+		$userRepository = $this->entityRepositoryFactory->create(UserRepository::class);
+		$user = $userRepository->find(1, ['posts_as_author', 'posts_as_editor'], 60);
+
+		$this->assertInstanceOf(User::class, $user);
+		$this->assertInternalType('array', $user->getPostsAsAuthor());
+		$this->assertInternalType('array', $user->getPostsAsEditor());
+
+		$this->assertInstanceOf(Post::class, $user->getPostsAsEditor()[0]);
+		$this->assertInstanceOf(Post::class, $user->getPostsAsAuthor()[0]);
+	}
+
+	public function testCacheRetrieve()
+	{
+		$userRepository = $this->entityRepositoryFactory->create(UserRepository::class);
+		$user = $userRepository->find(1, ['posts_as_author', 'posts_as_editor'], 60);
+
+		$this->assertInstanceOf(User::class, $user);
+		$this->assertInternalType('array', $user->getPostsAsAuthor());
+		$this->assertInternalType('array', $user->getPostsAsEditor());
+
+		$this->assertInstanceOf(Post::class, $user->getPostsAsEditor()[0]);
+		$this->assertInstanceOf(Post::class, $user->getPostsAsAuthor()[0]);
+	}
 }

@@ -3,7 +3,20 @@
 namespace Computools\CLightORM\Mapper;
 
 use Computools\CLightORM\{
-	Entity\EntityInterface, Exception\IdentifierDoesNotExistsException, Exception\InvalidFieldMapException, Exception\NestedEntityDoesNotExistsException, Mapper\Relations\ManyToMany, Mapper\Relations\ManyToOne, Mapper\Relations\OneToOne, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface, Mapper\Types\BooleanType, Mapper\Types\ColumnType, Mapper\Types\CreatedAtType, Mapper\Types\DateTimeType, Mapper\Types\FloatType, Mapper\Types\IdType, Mapper\Types\UpdatedAtType
+	Entity\EntityInterface,
+	Exception\IdentifierDoesNotExistsException,
+	Exception\NestedEntityDoesNotExistsException,
+	Mapper\Relations\ManyToMany,
+	Mapper\Relations\ManyToOne,
+	Mapper\Relations\RelationInterface,
+	Mapper\Relations\ToOneInterface,
+	Mapper\Types\BooleanType,
+	Mapper\Types\ColumnType,
+	Mapper\Types\CreatedAtType,
+	Mapper\Types\DateTimeType,
+	Mapper\Types\FloatType,
+	Mapper\Types\IdType,
+	Mapper\Types\UpdatedAtType
 };
 
 abstract class Mapper implements MapperInterface
@@ -78,60 +91,55 @@ abstract class Mapper implements MapperInterface
 
 	final public function arrayToEntity(EntityInterface $entity, array $data = null): ?EntityInterface
 	{
-
-			foreach ($entity->getMapper()->getFields() as $key => $field) {
-				$entityField = $key;
-//				$setter = $this->defineSetterName($key);
-//				if (!method_exists($entity, $setter)) {
-//					throw new InvalidFieldMapException(get_class($entity));
-//				}
-				if (!$field instanceof RelationInterface) {
-					$key = $field->getColumnName() ? $field->getColumnName() : $key;
-					switch (true) {
-						case $field instanceof DateTimeType:
-							if ($data[$key]) {
-								if ($data[$key] instanceof \DateTime) {
-									$entity->setField($entityField, $data[$key]);
-								} else {
-									$entity->setField($entityField, new \DateTime($data[$key]));
-								}
+		foreach ($entity->getMapper()->getFields() as $key => $field) {
+			$entityField = $key;
+			if (!$field instanceof RelationInterface) {
+				$key = $field->getColumnName() ? $field->getColumnName() : $key;
+				switch (true) {
+					case $field instanceof DateTimeType:
+						if ($data[$key]) {
+							if ($data[$key] instanceof \DateTime) {
+								$entity->setField($entityField, $data[$key]);
 							} else {
-								$entity->setField($entityField, null);
+								$entity->setField($entityField, new \DateTime($data[$key]));
 							}
-							break;
-						case $field instanceof BooleanType:
-							$entity->setField($entityField, (int) $data[$key] ? true : false);
-							break;
-						case $field instanceof IdType:
-							$entity->setField($entityField, $data[$entity->getMapper()->getIdentifier()]);
-							break;
-						case $field instanceof FloatType:
-							$entity->setField($entityField, $data[$key] ? floatval($data[$key]) : null);
-							break;
-						default:
-							$entity->setField($entityField, $data[$key]);
-							break;
+						} else {
+							$entity->setField($entityField, null);
+						}
+						break;
+					case $field instanceof BooleanType:
+						$entity->setField($entityField, (int) $data[$key] ? true : false);
+						break;
+					case $field instanceof IdType:
+						$entity->setField($entityField, $data[$entity->getMapper()->getIdentifier()]);
+						break;
+					case $field instanceof FloatType:
+						$entity->setField($entityField, $data[$key] ? floatval($data[$key]) : null);
+						break;
+					default:
+						$entity->setField($entityField, $data[$key]);
+						break;
+				}
+			} else {
+				$relatedEntityClass = $field->getEntityClass();
+				if ($field instanceof ManyToOne) {
+					if ($data[$key] ?? null) {
+						$entity->setField(
+							$entityField,
+							$this->arrayToEntity(new $relatedEntityClass(), $data[$key])
+						);
 					}
 				} else {
-					$relatedEntityClass = $field->getEntityClass();
-					if ($field instanceof ManyToOne) {
-						if ($data[$key] ?? null) {
-							$entity->setField(
-								$entityField,
-								$this->arrayToEntity(new $relatedEntityClass(), $data[$key])
-							);
+					if ($data[$key] ?? null) {
+						$result = [];
+						foreach ($data[$key] as $collectionItem) {
+							$result[] = $this->arrayToEntity(new $relatedEntityClass(), $collectionItem);
 						}
-					} else {
-						if ($data[$key] ?? null) {
-							$result = [];
-							foreach ($data[$key] as $collectionItem) {
-								$result[] = $this->arrayToEntity(new $relatedEntityClass(), $collectionItem);
-							}
-							$entity->setField($entityField, $result);
-						}
+						$entity->setField($entityField, $result);
 					}
 				}
 			}
+		}
 		return $entity;
 	}
 
@@ -170,7 +178,7 @@ abstract class Mapper implements MapperInterface
 		if ($relation instanceof ToOneInterface) {
 			$nestedEntity = $entity->getField($entityField);
 			if ($nestedEntity) {
-				if (!$id = $entity->getField($entityField)->getId()) {
+				if (!$id = $entity->getField($entityField)->getIdValue()) {
 					throw new NestedEntityDoesNotExistsException();
 				}
 				$result[$relation->getFieldName()] = $id;
@@ -180,8 +188,11 @@ abstract class Mapper implements MapperInterface
 
 			if (!empty($relatedObjects)) {
 				$result[$key] = [];
+				/**
+				 * @var EntityInterface $object
+				 */
 				foreach ($relatedObjects as $object) {
-					if (!$id = $object->getId()) {
+					if (!$id = $object->getIdValue()) {
 						throw new NestedEntityDoesNotExistsException();
 					}
 					$result[$key][] = $id;

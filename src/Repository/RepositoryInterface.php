@@ -3,6 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\Entity\EntityInterface;
+use Computools\CLightORM\Tools\Order;
 use Computools\CLightORM\Tools\Pagination;
 
 interface RepositoryInterface
@@ -15,7 +16,7 @@ interface RepositoryInterface
 
 	public function findLast(array $with = []): ?EntityInterface;
 
-	public function findBy(array $criteria, array $with = [], ?Pagination $pagination = null): array;
+	public function findBy(array $criteria, ?Order $order = null ,array $with = [], ?Pagination $pagination = null): array;
 
 	public function findOneBy(array $criteria, array $with = []): ?EntityInterface;
 

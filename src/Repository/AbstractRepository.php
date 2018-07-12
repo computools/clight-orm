@@ -4,6 +4,7 @@ namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\Cache\CacheInterface;
 use Computools\CLightORM\Entity\EntityInterface;
+use Computools\CLightORM\Tools\Order;
 use Computools\CLightORM\Tools\Pagination;
 use LessQL\Database;
 use LessQL\Result;
@@ -97,14 +98,18 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $result;
 	}
 
-	public function findBy(array $criteria, array $with = [], ?Pagination $pagination = null, $expiration = 0): array
+	public function findBy(array $criteria, ?Order $order = null, array $with = [], ?Pagination $pagination = null, $expiration = 0): array
 	{
-		if ($result = $this->getFromCache($criteria, $with, $expiration)) {
+		if ($result = $this->getFromCache($order ? array_merge($criteria, $order->toArray()) : $criteria, $with, $expiration)) {
 			return $result;
 		}
 		$query = $this->database->table($this->table);
 		foreach ($criteria as $key => $value) {
 			$query = $query->where($key, $value);
+		}
+
+		if ($order) {
+			$query->orderBy($order->getField(), $order->getDirection());
 		}
 
 		if ($pagination) {

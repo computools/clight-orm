@@ -18,7 +18,7 @@ interface RepositoryInterface
 
 	public function findBy(array $criteria, ?Order $order = null ,array $with = [], ?Pagination $pagination = null): array;
 
-	public function findOneBy(array $criteria, array $with = []): ?EntityInterface;
+	public function findOneBy(array $criteria, ?Order $order = null, array $with = []): ?EntityInterface;
 
 	public function save(EntityInterface &$model, array $with = [], $relationExistsCheck = false): EntityInterface;
 

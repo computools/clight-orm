@@ -85,9 +85,9 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $this->mapToEntity($result, $query, $with);
 	}
 
-	public function findOneBy(array $criteria, array $with = [], $expiration = 0): ?EntityInterface
+	public function findOneBy(array $criteria, ?Order $order = null, array $with = [], $expiration = 0): ?EntityInterface
 	{
-		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with), $expiration)) {
+		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration)) {
 			return $result;
 		}
 		$query = $this->database->table($this->table);
@@ -99,13 +99,13 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			return null;
 		}
 		$result = $this->mapToEntity($result, $query, $with);
-		$this->putToCache($result, $this->mergeCriteria($criteria, $with), $expiration);
+		$this->putToCache($result, $this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration);
 		return $result;
 	}
 
 	public function findBy(array $criteria, ?Order $order = null, array $with = [], ?Pagination $pagination = null, $expiration = 0): array
 	{
-		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with), $expiration)) {
+		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration)) {
 			return $result;
 		}
 		$query = $this->database->table($this->table);
@@ -125,7 +125,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			}
 		}
 		$result = $this->mapToEntities($query->fetchAll(), $query, $with);
-		$this->putToCache($result, $this->mergeCriteria($criteria, $with), $expiration);
+		$this->putToCache($result, $this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration);
 		return $result;
 	}
 

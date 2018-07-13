@@ -28,6 +28,11 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$this->defineIdentifier();
 	}
 
+	protected function mergeCriteria(...$criteria)
+	{
+		return $criteria;
+	}
+
 	protected function mapToEntity(Row $row, Result $query, array $with = []): EntityInterface
 	{
 		return $this->mapper->arrayToEntity(
@@ -50,7 +55,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 	public function find(int $id, array $with = [], $expiration = 0): ?EntityInterface
 	{
-		if ($result = $this->getFromCache($id, $with, $expiration)) {
+		if ($result = $this->getFromCache($this->mergeCriteria($id, $with), $expiration)) {
 			return $result;
 		}
 		$query = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $id);
@@ -58,7 +63,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			return null;
 		}
 		$result = $this->mapToEntity($result, $query, $with);
-		$this->putToCache($result, $id, $with, $expiration);
+		$this->putToCache($result, $this->mergeCriteria($id, $with), $expiration);
 		return $result;
 	}
 
@@ -82,7 +87,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 	public function findOneBy(array $criteria, array $with = [], $expiration = 0): ?EntityInterface
 	{
-		if ($result = $this->getFromCache($criteria, $with, $expiration)) {
+		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with), $expiration)) {
 			return $result;
 		}
 		$query = $this->database->table($this->table);
@@ -94,13 +99,13 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			return null;
 		}
 		$result = $this->mapToEntity($result, $query, $with);
-		$this->putToCache($result, $criteria, $with, $expiration);
+		$this->putToCache($result, $this->mergeCriteria($criteria, $with), $expiration);
 		return $result;
 	}
 
 	public function findBy(array $criteria, ?Order $order = null, array $with = [], ?Pagination $pagination = null, $expiration = 0): array
 	{
-		if ($result = $this->getFromCache($order ? array_merge($criteria, $order->toArray()) : $criteria, $with, $expiration)) {
+		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with), $expiration)) {
 			return $result;
 		}
 		$query = $this->database->table($this->table);
@@ -109,7 +114,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		}
 
 		if ($order) {
-			$query->orderBy($order->getField(), $order->getDirection());
+			$query = $query->orderBy($order->getField(), $order->getDirection());
 		}
 
 		if ($pagination) {
@@ -120,7 +125,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			}
 		}
 		$result = $this->mapToEntities($query->fetchAll(), $query, $with);
-		$this->putToCache($result, $criteria, $with, $expiration);
+		$this->putToCache($result, $this->mergeCriteria($criteria, $with), $expiration);
 		return $result;
 	}
 

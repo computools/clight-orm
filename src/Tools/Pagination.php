@@ -56,4 +56,15 @@ class Pagination
 	{
 		return $this->isPagination;
 	}
+
+	public function toArray(): array
+	{
+		return [
+			'limit' => $this->getLimit(),
+			'offset' => $this->getOffset(),
+			'page' => $this->getPage(),
+			'perPage' => $this->getPerPage(),
+			'isPagination' => $this->isPagination() ? 1 : 0
+		];
+	}
 }

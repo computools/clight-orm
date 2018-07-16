@@ -233,13 +233,24 @@ To get certain entity repository just call factory's create method with class st
     $repository->find(2);
 
 ### Repository methods
-* find(int $id, array $with)
-* findBy(array $citeria, array $with, ?Pagination $pagination)
-* findOneBy(array $criteria, array $with)
+* find(int $id, array $with, $expiration = 0)
+* findBy(array $citeria, ?Order $order, array $with, ?Pagination $pagination, $expiration = 0)
+* findOneBy(array $criteria, ?Order $order = null, array $with, $expiration = 0)
 * findFirst($with)
 * findLast($with)
 * save(EntityInterface $entity, $with)
 * remove(EntityInterface $entity)
+
+*Computools\CLightORM\Tools\Order* object can be used to sort query result.
+    
+    $repository->findBy([
+            'name' => 'test'
+        ],
+        new Order('name', 'DESC')
+    )
+    
+*expiration* parameter can be used to store search result to cache. If isn't equals 0 than first call result will be stored to cache. Then method call will return data from cache, until expires.
+For detailed description see [Cache](##Cache)
 
 *With* parameter provides you possibility to include related entities into result. You may also get related entities of related entity etc.
 For example:
@@ -343,3 +354,43 @@ Third way is to implement native query:
 	}
 	
 This way is not support relations mapping, so you need to make it by yourself.
+
+##Cache
+
+Cache mechanism can be used to store some search results. To use it, you need to specify cache type while creating EntityRepositoryFactory instance.
+There is two different options to store results - memcached and filesystem.
+
+*Computools\CLightORM\Cache\Memcache* takes two parameters:
+
+* host(string) - memcached server host, default is 'localhost',
+* port(int) - memcached server port, default is '11211'
+
+*Computools\CLightORM\Cache\Filecache* takes cache dir as parameter, default is 'cache'.
+
+So, to use cache you need to write something like that:
+
+    $pdo = new \PDO(
+                 sprintf(
+                     '%s:host=%s;port=%s;dbname=%s',
+                     'mysql',
+                     '127.0.0.1',
+                     '3306',
+                     'test'
+                 ),
+             'user',
+             'password'
+             );
+     
+    $database = new \LessQL\Database($pdo);
+    $entityRepositoryFactory = new EntityRepositoryFactory($database, new Filecache('response/cache'));
+    
+Or
+
+    $entityRepositoryFactory = new EntityRepositoryFactory($database, new Memcache('localhost', 11211));
+    
+Than all your repos will be created with cache as private property.
+You can provide *expiration* parameter for findBy etc.
+
+    $repository->findBy(array $criteria, null, array $with = [], null, $expiration = 3600)
+    
+If expiration = 0, than cache will not be used. If not - data will be taken from cache if not expired yet.

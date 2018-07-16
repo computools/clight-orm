@@ -105,7 +105,9 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 	public function findBy(array $criteria, ?Order $order = null, array $with = [], ?Pagination $pagination = null, $expiration = 0): array
 	{
-		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration)) {
+		if ($result = $this->getFromCache(
+			$this->mergeCriteria($criteria, $with, $order ? $order->toArray() : [], $pagination ? $pagination->toArray(): null), $expiration)
+		) {
 			return $result;
 		}
 		$query = $this->database->table($this->table);

@@ -2,6 +2,7 @@
 
 namespace Computools\CLightORM\Test;
 
+use Computools\CLightORM\Cache\Filecache;
 use Computools\CLightORM\Cache\Memcache;
 use Computools\CLightORM\Repository\EntityRepositoryFactory;
 use LessQL\Database;
@@ -49,7 +50,7 @@ class BaseTest extends \PHPUnit_Framework_TestCase
 
 		$this->database = new \LessQL\Database($pdo);
 
-		$this->entityRepositoryFactory = new EntityRepositoryFactory($this->database, new Memcache());
+		$this->entityRepositoryFactory = new EntityRepositoryFactory($this->database, new Filecache());
 	}
 
 	public function testInitDB()

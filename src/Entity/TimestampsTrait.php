@@ -8,12 +8,12 @@ trait TimestampsTrait
 
 	private $updatedAt;
 
-	public function getCreatedAt(): \DateTime
+	public function getCreatedAt(): ?\DateTime
 	{
 		return $this->createdAt;
 	}
 
-	public function setCreatedAt(\DateTime $createdAt): void
+	public function setCreatedAt(?\DateTime $createdAt = null): void
 	{
 		$this->createdAt = $createdAt;
 	}
@@ -23,7 +23,7 @@ trait TimestampsTrait
 		return $this->updatedAt;
 	}
 
-	public function setUpdatedAt(?\DateTime $updatedAt): void
+	public function setUpdatedAt(?\DateTime $updatedAt = null): void
 	{
 		$this->updatedAt = $updatedAt;
 	}

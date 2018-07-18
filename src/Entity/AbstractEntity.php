@@ -49,16 +49,24 @@ abstract class AbstractEntity implements EntityInterface
 	public function setField(string $field, $value = null)
 	{
 		try {
+			$reflectionObject = new \ReflectionClass($this);
 			if (method_exists($this, $setter = $this->getMapper()->defineSetterName($field))) {
-				$this->$setter($value);
-				return true;
+				$method = $reflectionObject->getMethod($setter);
+				if ($method->isPublic()) {
+					$this->$setter($value);
+					return true;
+				}
 			}
 			if (property_exists($this, $property = $this->getMapper()->defineSetterName($field, false))) {
-				$this->$property = $value;
-				return true;
+				$property = $reflectionObject->getProperty($property);
+
+				if ($property->isPublic()) {
+					$this->$property = $value;
+					return true;
+				}
 			}
 		} catch (\Throwable $e) {
-			throw new PropertyDoesNotExistsException(get_class($this), $field);
+			throw $e;
 		}
 		throw new PropertyDoesNotExistsException(get_class($this), $field);
 	}

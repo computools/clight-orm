@@ -156,7 +156,7 @@ abstract class Mapper implements MapperInterface
 		$key = $columnType->getColumnName() ? $columnType->getColumnName() : $key;
 		switch (true) {
 			case $columnType instanceof CreatedAtType:
-				$result[$key] = $entity->isNew() ? (new \DateTime())->format($columnType->getFormat()) : $entity->getField($entityField) ? $entity->getField($entityField)->format($columnType->getFormat()) : null;
+				$result[$key] = $entity->isNew() ? (new \DateTime())->format($columnType->getFormat()) : ($entity->getField($entityField) ? $entity->getField($entityField)->format($columnType->getFormat()) : null);
 				break;
 			case $columnType instanceof UpdatedAtType:
 				$result[$key] = (new \DateTime())->format($columnType->getFormat());

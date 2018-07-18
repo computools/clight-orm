@@ -20,8 +20,8 @@ class DatabaseSaveTest extends BaseTest
 {
 	public function testOneToOne()
 	{
-		$userProfileRepository = $this->entityRepositoryFactory->create(UserProfileRepository::class);
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->findFirst();
+		$userProfileRepository = $this->cligtORM->create(UserProfileRepository::class);
+		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
 
 		$userProfile = new UserProfile();
 		$userProfile->setUser($user);
@@ -42,7 +42,7 @@ class DatabaseSaveTest extends BaseTest
 
 		$user->setName($name);
 
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->save($user);
+		$user = $this->cligtORM->create(UserRepository::class)->save($user);
 		$this->assertInstanceOf(User::class, $user);
 		$this->assertEquals($user->getName(), $name);
 		$this->assertInternalType('int', $user->getId());
@@ -50,8 +50,8 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testManyToOneSaveWithRelated()
 	{
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->findFirst();
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 
 		$post = new Post();
 		$post->setAuthor($user);
@@ -67,8 +67,8 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testManyToOneSaveWithoutRelated()
 	{
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->find(1, [], 60);
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$user = $this->cligtORM->create(UserRepository::class)->find(1, [], 60);
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 
 		$post = new Post();
 		$post->setAuthor($user);
@@ -84,9 +84,9 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testSaveManyToMany()
 	{
-		$category = $this->entityRepositoryFactory->create(CategoryRepository::class)->findFirst();
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->findFirst();
+		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
+		$postRepository = $this->cligtORM->create(PostRepository::class);
+		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
 
 		$post = new Post();
 		$post->setDatePublished(new \DateTime());
@@ -104,8 +104,8 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testUpdateManyToMany()
 	{
-		$category = $this->entityRepositoryFactory->create(CategoryRepository::class)->findFirst();
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 
 		$post = $postRepository->findLast();
 		$post->addRelation($category);
@@ -118,8 +118,8 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testUpdateManyToManyWithUniqueCheck()
 	{
-		$category = $this->entityRepositoryFactory->create(CategoryRepository::class)->findFirst();
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 
 		$post = $postRepository->findLast();
 		$post->addRelation($category);
@@ -132,10 +132,10 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testMultipleManyToManyConnections()
 	{
-		$author = $this->entityRepositoryFactory->create(AuthorRepository::class)->findFirst();
-		$theme = $this->entityRepositoryFactory->create(ThemeRepository::class)->findFirst();
+		$author = $this->cligtORM->create(AuthorRepository::class)->findFirst();
+		$theme = $this->cligtORM->create(ThemeRepository::class)->findFirst();
 
-		$bookRepository = $this->entityRepositoryFactory->create(BookRepository::class);
+		$bookRepository = $this->cligtORM->create(BookRepository::class);
 
 		/**
 		 * @var Book $book

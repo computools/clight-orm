@@ -215,9 +215,9 @@ This is the way how repository must be implemented. You can write your own metho
 
 To call the repository, you can use
 
-***Computools\LessqlORM\Repository\EntityRepositoryFactory***
+***Computools\CLightORM\CLightORM***
 
-Class constructor requires ***LessQL\Database*** object as argument. Here is the example:
+Here is the example:
 
     $pdo = new \PDO(
                 sprintf(
@@ -231,12 +231,11 @@ Class constructor requires ***LessQL\Database*** object as argument. Here is the
             'password'
             );
     
-    $database = new \LessQL\Database($pdo);
-    $entityRepositoryFactory = new EntityRepositoryFactory($database);
+    $clightORM = new CLightORM($pdo);
     
-To get certain entity repository just call factory's create method with class string as argument:
+To get certain entity repository just call create method with class string as argument:
 
-    $repository = $entityRepositoryFactory->create(PostRepository::class);
+    $repository = $clightORM->create(PostRepository::class);
     $repository->find(2);
 
 ### Repository methods
@@ -374,7 +373,7 @@ This call will also call duplicates check and just will not add same relation. I
 
 ## Cache
 
-Cache mechanism can be used to store some search results. To use it, you need to specify cache type while creating EntityRepositoryFactory instance.
+Cache mechanism can be used to store some search results. To use it, you need to specify cache type while creating CLightORM instance.
 There is two different options to store results - memcached and filesystem.
 
 *Computools\CLightORM\Cache\Memcache* takes two parameters:
@@ -387,23 +386,22 @@ There is two different options to store results - memcached and filesystem.
 So, to use cache you need to write something like that:
 
     $pdo = new \PDO(
-                 sprintf(
-                     '%s:host=%s;port=%s;dbname=%s',
-                     'mysql',
-                     '127.0.0.1',
-                     '3306',
-                     'test'
-                 ),
-             'user',
-             'password'
-             );
-     
-    $database = new \LessQL\Database($pdo);
-    $entityRepositoryFactory = new EntityRepositoryFactory($database, new Filecache('response/cache'));
+                    sprintf(
+                        '%s:host=%s;port=%s;dbname=%s',
+                        'mysql',
+                        '127.0.0.1',
+                        '3306',
+                        'test'
+                    ),
+                'user',
+                'password'
+                );
+        
+    $clightORM = new CLightORM($pdo, new Filecache('response/cache'));
     
 Or
 
-    $entityRepositoryFactory = new EntityRepositoryFactory($database, new Memcache('localhost', 11211));
+    $clightORM = new CLightORM($pdo, new Memcache('localhost', 11211));
     
 Than all your repos will be created with cache as private property.
 You can provide *expiration* parameter for findBy etc.

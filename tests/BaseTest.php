@@ -4,7 +4,7 @@ namespace Computools\CLightORM\Test;
 
 use Computools\CLightORM\Cache\Filecache;
 use Computools\CLightORM\Cache\Memcache;
-use Computools\CLightORM\Repository\EntityRepositoryFactory;
+use Computools\CLightORM\CLightORM;
 use LessQL\Database;
 
 class BaseTest extends \PHPUnit_Framework_TestCase
@@ -16,9 +16,9 @@ class BaseTest extends \PHPUnit_Framework_TestCase
 	protected $database;
 
 	/**
-	 * @var EntityRepositoryFactory
+	 * @var CLightORM
 	 */
-	protected $entityRepositoryFactory;
+	protected $cligtORM;
 
 	public function setUp()
 	{
@@ -48,9 +48,8 @@ class BaseTest extends \PHPUnit_Framework_TestCase
 //			'1234'
 //		);
 
-		$this->database = new \LessQL\Database($pdo);
 
-		$this->entityRepositoryFactory = new EntityRepositoryFactory($this->database, new Filecache());
+		$this->cligtORM = new CLightORM($pdo, new Filecache());
 	}
 
 	public function testInitDB()

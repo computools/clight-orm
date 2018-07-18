@@ -1,26 +1,28 @@
 <?php
 
-namespace Computools\CLightORM\Repository;
+namespace Computools\CLightORM;
 
 use Computools\CLightORM\Cache\CacheInterface;
+use Computools\CLightORM\Repository\RepositoryInterface;
 use LessQL\Database;
 
-class EntityRepositoryFactory
+class CLightORM
 {
-	/**
-	 * @var Database
-	 */
-	private $database;
-
 	/**
 	 * @var CacheInterface
 	 */
 	private $cache;
 
-	public function __construct(Database $database, ?CacheInterface $cache = null)
+	/**
+	 * @var Database
+	 */
+	private $database;
+
+	public function __construct(\PDO $pdo, ?CacheInterface $cache = null)
 	{
-		$this->database = $database;
+		$this->database = new Database($pdo);
 		$this->database->setIdentifierDelimiter(null);
+
 		$this->cache = $cache;
 	}
 

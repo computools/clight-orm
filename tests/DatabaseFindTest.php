@@ -24,7 +24,7 @@ class DatabaseFindTest extends BaseTest
 {
 	public function testFind()
 	{
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->find(1);
+		$user = $this->cligtORM->create(UserRepository::class)->find(1);
 
 		$this->assertInstanceOf(User::class, $user);
 		$this->assertInternalType('int', $user->getId());
@@ -32,7 +32,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testFindFirst()
 	{
-		$category = $this->entityRepositoryFactory->create(CategoryRepository::class)->findFirst();
+		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
 
 		$this->assertInstanceOf(Category::class, $category);
 		$this->assertInternalType('int', $category->getId());
@@ -40,7 +40,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testFindLast()
 	{
-		$category = $this->entityRepositoryFactory->create(CategoryRepository::class)->findLast();
+		$category = $this->cligtORM->create(CategoryRepository::class)->findLast();
 
 		$this->assertInstanceOf(Category::class, $category);
 		$this->assertInternalType('int', $category->getId());
@@ -48,7 +48,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testFindBy()
 	{
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 		$posts = $postRepository->findBy([]);
 
 		$this->assertInternalType('array', $posts);
@@ -58,9 +58,9 @@ class DatabaseFindTest extends BaseTest
 
 	public function testCustomRepositoryFind()
 	{
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->findFirst();
+		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
 
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 		$posts = $postRepository->findByAuthor($user, ['author', 'editor']);
 
 		$this->assertInternalType('array', $posts);
@@ -77,9 +77,9 @@ class DatabaseFindTest extends BaseTest
 
 	public function testNativeQueryFind()
 	{
-		$user = $this->entityRepositoryFactory->create(UserRepository::class)->findFirst();
+		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
 
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 		$posts = $postRepository->findByAuthorNative($user, ['author', 'editor']);
 
 		$this->assertInternalType('array', $posts);
@@ -93,7 +93,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testMultipleManyToManyRelations()
 	{
-		$bookRepository = $this->entityRepositoryFactory->create(BookRepository::class);
+		$bookRepository = $this->cligtORM->create(BookRepository::class);
 
 		/**
 		 * @var Book $book
@@ -109,7 +109,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testOneToManyRelations()
 	{
-		$userRepository = $this->entityRepositoryFactory->create(UserRepository::class);
+		$userRepository = $this->cligtORM->create(UserRepository::class);
 
 		$user = $userRepository->findFirst(['posts_as_author', 'posts_as_editor']);
 
@@ -124,7 +124,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testNestedRelationFind()
 	{
-		$authorRepository = $this->entityRepositoryFactory->create(AuthorRepository::class);
+		$authorRepository = $this->cligtORM->create(AuthorRepository::class);
 
 		/**
 		 * @var Author $author
@@ -143,7 +143,7 @@ class DatabaseFindTest extends BaseTest
 		$this->assertNotEquals(0, count($author->getBooks()[0]->themes));
 		$this->assertInstanceOf(Theme::class, $author->getBooks()[0]->themes[0]);
 
-		$userRepository = $this->entityRepositoryFactory->create(UserRepository::class);
+		$userRepository = $this->cligtORM->create(UserRepository::class);
 
 		/**
 		 * @var User $user
@@ -166,7 +166,7 @@ class DatabaseFindTest extends BaseTest
 		$this->assertNotEquals(0, count($user->getPostsAsAuthor()[0]->getCategories()[0]->getPosts()));
 		$this->assertInstanceOf(Post::class, $user->getPostsAsAuthor()[0]->getCategories()[0]->getPosts()[0]);
 
-		$postRepository = $this->entityRepositoryFactory->create(PostRepository::class);
+		$postRepository = $this->cligtORM->create(PostRepository::class);
 
 		/**
 		 * @var Post $post
@@ -184,7 +184,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testCache()
 	{
-		$userRepository = $this->entityRepositoryFactory->create(UserRepository::class);
+		$userRepository = $this->cligtORM->create(UserRepository::class);
 		$user = $userRepository->find(1, ['posts_as_author', 'posts_as_editor'], 60);
 
 		$this->assertInstanceOf(User::class, $user);
@@ -197,7 +197,7 @@ class DatabaseFindTest extends BaseTest
 
 	public function testCacheRetrieve()
 	{
-		$userRepository = $this->entityRepositoryFactory->create(UserRepository::class);
+		$userRepository = $this->cligtORM->create(UserRepository::class);
 		$user = $userRepository->find(1, ['posts_as_author', 'posts_as_editor'], 60);
 
 		$this->assertInstanceOf(User::class, $user);

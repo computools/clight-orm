@@ -51,16 +51,13 @@ abstract class AbstractEntity implements EntityInterface
 		try {
 			$reflectionObject = new \ReflectionClass($this);
 			if (method_exists($this, $setter = $this->getMapper()->defineSetterName($field))) {
-				$method = $reflectionObject->getMethod($setter);
-				if ($method->isPublic()) {
+				if ($reflectionObject->getMethod($setter)->isPublic()) {
 					$this->$setter($value);
 					return true;
 				}
 			}
 			if (property_exists($this, $property = $this->getMapper()->defineSetterName($field, false))) {
-				$property = $reflectionObject->getProperty($property);
-
-				if ($property->isPublic()) {
+				if ($reflectionObject->getProperty($property)->isPublic()) {
 					$this->$property = $value;
 					return true;
 				}
@@ -105,7 +102,7 @@ abstract class AbstractEntity implements EntityInterface
 
 	private function getEntityRelationField(EntityInterface $entity): array
 	{
-		foreach($this->getMapper()->getFields() as $entityFieldName => $field) {
+		foreach ($this->getMapper()->getFields() as $entityFieldName => $field) {
 			if ($field instanceof RelationInterface && $field instanceof ManyToMany && $field->getEntityClass() === get_class($entity)) {
 				return [$entityFieldName, $field];
 			}
@@ -137,13 +134,12 @@ abstract class AbstractEntity implements EntityInterface
 	public function removeRelation(EntityInterface $entity): void
 	{
 		list($relation, $relationType) = $this->getEntityRelationField($entity);
-
 		$list = $this->getField($relation);
 
 		/**
 		 * @var EntityInterface $existedEntity
 		 */
-		foreach($list as $key => $existedEntity) {
+		foreach ($list as $key => $existedEntity) {
 			if ($existedEntity->getIdValue() === $entity->getIdValue()) {
 				unset($list[$key]);
 			}

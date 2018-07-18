@@ -185,6 +185,13 @@ Another option is using public properties instead of getters and setters. This l
     
         public $price; 
     }
+    
+    
+If you want to add many-to-many relation for two entities, you can call *addRelation(EntityInterface $entity)* method and *removeRelation(EntityInterface $entity)* to remove.
+
+    $post->addRelation($user);
+    
+    $post->removeRelation($user);
 
 
 ## Repository
@@ -238,7 +245,7 @@ To get certain entity repository just call factory's create method with class st
 * findOneBy(array $criteria, ?Order $order = null, array $with, $expiration = 0)
 * findFirst($with)
 * findLast($with)
-* save(EntityInterface $entity, $with)
+* save(EntityInterface $entity, array $with, $relationExistsCheck = false)
 * remove(EntityInterface $entity)
 
 *Computools\CLightORM\Tools\Order* object can be used to sort query result.
@@ -355,7 +362,17 @@ Third way is to implement native query:
 	
 This way is not support relations mapping, so you need to make it by yourself.
 
-##Cache
+**Many-to-Many** relations saving can do checks for already existed relations. So if you want relations to not duplicate, you can provide third parameter as **true**:
+
+    $post = $postRepository->find(1);
+    $user = $userRepository->find(1);
+    
+    $post->addRelation($user);
+    $postRepository->save($post, [], true);
+    
+This call will also call duplicates check and just will not add same relation. If you provide third argument as false, than check will not be executed, and will throw exception if database table has unique indexes for relations.
+
+## Cache
 
 Cache mechanism can be used to store some search results. To use it, you need to specify cache type while creating EntityRepositoryFactory instance.
 There is two different options to store results - memcached and filesystem.

@@ -11,4 +11,15 @@ class UserRepository extends AbstractRepository
 	{
 		return User::class;
 	}
+
+	public function testFind()
+	{
+		$query = $this->database->createQuery();
+		$query
+			->select('*')
+			->from('users')
+			->where('id < 3');
+		$this->database->executeQuery($query);
+		return $this->mapToEntities($query->getResult(), $query, ['posts_as_author', 'posts_as_editor']);
+	}
 }

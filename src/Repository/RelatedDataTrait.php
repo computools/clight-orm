@@ -2,6 +2,8 @@
 
 namespace Computools\CLightORM\Repository;
 
+use Computools\CLightORM\Database\Query\MySQLQuery;
+use Computools\CLightORM\Database\Query\Query;
 use Computools\CLightORM\Exception\InvalidFieldMapException;
 use Computools\CLightORM\Mapper\RelationMap;
 use Computools\CLightORM\Mapper\Relations\ManyToMany;
@@ -20,7 +22,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getRelatedDataResult(Result $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
+	private function getRelatedDataResult(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
 	{
 		$this->createEmptyRelatedDataItem($relation, $relatedData);
 
@@ -48,16 +50,35 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getOneToManyRelatedData(Result $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
+	private function getOneToManyRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
 	{
-		$table = $relation->getRelationType()->getRelatedEntity()->getMapper()->getTable() . 'List';
+		$table = $relation->getRelationType()->getRelatedEntity()->getMapper()->getTable();
 
-		$query = $parentEntityQuery->$table()->via($relation->getRelationType()->getRelatedTableField());
-		$relationsData = array_map(function($item) {
-			return $item->getData();
-		}, $query->fetchAll());
+		$query = new MySQLQuery();
 
-		foreach($relationsData as $relationData) {
+		$parentIds = implode(',', array_map(function($item) {
+				return $item['id'];
+			}, $parentEntityQuery->getResult())
+		);
+
+		$query
+			->select('*')
+			->from($table)
+			->where($relation->getRelationType()->getRelatedTableField() . ' IN (:ids)')
+		;
+
+		$this->database->executeQuery($query, [
+			'ids' => $parentIds
+		]);
+
+		$b = 1;
+
+//		$query = $parentEntityQuery->$table()->via($relation->getRelationType()->getRelatedTableField());
+//		$relationsData = array_map(function($item) {
+//			return $item->getData();
+//		}, $query->fetchAll());
+
+		foreach($query->getResult() as $relationData) {
 			$relatedData[$relation->getEntityField()]['data'][$relationData[$relation->getRelationType()->getRelatedTableField()]][] =
 				$relationData;
 		}
@@ -73,7 +94,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getManyOrOneToOneRelatedData(Result $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
+	private function getManyOrOneToOneRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
 	{
 		$table = $relation->getTableName();
 		$query = $parentEntityQuery->$table()->via($relation->getRelationType()->getFieldName());
@@ -91,7 +112,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getManyToManyRelatedData(Result $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
+	private function getManyToManyRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
 	{
 		$table = $relation->getRelationType()->getTable() . 'List';
 		$relatedTableName = $relation->getTableName();
@@ -150,7 +171,7 @@ trait RelatedDataTrait
 	 * @param RelationMap $relation
 	 * @param $relatedData
 	 */
-	private function getInnerData(array $innerWith = [], Result $query, RelationMap $relation, &$relatedData)
+	private function getInnerData(array $innerWith = [], Query $query, RelationMap $relation, &$relatedData)
 	{
 		if ($query && !empty($innerWith)) {
 			$innerData = $this->getRelatedData(

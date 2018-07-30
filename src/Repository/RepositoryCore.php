@@ -3,14 +3,14 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\{
-	Cache\CacheInterface, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
+	Cache\CacheInterface, Database\Query\Query, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
 };
 
 use Computools\CLightORM\Mapper\Relations\{
 	ManyToMany, RelationInterface, ToOneInterface
 };
 
-use LessQL\Database;
+use Computools\CLightORM\Database\Database;
 use LessQL\Result;
 use LessQL\Row;
 
@@ -81,13 +81,13 @@ abstract class RepositoryCore
 			if ($type instanceof RelationInterface) {
 				$this->relations[$name] = new RelationMap($type->getRelatedEntity()->getMapper()->getTable(), $name, $type, $this->mapper->getIdentifier());
 
-				if ($type instanceof ManyToMany) {
-					$this->database->setPrimary($type->getTable(), $type->getFields());
-				}
-				$this->database->setPrimary($type->getRelatedEntity()->getMapper()->getTable(), $type->getRelatedEntity()->getMapper()->getIdentifier());
+//				if ($type instanceof ManyToMany) {
+//					$this->database->setPrimary($type->getTable(), $type->getFields());
+//				}
+//				$this->database->setPrimary($type->getRelatedEntity()->getMapper()->getTable(), $type->getRelatedEntity()->getMapper()->getIdentifier());
 			}
 		}
-		$this->database->setPrimary($this->table, $this->mapper->getIdentifier());
+//		$this->database->setPrimary($this->table, $this->mapper->getIdentifier());
 	}
 
 	final protected function mapAlienRelations(MapperInterface $mapper): array
@@ -183,7 +183,7 @@ abstract class RepositoryCore
 	 * @param array $relations
 	 * @return array
 	 */
-	final protected function getRelatedData(Result $parentEntityQuery, array $with = [], array $relations = null): array
+	final protected function getRelatedData(Query $parentEntityQuery, array $with = [], array $relations = null): array
 	{
 		$relatedData = [];
 		$innerWith = [];

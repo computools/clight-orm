@@ -18,138 +18,138 @@ use Computools\CLightORM\Test\Repository\UserRepository;
 
 class DatabaseSaveTest extends BaseTest
 {
-	public function testOneToOne()
-	{
-		$userProfileRepository = $this->cligtORM->create(UserProfileRepository::class);
-		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
-
-		$userProfile = new UserProfile();
-		$userProfile->setUser($user);
-		$userProfile->setFirstName('test');
-		$userProfile->setLastName('test');
-
-		$userProfile = $userProfileRepository->save($userProfile, ['user']);
-
-		$this->assertInstanceOf(UserProfile::class, $userProfile);
-		$this->assertInstanceOf(User::class, $userProfile->getUser());
-
-	}
-
-	public function testNewSaveSimple()
-	{
-		$user = new User();
-		$name = 'New name';
-
-		$user->setName($name);
-
-		$user = $this->cligtORM->create(UserRepository::class)->save($user);
-		$this->assertInstanceOf(User::class, $user);
-		$this->assertEquals($user->getName(), $name);
-		$this->assertInternalType('int', $user->getId());
-	}
-
-	public function testManyToOneSaveWithRelated()
-	{
-		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
-		$postRepository = $this->cligtORM->create(PostRepository::class);
-
-		$post = new Post();
-		$post->setAuthor($user);
-		$post->setEditor($user);
-		$post->setTitle('New post');
-		$post->setDatePublished(new \DateTime());
-		$post = $postRepository->save($post, ['author', 'editor']);
-
-		$this->assertInstanceOf(Post::class, $post);
-		$this->assertInstanceOf(User::class, $post->getAuthor());
-		$this->assertInstanceOf(User::class, $post->getEditor());
-	}
-
-	public function testManyToOneSaveWithoutRelated()
-	{
-		$user = $this->cligtORM->create(UserRepository::class)->find(1, [], 60);
-		$postRepository = $this->cligtORM->create(PostRepository::class);
-
-		$post = new Post();
-		$post->setAuthor($user);
-		$post->setEditor($user);
-		$post->setTitle('New post');
-		$post->setDatePublished(new \DateTime());
-		$post = $postRepository->save($post);
-
-		$this->assertInstanceOf(Post::class, $post);
-		$this->assertNull($post->getAuthor());
-		$this->assertNull($post->getEditor());
-	}
-
-	public function testSaveManyToMany()
-	{
-		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
-		$postRepository = $this->cligtORM->create(PostRepository::class);
-		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
-
-		$post = new Post();
-		$post->setDatePublished(new \DateTime());
-		$post->setTitle('some title');
-		$post->setEditor($user);
-		$post->setAuthor($user);
-		$post->setIsPublished(true);
-		$post->addRelation($category);
-		$post = $postRepository->save($post, ['categories']);
-
-		$this->assertInstanceOf(Post::class, $post);
-		$this->assertInternalType('array', $post->getCategories());
-		$this->assertEquals(1, count($post->getCategories()));
-	}
-
-	public function testUpdateManyToMany()
-	{
-		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
-		$postRepository = $this->cligtORM->create(PostRepository::class);
-
-		$post = $postRepository->findLast();
-		$post->addRelation($category);
-		$post = $postRepository->save($post, ['categories'], false);
-
-		$this->assertInstanceOf(Post::class, $post);
-		$this->assertInternalType('array', $post->getCategories());
-		$this->assertEquals(2, count($post->getCategories()));
-	}
-
-	public function testUpdateManyToManyWithUniqueCheck()
-	{
-		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
-		$postRepository = $this->cligtORM->create(PostRepository::class);
-
-		$post = $postRepository->findLast();
-		$post->addRelation($category);
-		$post = $postRepository->save($post, ['categories'], true);
-
-		$this->assertInstanceOf(Post::class, $post);
-		$this->assertInternalType('array', $post->getCategories());
-		$this->assertEquals(2, count($post->getCategories()));
-	}
-
-	public function testMultipleManyToManyConnections()
-	{
-		$author = $this->cligtORM->create(AuthorRepository::class)->findFirst();
-		$theme = $this->cligtORM->create(ThemeRepository::class)->findFirst();
-
-		$bookRepository = $this->cligtORM->create(BookRepository::class);
-
-		/**
-		 * @var Book $book
-		 */
-		$book = $bookRepository->findLast();
-		$book->price = 15.22;
-		$book->addRelation($author);
-		$book->addRelation($theme);
-		$book = $bookRepository->save($book, ['themes', 'authors']);
-
-		$this->assertInstanceOf(Book::class, $book);
-		$this->assertInternalType('array', $book->authors);
-		$this->assertInstanceOf(Author::class, $book->authors[0]);
-		$this->assertInternalType('array', $book->themes);
-		$this->assertInstanceOf(Theme::class, $book->themes[0]);
-	}
+//	public function testOneToOne()
+//	{
+//		$userProfileRepository = $this->cligtORM->create(UserProfileRepository::class);
+//		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
+//
+//		$userProfile = new UserProfile();
+//		$userProfile->setUser($user);
+//		$userProfile->setFirstName('test');
+//		$userProfile->setLastName('test');
+//
+//		$userProfile = $userProfileRepository->save($userProfile, ['user']);
+//
+//		$this->assertInstanceOf(UserProfile::class, $userProfile);
+//		$this->assertInstanceOf(User::class, $userProfile->getUser());
+//
+//	}
+//
+//	public function testNewSaveSimple()
+//	{
+//		$user = new User();
+//		$name = 'New name';
+//
+//		$user->setName($name);
+//
+//		$user = $this->cligtORM->create(UserRepository::class)->save($user);
+//		$this->assertInstanceOf(User::class, $user);
+//		$this->assertEquals($user->getName(), $name);
+//		$this->assertInternalType('int', $user->getId());
+//	}
+//
+//	public function testManyToOneSaveWithRelated()
+//	{
+//		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
+//		$postRepository = $this->cligtORM->create(PostRepository::class);
+//
+//		$post = new Post();
+//		$post->setAuthor($user);
+//		$post->setEditor($user);
+//		$post->setTitle('New post');
+//		$post->setDatePublished(new \DateTime());
+//		$post = $postRepository->save($post, ['author', 'editor']);
+//
+//		$this->assertInstanceOf(Post::class, $post);
+//		$this->assertInstanceOf(User::class, $post->getAuthor());
+//		$this->assertInstanceOf(User::class, $post->getEditor());
+//	}
+//
+//	public function testManyToOneSaveWithoutRelated()
+//	{
+//		$user = $this->cligtORM->create(UserRepository::class)->find(1, [], 60);
+//		$postRepository = $this->cligtORM->create(PostRepository::class);
+//
+//		$post = new Post();
+//		$post->setAuthor($user);
+//		$post->setEditor($user);
+//		$post->setTitle('New post');
+//		$post->setDatePublished(new \DateTime());
+//		$post = $postRepository->save($post);
+//
+//		$this->assertInstanceOf(Post::class, $post);
+//		$this->assertNull($post->getAuthor());
+//		$this->assertNull($post->getEditor());
+//	}
+//
+//	public function testSaveManyToMany()
+//	{
+//		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
+//		$postRepository = $this->cligtORM->create(PostRepository::class);
+//		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
+//
+//		$post = new Post();
+//		$post->setDatePublished(new \DateTime());
+//		$post->setTitle('some title');
+//		$post->setEditor($user);
+//		$post->setAuthor($user);
+//		$post->setIsPublished(true);
+//		$post->addRelation($category);
+//		$post = $postRepository->save($post, ['categories']);
+//
+//		$this->assertInstanceOf(Post::class, $post);
+//		$this->assertInternalType('array', $post->getCategories());
+//		$this->assertEquals(1, count($post->getCategories()));
+//	}
+//
+//	public function testUpdateManyToMany()
+//	{
+//		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
+//		$postRepository = $this->cligtORM->create(PostRepository::class);
+//
+//		$post = $postRepository->findLast();
+//		$post->addRelation($category);
+//		$post = $postRepository->save($post, ['categories'], false);
+//
+//		$this->assertInstanceOf(Post::class, $post);
+//		$this->assertInternalType('array', $post->getCategories());
+//		$this->assertEquals(2, count($post->getCategories()));
+//	}
+//
+//	public function testUpdateManyToManyWithUniqueCheck()
+//	{
+//		$category = $this->cligtORM->create(CategoryRepository::class)->findFirst();
+//		$postRepository = $this->cligtORM->create(PostRepository::class);
+//
+//		$post = $postRepository->findLast();
+//		$post->addRelation($category);
+//		$post = $postRepository->save($post, ['categories'], true);
+//
+//		$this->assertInstanceOf(Post::class, $post);
+//		$this->assertInternalType('array', $post->getCategories());
+//		$this->assertEquals(2, count($post->getCategories()));
+//	}
+//
+//	public function testMultipleManyToManyConnections()
+//	{
+//		$author = $this->cligtORM->create(AuthorRepository::class)->findFirst();
+//		$theme = $this->cligtORM->create(ThemeRepository::class)->findFirst();
+//
+//		$bookRepository = $this->cligtORM->create(BookRepository::class);
+//
+//		/**
+//		 * @var Book $book
+//		 */
+//		$book = $bookRepository->findLast();
+//		$book->price = 15.22;
+//		$book->addRelation($author);
+//		$book->addRelation($theme);
+//		$book = $bookRepository->save($book, ['themes', 'authors']);
+//
+//		$this->assertInstanceOf(Book::class, $book);
+//		$this->assertInternalType('array', $book->authors);
+//		$this->assertInstanceOf(Author::class, $book->authors[0]);
+//		$this->assertInternalType('array', $book->themes);
+//		$this->assertInstanceOf(Theme::class, $book->themes[0]);
+//	}
 }

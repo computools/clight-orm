@@ -3,8 +3,10 @@
 namespace Computools\CLightORM;
 
 use Computools\CLightORM\Cache\CacheInterface;
+use Computools\CLightORM\Database\Query\MySQLQuery;
+use Computools\CLightORM\Database\Query\QueryInterface;
 use Computools\CLightORM\Repository\RepositoryInterface;
-use LessQL\Database;
+use Computools\CLightORM\Database\Database;
 
 class CLightORM
 {
@@ -21,7 +23,7 @@ class CLightORM
 	public function __construct(\PDO $pdo, ?CacheInterface $cache = null)
 	{
 		$this->database = new Database($pdo);
-		$this->database->setIdentifierDelimiter(null);
+//		$this->database->setIdentifierDelimiter(null);
 
 		$this->cache = $cache;
 	}

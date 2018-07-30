@@ -3,10 +3,11 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\Cache\CacheInterface;
+use Computools\CLightORM\Database\Query\Query;
 use Computools\CLightORM\Entity\EntityInterface;
 use Computools\CLightORM\Tools\Order;
 use Computools\CLightORM\Tools\Pagination;
-use LessQL\Database;
+use Computools\CLightORM\Database\Database;
 use LessQL\Result;
 use LessQL\Row;
 
@@ -33,15 +34,15 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $criteria;
 	}
 
-	protected function mapToEntity(Row $row, Result $query, array $with = []): EntityInterface
+	protected function mapToEntity(array $data, $query, array $with = []): EntityInterface
 	{
 		return $this->mapper->arrayToEntity(
 			new $this->entityClassString,
-			$this->joinRelatedDataToParent($row->getData(), $this->getRelatedData($query, $with))
+			$this->joinRelatedDataToParent($data, $this->getRelatedData($query, $with))
 		);
 	}
 
-	protected function mapToEntities(array $rows, Result $query, array $with = []): array
+	protected function mapToEntities(array $rows, Query $query, array $with = []): array
 	{
 		$result = [];
 		/**
@@ -58,22 +59,34 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		if ($result = $this->getFromCache($this->mergeCriteria($id, $with), $expiration)) {
 			return $result;
 		}
-		$query = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $id);
-		if (!$result = $query->fetch()) {
-			return null;
-		}
-		$result = $this->mapToEntity($result, $query, $with);
+
+		$query = $this->database->createQuery();
+		$query
+			->select('*')
+			->from($this->table)
+			->where($this->mapper->getIdentifier() . '= :id');
+		$result = $this->database->executeQuery($query, ['id' => $id]);
+
+
+//		$query = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $id);
+//		if (!$result = $query->fetch()) {
+//			return null;
+//		}
+		$result = $this->mapToEntity($result[0], $query, $with);
 		$this->putToCache($result, $this->mergeCriteria($id, $with), $expiration);
 		return $result;
 	}
 
 	public function findFirst(array $with = []): ?EntityInterface
 	{
-		$query = $this->database->table($this->table)->limit(1);
-		if (!$result = $query->fetch()) {
-			return null;
-		}
-		return $this->mapToEntity($result, $query, $with);
+		$query = $this->database->createQuery();
+		$query
+			->select('*')
+			->from($this->table)
+			->limit(1);
+		$this->database->executeQuery($query);
+
+		return $this->mapToEntity($query->getFirst(), $query, $with);
 	}
 
 	public function findLast(array $with = []): ?EntityInterface
@@ -110,23 +123,33 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		) {
 			return $result;
 		}
-		$query = $this->database->table($this->table);
+
+		$query = $this->database->createQuery();
+		$query->select('*');
+		$query->from($this->table);
+
+//		$query = $this->database->table($this->table);
+		$params = [];
 		foreach ($criteria as $key => $value) {
-			$query = $query->where($key, $value);
+//			$query = $query->where($key, $value);
+			$query->where($key . ' = ' . $value);
+			$params[$key] = $value;
 		}
 
 		if ($order) {
-			$query = $query->orderBy($order->getField(), $order->getDirection());
+			$query->orderBy($order->getField(), $order->getDirection());
+//			$query = $query->orderBy($order->getField(), $order->getDirection());
 		}
 
-		if ($pagination) {
-			if ($pagination->isPagination()) {
-				$query = $query->paged($pagination->getPerPage(), $pagination->getPage());
-			} else {
-				$query->limit($pagination->getLimit(), $pagination->getOffset());
-			}
-		}
-		$result = $this->mapToEntities($query->fetchAll(), $query, $with);
+//		if ($pagination) {
+//			if ($pagination->isPagination()) {
+//				$query = $query->paged($pagination->getPerPage(), $pagination->getPage());
+//			} else {
+//				$query->limit($pagination->getLimit(), $pagination->getOffset());
+//			}
+//		}
+		$result = $this->database->executeQuery($query, $params);
+		$result = $this->mapToEntities($result, $query, $with);
 		$this->putToCache($result, $this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration);
 		return $result;
 	}

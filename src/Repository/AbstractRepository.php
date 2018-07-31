@@ -34,22 +34,27 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $criteria;
 	}
 
-	protected function mapToEntity(array $data, $query, array $with = []): EntityInterface
+	protected function mapToEntity(Query $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
 	{
 		return $this->mapper->arrayToEntity(
 			new $this->entityClassString,
-			$this->joinRelatedDataToParent($data, $this->getRelatedData($query, $with))
+			$this->joinRelatedDataToParent($data ? $data : $query->getFirst(), $relatedData ? $relatedData : $this->getRelatedData($query, $with))
 		);
 	}
 
-	protected function mapToEntities(array $rows, Query $query, array $with = []): array
+	protected function mapToEntities(Query $query, array $with = []): array
 	{
 		$result = [];
+
+		$relatedData = $this->getRelatedData($query, $with);
+
+		$rows = $query->getResult();
+
 		/**
 		 * @var Row[] $rows
 		 */
 		foreach($rows as $row) {
-			$result[] = $this->mapToEntity($row, $query, $with);
+			$result[] = $this->mapToEntity($query, $with, $row, $relatedData);
 		}
 		return $result;
 	}
@@ -141,15 +146,16 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 //			$query = $query->orderBy($order->getField(), $order->getDirection());
 		}
 
-//		if ($pagination) {
-//			if ($pagination->isPagination()) {
-//				$query = $query->paged($pagination->getPerPage(), $pagination->getPage());
-//			} else {
-//				$query->limit($pagination->getLimit(), $pagination->getOffset());
-//			}
-//		}
-		$result = $this->database->executeQuery($query, $params);
-		$result = $this->mapToEntities($result, $query, $with);
+		if ($pagination) {
+			if ($pagination->isPagination()) {
+				$query->limit($pagination->getPerPage(), ($pagination->getPage() - 1) * $pagination->getPerPage());
+			} else {
+				$query->limit($pagination->getLimit(), $pagination->getOffset());
+			}
+		}
+
+		$this->database->executeQuery($query, $params);
+		$result = $this->mapToEntities($query, $with);
 		$this->putToCache($result, $this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration);
 		return $result;
 	}

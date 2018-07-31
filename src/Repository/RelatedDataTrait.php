@@ -56,27 +56,24 @@ trait RelatedDataTrait
 
 		$query = new MySQLQuery();
 
-		$parentIds = implode(',', array_map(function($item) {
-				return $item['id'];
+		$parentIds = implode(',', array_map(function($item) use ($relation) {
+				return $item[$relation->getParentIdentifier()];
 			}, $parentEntityQuery->getResult())
 		);
 
 		$query
 			->select('*')
 			->from($table)
-			->where($relation->getRelationType()->getRelatedTableField() . ' IN (:ids)')
+			->where(sprintf(
+				"%s IN (%s)",
+					$relation->getRelationType()->getRelatedTableField(),
+				$parentIds
+			))
 		;
 
 		$this->database->executeQuery($query, [
 			'ids' => $parentIds
 		]);
-
-		$b = 1;
-
-//		$query = $parentEntityQuery->$table()->via($relation->getRelationType()->getRelatedTableField());
-//		$relationsData = array_map(function($item) {
-//			return $item->getData();
-//		}, $query->fetchAll());
 
 		foreach($query->getResult() as $relationData) {
 			$relatedData[$relation->getEntityField()]['data'][$relationData[$relation->getRelationType()->getRelatedTableField()]][] =
@@ -94,12 +91,33 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getManyOrOneToOneRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
+	private function getManyOrOneToOneRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
 	{
 		$table = $relation->getTableName();
-		$query = $parentEntityQuery->$table()->via($relation->getRelationType()->getFieldName());
-		foreach($query->fetchAll() as $value) {
-			$relatedData[$relation->getEntityField()]['data'][$value->getOriginalId()] = $value->getData();
+
+		$childIds = implode(',', array_map(function($item) use ($relation) {
+				return $item[$relation->getRelationType()->getFieldName()];
+			}, $parentEntityQuery->getResult())
+		);
+
+		$query = new MySQLQuery();
+		$query
+			->select('*')
+			->from($table)
+			->where(sprintf(
+				"%s IN (%s)",
+				$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier(),
+				$childIds
+			));
+
+		$this->database->executeQuery($query);
+
+		foreach($parentEntityQuery->getResult() as $parentResult) {
+			foreach($query->getResult() as $childResult) {
+				if ($parentResult[$relation->getRelationType()->getFieldName()] == $childResult[$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier()]) {
+					$relatedData[$relation->getEntityField()]['data'][$parentResult[$relation->getParentIdentifier()]] = $childResult;
+				}
+			}
 		}
 		return $query;
 	}

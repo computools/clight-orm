@@ -32,22 +32,22 @@ class Pagination
 		return $this;
 	}
 
-	public function getPage(): int
+	public function getPage(): ?int
 	{
 		return $this->page;
 	}
 
-	public function getPerPage(): int
+	public function getPerPage(): ?int
 	{
 		return $this->perPage;
 	}
 
-	public function getLimit(): int
+	public function getLimit(): ?int
 	{
 		return $this->limit;
 	}
 
-	public function getOffset(): int
+	public function getOffset(): ?int
 	{
 		return $this->offset;
 	}

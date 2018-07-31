@@ -2,12 +2,37 @@
 
 namespace Computools\CLightORM\Database\Query;
 
-abstract class Query
+abstract class
+Query
 {
-	abstract public function getQuery();
+	protected $pdo;
+
+	abstract public function getQuery(): string;
+
+	public function __construct(\PDO $pdo)
+	{
+		$this->pdo = $pdo;
+	}
+
+	public function execute(array $params = []): self
+	{
+		$statement = $this->pdo->prepare($this->getQuery());
+		$statement->execute($params);
+
+//		if ($statement->errorCode()) {
+//			print_r($statement->errorInfo());
+//			die();
+//		}
+		$result = $statement->fetchAll();
+		$this->setResult($result);
+		return $this;
+	}
 
 	protected $select;
 
+	/**
+	 * @var Join[]
+	 */
 	protected $joins = [];
 
 	protected $from;

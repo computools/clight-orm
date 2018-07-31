@@ -14,12 +14,12 @@ class UserRepository extends AbstractRepository
 
 	public function testFind()
 	{
-		$query = $this->database->createQuery();
+		$query = $this->orm->createQuery();
 		$query
 			->select('*')
 			->from('users')
 			->where('id < 3');
-		$this->database->executeQuery($query);
+		$query->execute();
 		return $this->mapToEntities($query, ['posts_as_author', 'posts_as_editor']);
 	}
 }

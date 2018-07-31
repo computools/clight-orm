@@ -34,6 +34,6 @@ class Join
 
 	public function getAlias(): ?string
 	{
-		return $this->alias;
+		return $this->alias ? $this->alias : $this->table;
 	}
 }

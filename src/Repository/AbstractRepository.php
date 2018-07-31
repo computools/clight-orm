@@ -3,6 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\Cache\CacheInterface;
+use Computools\CLightORM\CLightORM;
 use Computools\CLightORM\Database\Query\Query;
 use Computools\CLightORM\Entity\EntityInterface;
 use Computools\CLightORM\Tools\Order;
@@ -17,9 +18,9 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 	abstract function getEntityClass(): string;
 
-	final public function __construct(Database $database, ?CacheInterface $cache = null)
+	final public function __construct(CLightORM $orm, ?CacheInterface $cache = null)
 	{
-		$this->database = $database;
+		$this->orm = $orm;
 		$this->cache = $cache;
 		$this->entityClassString = $this->getEntityClass();
 		$this->entity = new $this->entityClassString;
@@ -65,18 +66,15 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			return $result;
 		}
 
-		$query = $this->database->createQuery();
+		$query = $this->orm->createQuery();
 		$query
 			->select('*')
 			->from($this->table)
-			->where($this->mapper->getIdentifier() . '= :id');
-		$result = $this->database->executeQuery($query, ['id' => $id]);
-
-
-//		$query = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $id);
-//		if (!$result = $query->fetch()) {
-//			return null;
-//		}
+			->where($this->mapper->getIdentifier() . '= :id')
+			->execute([
+				'id' => $id
+			]);
+		$result = $query->getResult();
 		$result = $this->mapToEntity($result[0], $query, $with);
 		$this->putToCache($result, $this->mergeCriteria($id, $with), $expiration);
 		return $result;
@@ -84,12 +82,12 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 	public function findFirst(array $with = []): ?EntityInterface
 	{
-		$query = $this->database->createQuery();
+		$query = $this->orm->createQuery();
 		$query
 			->select('*')
 			->from($this->table)
 			->limit(1);
-		$this->database->executeQuery($query);
+		$query->execute();
 
 		return $this->mapToEntity($query->getFirst(), $query, $with);
 	}
@@ -129,21 +127,18 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			return $result;
 		}
 
-		$query = $this->database->createQuery();
+		$query = $this->orm->createQuery();
 		$query->select('*');
 		$query->from($this->table);
 
-//		$query = $this->database->table($this->table);
 		$params = [];
 		foreach ($criteria as $key => $value) {
-//			$query = $query->where($key, $value);
 			$query->where($key . ' = ' . $value);
 			$params[$key] = $value;
 		}
 
 		if ($order) {
 			$query->orderBy($order->getField(), $order->getDirection());
-//			$query = $query->orderBy($order->getField(), $order->getDirection());
 		}
 
 		if ($pagination) {
@@ -154,7 +149,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			}
 		}
 
-		$this->database->executeQuery($query, $params);
+		$query->execute($params);
 		$result = $this->mapToEntities($query, $with);
 		$this->putToCache($result, $this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration);
 		return $result;

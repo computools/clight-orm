@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\{
-	Cache\CacheInterface, Database\Query\Query, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
+	Cache\CacheInterface, CLightORM, Database\Query\Query, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
 };
 
 use Computools\CLightORM\Mapper\Relations\{
@@ -34,9 +34,9 @@ abstract class RepositoryCore
 	protected $entityClassString;
 
 	/**
-	 * @var Database
+	 * @var CLightORM
 	 */
-	protected $database;
+	protected $orm;
 
 	/**
 	 * Table name
@@ -79,15 +79,11 @@ abstract class RepositoryCore
 	{
 		foreach($this->mapper->getFields() as $name => $type) {
 			if ($type instanceof RelationInterface) {
-				$this->relations[$name] = new RelationMap($type->getRelatedEntity()->getMapper()->getTable(), $name, $type, $this->mapper->getIdentifier());
-
-//				if ($type instanceof ManyToMany) {
-//					$this->database->setPrimary($type->getTable(), $type->getFields());
-//				}
-//				$this->database->setPrimary($type->getRelatedEntity()->getMapper()->getTable(), $type->getRelatedEntity()->getMapper()->getIdentifier());
+				$this->relations[$name] = new RelationMap(
+					$type->getRelatedEntity()->getMapper()->getTable(), $name, $type, $this->mapper->getIdentifier()
+				);
 			}
 		}
-//		$this->database->setPrimary($this->table, $this->mapper->getIdentifier());
 	}
 
 	final protected function mapAlienRelations(MapperInterface $mapper): array
@@ -98,14 +94,8 @@ abstract class RepositoryCore
 				$relations[$name] =
 					new RelationMap($type->getRelatedEntity()->getMapper()->getTable(), $name, $type, $mapper->getIdentifier())
 				;
-
-				if ($type instanceof ManyToMany) {
-					$this->database->setPrimary($type->getTable(), $type->getFields());
-				}
-				$this->database->setPrimary($type->getRelatedEntity()->getMapper()->getTable(), $type->getRelatedEntity()->getMapper()->getIdentifier());
 			}
 		}
-		$this->database->setPrimary($mapper->getTable(), $mapper->getIdentifier());
 		return $relations;
 	}
 

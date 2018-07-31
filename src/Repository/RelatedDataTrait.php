@@ -2,6 +2,7 @@
 
 namespace Computools\CLightORM\Repository;
 
+use Computools\CLightORM\Database\Query\Join;
 use Computools\CLightORM\Database\Query\MySQLQuery;
 use Computools\CLightORM\Database\Query\Query;
 use Computools\CLightORM\Exception\InvalidFieldMapException;
@@ -54,7 +55,10 @@ trait RelatedDataTrait
 	{
 		$table = $relation->getRelationType()->getRelatedEntity()->getMapper()->getTable();
 
-		$query = new MySQLQuery();
+		/**
+		 * @var Query $query
+		 */
+		$query = $this->orm->createQuery();
 
 		$parentIds = implode(',', array_map(function($item) use ($relation) {
 				return $item[$relation->getParentIdentifier()];
@@ -71,7 +75,7 @@ trait RelatedDataTrait
 			))
 		;
 
-		$this->database->executeQuery($query, [
+		$query->execute([
 			'ids' => $parentIds
 		]);
 
@@ -100,7 +104,10 @@ trait RelatedDataTrait
 			}, $parentEntityQuery->getResult())
 		);
 
-		$query = new MySQLQuery();
+		/**
+		 * @var Query $query
+		 */
+		$query = $this->orm->createQuery();
 		$query
 			->select('*')
 			->from($table)
@@ -110,12 +117,12 @@ trait RelatedDataTrait
 				$childIds
 			));
 
-		$this->database->executeQuery($query);
+		$query->execute();
 
 		foreach($parentEntityQuery->getResult() as $parentResult) {
 			foreach($query->getResult() as $childResult) {
 				if ($parentResult[$relation->getRelationType()->getFieldName()] == $childResult[$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier()]) {
-					$relatedData[$relation->getEntityField()]['data'][$parentResult[$relation->getParentIdentifier()]] = $childResult;
+					$relatedData[$relation->getEntityField()]['data'][$childResult[$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier()]] = $childResult;
 				}
 			}
 		}
@@ -132,29 +139,64 @@ trait RelatedDataTrait
 	 */
 	private function getManyToManyRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
 	{
-		$table = $relation->getRelationType()->getTable() . 'List';
+		$table = $relation->getRelationType()->getTable();
 		$relatedTableName = $relation->getTableName();
 
+		$parentIds = array_map(function($item) use ($relation) {
+			return $item[$relation->getParentIdentifier()];
+		}, $parentEntityQuery->getResult());
 		//find relation table rows
-		$relationsData = array_map(function($item) {
-			return $item->getData();
-		}, $parentEntityQuery->$table()->via($relation->getRelationType()->getColumnName())->fetchAll());
 
-		$relatedTableData = [];
-		$query = $parentEntityQuery
-			->$table()
-			->via($relation->getRelationType()->getColumnName())
-			->$relatedTableName()
-			->via($relation->getRelationType()->getReferencedColumnName());
+		/**
+		 * @var Query $query
+		 */
+		$query = $this->orm->createQuery();
 
-		foreach($query->fetchAll() as $row) {
-			$relatedTableData[$row->getOriginalId()] = $row->getData();
+		$relatedTableIdentifier = $relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier();
+
+		$on = sprintf(
+			'ON %s.%s = %s.%s',
+			$relatedTableName,
+			$relatedTableIdentifier,
+			$table,
+			$relation->getRelationType()->getReferencedColumnName()
+		);
+		$where = sprintf(
+			"%s.%s IN (%s)",
+			$table,
+			$relation->getRelationType()->getColumnName(),
+			implode(',', $parentIds)
+		);
+
+		$select = sprintf('GROUP_CONCAT(%s.%s) AS ids, %s.*',
+			$table,
+			$relation->getRelationType()->getColumnName(),
+			$relatedTableName
+		);
+
+		$query
+			->select($select)
+			->from($table)
+			->join(new Join('INNER', $relatedTableName, $on))
+			->where($where)
+			->groupBy($relation->getTableName() . '.' . $relatedTableIdentifier);
+
+		$query->execute();
+
+
+		foreach ($parentEntityQuery->getResult() as $parentResult) {
+			foreach ($query->getResult() as $childResult) {
+				if (in_array($parentResult[$relation->getParentIdentifier()], explode(',', $childResult['ids']))) {
+					//add
+					//$relatedData[$relation->getEntityField()]['data'][$childResult[$relatedTableIdentifier]][]
+				}
+				$b = 1;
+			}
 		}
-
-		foreach($relationsData as $relationData) {
-			$relatedData[$relation->getEntityField()]['data'][$relationData[$relation->getRelationType()->getColumnName()]][] =
-				$relatedTableData[$relationData[$relation->getRelationType()->getReferencedColumnName()]];
-		}
+//		foreach($relationsData as $relationData) {
+//			$relatedData[$relation->getEntityField()]['data'][$relationData[$relation->getRelationType()->getColumnName()]][] =
+//				$relatedTableData[$relationData[$relation->getRelationType()->getReferencedColumnName()]];
+//		}
 		return $query;
 	}
 

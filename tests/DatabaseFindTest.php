@@ -23,10 +23,9 @@ use Computools\CLightORM\Tools\Pagination;
 
 class DatabaseFindTest extends BaseTest
 {
-
 //	public function testOneToManyRelations()
 //	{
-//		$userRepository = $this->cligtORM->create(UserRepository::class);
+//		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
 //
 //		$users = $userRepository->testFind();
 //
@@ -41,11 +40,29 @@ class DatabaseFindTest extends BaseTest
 //		$this->assertInstanceOf(Post::class, $user->getPostsAsEditor()[0]);
 //		$this->assertInstanceOf(Post::class, $user->getPostsAsAuthor()[0]);
 //	}
+//
+//	public function testManyToOneRelations()
+//	{
+//		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+//		$posts = $postRepository->findBy([], null, ['author', 'editor'], (new Pagination())->setLimitOffset(2, 0));
+//
+//		$this->assertInternalType('array', $posts);
+//		/**
+//		 * @var Post $post
+//		 */
+//		$post = $posts[0];
+//		$this->assertInstanceOf(Post::class, $post);
+//		$this->assertInstanceOf(User::class, $post->getAuthor());
+//		$this->assertInstanceOf(User::class, $post->getEditor());
+//	}
 
-	public function testManyToOneRelations()
+	public function testManyToManyRelations()
 	{
-		$postRepository = $this->cligtORM->create(PostRepository::class);
-		$posts = $postRepository->findBy([], null, ['author'], (new Pagination())->setLimitOffset(2, 0));
+		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+		$posts = $postRepository->findBy([], null, ['categories'], (new Pagination())->setLimitOffset(2, 0));
+
+		$this->assertInternalType('array', $posts);
+
 		$b = 1;
 	}
 }

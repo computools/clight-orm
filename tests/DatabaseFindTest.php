@@ -55,14 +55,63 @@ class DatabaseFindTest extends BaseTest
 //		$this->assertInstanceOf(User::class, $post->getAuthor());
 //		$this->assertInstanceOf(User::class, $post->getEditor());
 //	}
+//
+//	public function testManyToManyRelations()
+//	{
+//		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+//		$posts = $postRepository->findBy([], null, ['categories'], (new Pagination())->setLimitOffset(2, 0));
+//
+//		$this->assertInternalType('array', $posts);
+//
+//		/**
+//		 * @var Post $post1
+//		 */
+//		$post1 = $posts[0];
+//		$this->assertInstanceOf(Post::class, $post1);
+//		$this->assertInternalType('array', $post1->getCategories());
+//
+//		/**
+//		 * @var Post $post2
+//		 */
+//		$post2 = $posts[1];
+//		$this->assertInstanceOf(Post::class, $post2);
+//		$this->assertInternalType('array', $post2->getCategories());
+//
+//		/**
+//		 * @var Category $category1
+//		 * @var Category $category2
+//		 */
+//		$category1 = $post1->getCategories()[0];
+//		$category2 = $post1->getCategories()[1];
+//		$category3 = $post2->getCategories()[0];
+//		$category4 = $post2->getCategories()[1];
+//
+//
+//		$this->assertInstanceOf(Category::class, $category1);
+//		$this->assertInstanceOf(Category::class, $category2);
+//		$this->assertInstanceOf(Category::class, $category3);
+//		$this->assertInstanceOf(Category::class, $category4);
+//	}
 
-	public function testManyToManyRelations()
+	public function testOneToOneRelation()
 	{
-		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
-		$posts = $postRepository->findBy([], null, ['categories'], (new Pagination())->setLimitOffset(2, 0));
+		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
 
-		$this->assertInternalType('array', $posts);
+		$users = $userRepository->findBy([], null, ['profile'], (new Pagination())->setLimitOffset(2, 0));
 
-		$b = 1;
+		$this->assertInternalType('array', $users);
+
+		/**
+		 * @var User $user1
+		 * @var User $user2
+		 */
+		$user1 = $users[0];
+		$user2 = $users[1];
+
+		$this->assertInstanceOf(User::class, $user1);
+		$this->assertInstanceOf(User::class, $user2);
+
+		$this->assertInstanceOf(UserProfile::class, $user1->getProfile());
+		$this->assertInstanceOf(UserProfile::class, $user2->getProfile());
 	}
 }

@@ -15,6 +15,19 @@ use LessQL\Result;
 
 trait RelatedDataTrait
 {
+	private function makeInArgument(array $data, string $identifier): string
+	{
+		$childIds = array_map(function($item) use ($identifier) {
+			return $item[$identifier];
+		}, $data);
+
+		$childIds = array_filter($childIds, function($item) {
+			return !($item === null);
+		});
+
+		return implode(', ', $childIds);
+	}
+
 	/**
 	 * Method calls related data search dependent on relation type
 	 *
@@ -60,10 +73,7 @@ trait RelatedDataTrait
 		 */
 		$query = $this->orm->createQuery();
 
-		$parentIds = implode(',', array_map(function($item) use ($relation) {
-				return $item[$relation->getParentIdentifier()];
-			}, $parentEntityQuery->getResult())
-		);
+		$parentIds = $this->makeInArgument($parentEntityQuery->getResult(), $relation->getParentIdentifier());
 
 		$query
 			->select('*')
@@ -99,10 +109,7 @@ trait RelatedDataTrait
 	{
 		$table = $relation->getTableName();
 
-		$childIds = implode(',', array_map(function($item) use ($relation) {
-				return $item[$relation->getRelationType()->getFieldName()];
-			}, $parentEntityQuery->getResult())
-		);
+		$parentIds = $this->makeInArgument($parentEntityQuery->getResult(), $relation->getRelationType()->getFieldName());
 
 		/**
 		 * @var Query $query
@@ -114,7 +121,7 @@ trait RelatedDataTrait
 			->where(sprintf(
 				"%s IN (%s)",
 				$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier(),
-				$childIds
+				$parentIds
 			));
 
 		$query->execute();
@@ -137,7 +144,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getManyToManyRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Result
+	private function getManyToManyRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
 	{
 		$table = $relation->getRelationType()->getTable();
 		$relatedTableName = $relation->getTableName();
@@ -187,10 +194,8 @@ trait RelatedDataTrait
 		foreach ($parentEntityQuery->getResult() as $parentResult) {
 			foreach ($query->getResult() as $childResult) {
 				if (in_array($parentResult[$relation->getParentIdentifier()], explode(',', $childResult['ids']))) {
-					//add
-					//$relatedData[$relation->getEntityField()]['data'][$childResult[$relatedTableIdentifier]][]
+					$relatedData[$relation->getEntityField()]['data'][$parentResult[$relation->getParentIdentifier()]][] = $childResult;
 				}
-				$b = 1;
 			}
 		}
 //		foreach($relationsData as $relationData) {

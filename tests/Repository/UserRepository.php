@@ -18,7 +18,7 @@ class UserRepository extends AbstractRepository
 		$query
 			->select('*')
 			->from('users')
-			->where('id < 3');
+			->whereExpr('id < 3');
 		$query->execute();
 		return $this->mapToEntities($query, ['posts_as_author', 'posts_as_editor']);
 	}

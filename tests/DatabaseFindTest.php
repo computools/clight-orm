@@ -92,26 +92,86 @@ class DatabaseFindTest extends BaseTest
 //		$this->assertInstanceOf(Category::class, $category3);
 //		$this->assertInstanceOf(Category::class, $category4);
 //	}
-
-	public function testOneToOneRelation()
-	{
-		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
-
-		$users = $userRepository->findBy([], null, ['profile'], (new Pagination())->setLimitOffset(2, 0));
-
-		$this->assertInternalType('array', $users);
-
-		/**
-		 * @var User $user1
-		 * @var User $user2
-		 */
-		$user1 = $users[0];
-		$user2 = $users[1];
-
-		$this->assertInstanceOf(User::class, $user1);
-		$this->assertInstanceOf(User::class, $user2);
-
-		$this->assertInstanceOf(UserProfile::class, $user1->getProfile());
-		$this->assertInstanceOf(UserProfile::class, $user2->getProfile());
-	}
+//
+//	public function testOneToOneRelation()
+//	{
+//		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
+//
+//		$users = $userRepository->findBy([], null, ['profile'], (new Pagination())->setLimitOffset(2, 0));
+//
+//		$this->assertInternalType('array', $users);
+//
+//		/**
+//		 * @var User $user1
+//		 * @var User $user2
+//		 */
+//		$user1 = $users[0];
+//		$user2 = $users[1];
+//
+//		$this->assertInstanceOf(User::class, $user1);
+//		$this->assertInstanceOf(User::class, $user2);
+//
+//		$this->assertInstanceOf(UserProfile::class, $user1->getProfile());
+//		$this->assertInstanceOf(UserProfile::class, $user2->getProfile());
+//	}
+//
+//	public function testNestedEntitiesFind()
+//	{
+//		$authorRepository = $this->cligtORM->createRepository(AuthorRepository::class);
+//
+//			/**
+//			 * @var Author $author
+//			 */
+//		$author = $authorRepository->findFirst([
+//			'books' => [
+//				'themes'
+//			]
+//		]);
+//
+//		$this->assertInstanceOf(Author::class, $author);
+//		$this->assertInternalType('array', $author->getBooks());
+//		$this->assertNotEquals(0, count($author->getBooks()));
+//		$this->assertInstanceOf(Book::class, $author->getBooks()[0]);
+//		$this->assertInternalType('array', $author->getBooks()[0]->themes);
+//		$this->assertNotEquals(0, count($author->getBooks()[0]->themes));
+//		$this->assertInstanceOf(Theme::class, $author->getBooks()[0]->themes[0]);
+//
+//		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
+//
+//			/**
+//			 * @var User $user
+//			 */
+//		$user = $userRepository->findFirst([
+//			'posts_as_author' => [
+//				'categories' => [
+//					'posts'
+//				]
+//			]
+//		]);
+//		$this->assertInstanceOf(User::class, $user);
+//		$this->assertInternalType('array', $user->getPostsAsAuthor());
+//		$this->assertNotEquals(0, count($user->getPostsAsAuthor()));
+//		$this->assertInstanceOf(Post::class, $user->getPostsAsAuthor()[0]);
+//		$this->assertInternalType('array', $user->getPostsAsAuthor()[0]->getCategories());
+//		$this->assertNotEquals(0, count($user->getPostsAsAuthor()[0]->getCategories()));
+//		$this->assertInstanceOf(Category::class, $user->getPostsAsAuthor()[0]->getCategories()[0]);
+//		$this->assertInternalType('array', $user->getPostsAsAuthor()[0]->getCategories()[0]->getPosts());
+//		$this->assertNotEquals(0, count($user->getPostsAsAuthor()[0]->getCategories()[0]->getPosts()));
+//		$this->assertInstanceOf(Post::class, $user->getPostsAsAuthor()[0]->getCategories()[0]->getPosts()[0]);
+//
+//		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+//
+//		/**
+//		 * @var Post $post
+//		 */
+//		$post = $postRepository->findFirst([
+//			'author' => [
+//				'profile'
+//			]
+//		]);
+//
+//		$this->assertInstanceOf(Post::class, $post);
+//		$this->assertInstanceOf(User::class, $post->getAuthor());
+//		$this->assertInstanceOf(UserProfile::class, $post->getAuthor()->getProfile());
+//	}
 }

@@ -18,22 +18,50 @@ use Computools\CLightORM\Test\Repository\UserRepository;
 
 class DatabaseSaveTest extends BaseTest
 {
-//	public function testOneToOne()
+//	public function testSave()
 //	{
-//		$userProfileRepository = $this->cligtORM->create(UserProfileRepository::class);
-//		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
+//		$user = new User();
+//		$user->setName('Test name');
+//		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
 //
-//		$userProfile = new UserProfile();
-//		$userProfile->setUser($user);
-//		$userProfile->setFirstName('test');
-//		$userProfile->setLastName('test');
+//		$userRepository->save($user);
 //
-//		$userProfile = $userProfileRepository->save($userProfile, ['user']);
-//
-//		$this->assertInstanceOf(UserProfile::class, $userProfile);
-//		$this->assertInstanceOf(User::class, $userProfile->getUser());
-//
+//		$this->assertInstanceOf(User::class, $user);
+//		$this->assertInternalType('integer', $user->getId());
 //	}
+//
+//	public function testUpdate()
+//	{
+//		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
+//
+//		$testName = substr(md5(uniqid()), 0, 15);
+//		/**
+//		 * @var User $user
+//		 */
+//		$user = $userRepository->findLast();
+//		$user->setName($testName);
+//		$userRepository->save($user);
+//
+//		$this->assertInstanceOf(User::class, $user);
+//		$this->assertEquals($testName, $user->getName());
+//		$this->assertInternalType('integer', $user->getId());
+//	}
+
+	public function testOneToOne()
+	{
+		$userProfileRepository = $this->cligtORM->createRepository(UserProfileRepository::class);
+		$user = $this->cligtORM->createRepository(UserRepository::class)->findFirst();
+
+		$userProfile = new UserProfile();
+		$userProfile->setUser($user);
+		$userProfile->setFirstName('test');
+		$userProfile->setLastName('test');
+
+		$userProfile = $userProfileRepository->save($userProfile, ['user']);
+
+		$this->assertInstanceOf(UserProfile::class, $userProfile);
+		$this->assertInstanceOf(User::class, $userProfile->getUser());
+	}
 //
 //	public function testNewSaveSimple()
 //	{
@@ -50,8 +78,8 @@ class DatabaseSaveTest extends BaseTest
 //
 //	public function testManyToOneSaveWithRelated()
 //	{
-//		$user = $this->cligtORM->create(UserRepository::class)->findFirst();
-//		$postRepository = $this->cligtORM->create(PostRepository::class);
+//		$user = $this->cligtORM->createRepository(UserRepository::class)->findFirst();
+//		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
 //
 //		$post = new Post();
 //		$post->setAuthor($user);

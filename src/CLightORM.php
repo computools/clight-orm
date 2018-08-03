@@ -3,11 +3,13 @@
 namespace Computools\CLightORM;
 
 use Computools\CLightORM\Cache\CacheInterface;
-use Computools\CLightORM\Database\Query\MySQLQuery;
+use Computools\CLightORM\Database\Query\InsertQuery;
+use Computools\CLightORM\Database\Query\MySQL\MySQLInsertQuery;
+use Computools\CLightORM\Database\Query\MySQL\MySQLQuery;
+use Computools\CLightORM\Database\Query\MySQL\MySQLUpdateQuery;
 use Computools\CLightORM\Database\Query\Query;
-use Computools\CLightORM\Database\Query\QueryInterface;
+use Computools\CLightORM\Database\Query\UpdateQuery;
 use Computools\CLightORM\Repository\RepositoryInterface;
-use Computools\CLightORM\Database\Database;
 
 class CLightORM
 {
@@ -35,5 +37,15 @@ class CLightORM
 	public function createQuery(): Query
 	{
 		return new MySQLQuery($this->pdo);
+	}
+
+	public function createInsertQuery(): InsertQuery
+	{
+		return new MySQLInsertQuery($this->pdo);
+	}
+
+	public function createUpdateQuery(): UpdateQuery
+	{
+		return new MySQLUpdateQuery($this->pdo);
 	}
 }

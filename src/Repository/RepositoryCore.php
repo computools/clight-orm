@@ -108,21 +108,38 @@ abstract class RepositoryCore
 	 */
 	final protected function mapNestedEntitiesToArray(array $data, $includeManyToMany = false): array
 	{
+		$b = 1;
 		foreach($this->relations as $key => $relation) {
 			if ($relation->getRelationType() instanceof ToOneInterface) {
 				if ($field = $data[$relation->getRelationType()->getFieldName()] ?? null) {
-					if (!$relatedField = $this->database->table(
-						$relation->getTableName()
-					)->where(
-						$relation
-							->getRelationType()
-							->getRelatedEntity()
-							->getMapper()
-							->getIdentifier(),
-						$data[$relation->getRelationType()->getFieldName()])->fetch()
-					) {
+
+					$query = $this->orm->createQuery();
+					$query
+						->from($relation->getTableName())
+						->where(
+							$relation
+								->getRelationType()
+								->getRelatedEntity()
+								->getMapper()
+								->getIdentifier(),
+							$data[$relation->getRelationType()->getFieldName()]
+						)->execute();
+
+					if (!$relatedField = $query->getFirst()) {
 						throw new NestedEntityDoesNotExistsException();
 					}
+//					if (!$relatedField = $this->database->table(
+//						$relation->getTableName()
+//					)->where(
+//						$relation
+//							->getRelationType()
+//							->getRelatedEntity()
+//							->getMapper()
+//							->getIdentifier(),
+//						$data[$relation->getRelationType()->getFieldName()])->fetch()
+//					) {
+//						throw new NestedEntityDoesNotExistsException();
+//					}
 					unset($data[$relation->getRelationType()->getFieldName()]);
 					$data[$relation->getEntityField()] = $relatedField;
 				}
@@ -284,13 +301,19 @@ abstract class RepositoryCore
 	 * @param array $data
 	 * @return Row
 	 */
-	protected function create(array $data): Row
+	protected function create(array $data): Query
 	{
-		$row = $this->database->createRow($this->table, $data);
-		$this->database->begin();
-		$row->save();
-		$this->database->commit();
-		return $row;
+		$query = $this->orm->createInsertQuery();
+
+		$query
+			->into($this->table)
+			->values($data);
+		$id = $query->execute();
+
+		return $this->orm->createQuery()
+						 ->from($this->table)
+						 ->where($this->mapper->getIdentifier(), $id)
+						 ->execute();
 	}
 
 	/**
@@ -301,17 +324,18 @@ abstract class RepositoryCore
 	 * @param bool $relationExistsCheck
 	 * @return Row
 	 */
-	protected function update(EntityInterface $entity, array $data, $relationExistsCheck = false): Row
+	protected function update(EntityInterface $entity, array $data, $relationExistsCheck = false): Query
 	{
-		if (!$row = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $entity->getIdValue())->fetch()) {
-			throw new EntityDoesNotExistsException();
-		}
-		$this->database->begin();
+		unset($data[$this->mapper->getIdentifier()]);
+		$query = $this->orm->createUpdateQuery();
+		$query->table($this->table)->values($data)->where($this->mapper->getIdentifier(), $entity->getIdValue())->execute();
+
+		$query = $this->orm->createQuery();
+		$query->from($this->table)->where($this->mapper->getIdentifier(), $entity->getIdValue());
 
 		$this->applyRelationChanges($entity, $relationExistsCheck);
 
-		$row->update($data);
-		$this->database->commit();
-		return $row;
+		$query->execute();
+		return $query;
 	}
 }

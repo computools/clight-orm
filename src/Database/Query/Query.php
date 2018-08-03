@@ -2,8 +2,7 @@
 
 namespace Computools\CLightORM\Database\Query;
 
-abstract class
-Query
+abstract class Query
 {
 	protected $pdo;
 
@@ -17,7 +16,7 @@ Query
 	public function execute(array $params = []): self
 	{
 		$statement = $this->pdo->prepare($this->getQuery());
-		$statement->execute($params);
+		$statement->execute(array_merge($this->params, $params));
 
 //		if ($statement->errorCode()) {
 //			print_r($statement->errorInfo());
@@ -28,7 +27,7 @@ Query
 		return $this;
 	}
 
-	protected $select;
+	protected $select = '*';
 
 	/**
 	 * @var Join[]
@@ -47,11 +46,15 @@ Query
 
 	protected $where = [];
 
+	protected $whereExpr = [];
+
 	protected $tables = [];
 
 	protected $subqueries = [];
 
 	protected $result = null;
+
+	protected $params = [];
 
 	public function addSubquery(Query $query)
 	{
@@ -74,9 +77,18 @@ Query
 		return $this;
 	}
 
-	public function where(string $where): self
+	public function where(string $field, string $value): self
 	{
-		$this->where[] = $where;
+		$paramName = md5(uniqid()) . '_' . $field;
+		$this->where[$field] = ':' . $paramName;
+		$this->params[$paramName] = $value;
+
+		return $this;
+	}
+
+	public function whereExpr(string $whereExpr): self
+	{
+		$this->whereExpr[] = '(' . $whereExpr . ')';
 		return $this;
 	}
 
@@ -113,7 +125,7 @@ Query
 		return $this->result;
 	}
 
-	public function getFirst()
+	public function getFirst(): ?array
 	{
 		return $this->result[0] ?? null;
 	}

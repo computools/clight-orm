@@ -76,9 +76,8 @@ trait RelatedDataTrait
 		$parentIds = $this->makeInArgument($parentEntityQuery->getResult(), $relation->getParentIdentifier());
 
 		$query
-			->select('*')
 			->from($table)
-			->where(sprintf(
+			->whereExpr(sprintf(
 				"%s IN (%s)",
 					$relation->getRelationType()->getRelatedTableField(),
 				$parentIds
@@ -116,9 +115,8 @@ trait RelatedDataTrait
 		 */
 		$query = $this->orm->createQuery();
 		$query
-			->select('*')
 			->from($table)
-			->where(sprintf(
+			->whereExpr(sprintf(
 				"%s IN (%s)",
 				$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier(),
 				$parentIds
@@ -185,7 +183,7 @@ trait RelatedDataTrait
 			->select($select)
 			->from($table)
 			->join(new Join('INNER', $relatedTableName, $on))
-			->where($where)
+			->whereExpr($where)
 			->groupBy($relation->getTableName() . '.' . $relatedTableIdentifier);
 
 		$query->execute();

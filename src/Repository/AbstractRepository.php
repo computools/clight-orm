@@ -6,6 +6,7 @@ use Computools\CLightORM\Cache\CacheInterface;
 use Computools\CLightORM\CLightORM;
 use Computools\CLightORM\Database\Query\Query;
 use Computools\CLightORM\Entity\EntityInterface;
+use Computools\CLightORM\Exception\WrongRepositoryCalledException;
 use Computools\CLightORM\Tools\Order;
 use Computools\CLightORM\Tools\Pagination;
 use Computools\CLightORM\Database\Database;
@@ -68,12 +69,8 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 		$query = $this->orm->createQuery();
 		$query
-			->select('*')
 			->from($this->table)
-			->where($this->mapper->getIdentifier() . '= :id')
-			->execute([
-				'id' => $id
-			]);
+			->where($this->mapper->getIdentifier(), $id);
 		$result = $query->getResult();
 		$result = $this->mapToEntity($result[0], $query, $with);
 		$this->putToCache($result, $this->mergeCriteria($id, $with), $expiration);
@@ -89,16 +86,23 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			->limit(1);
 		$query->execute();
 
-		return $this->mapToEntity($query->getFirst(), $query, $with);
+		return $this->mapToEntity($query, $with);
 	}
 
 	public function findLast(array $with = []): ?EntityInterface
 	{
-		$query = $this->database->table($this->table)->orderBy($this->mapper->getIdentifier(), 'DESC')->limit(1);
-		if (!$result = $query->fetch()) {
+		$query = $this->orm->createQuery();
+		$query
+			->select('*')
+			->from($this->table)
+			->orderBy($this->mapper->getIdentifier(), 'DESC')
+			->limit(1)
+			->execute();
+
+		if (!$result = $query->getFirst()) {
 			return null;
 		}
-		return $this->mapToEntity($result, $query, $with);
+		return $this->mapToEntity($query, $with);
 	}
 
 	public function findOneBy(array $criteria, ?Order $order = null, array $with = [], $expiration = 0): ?EntityInterface
@@ -106,15 +110,18 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration)) {
 			return $result;
 		}
-		$query = $this->database->table($this->table);
+
+		$query = $this->orm->createQuery();
+		$query->from($this->table);
+
 		foreach ($criteria as $key => $value) {
-			$query = $query->where($key, $value);
+			$query->where($key , $value);
 		}
-		$query = $query->limit(1);
-		if (!$result = $query->fetch()) {
+		$query->limit(1);
+		if (!$result = $query->getFirst()) {
 			return null;
 		}
-		$result = $this->mapToEntity($result, $query, $with);
+		$result = $this->mapToEntity($query, $with);
 		$this->putToCache($result, $this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration);
 		return $result;
 	}
@@ -133,7 +140,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 		$params = [];
 		foreach ($criteria as $key => $value) {
-			$query->where($key . ' = ' . $value);
+			$query->where($key, $value);
 			$params[$key] = $value;
 		}
 
@@ -157,11 +164,17 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 	public function remove(EntityInterface $entity): void
 	{
+		if (!$entity instanceof $this->entityClassString) {
+			throw new WrongRepositoryCalledException();
+		}
 		$this->database->table($this->mapper->getTable())->where($this->mapper->getIdentifier(), $entity->getIdValue())->delete();
 	}
 
 	public function save(EntityInterface &$entity, array $with = [], $relationExistsCheck = false): EntityInterface
 	{
+		if (!$entity instanceof $this->entityClassString) {
+			throw new WrongRepositoryCalledException();
+		}
 		$data = $this->mapNestedEntitiesToArray(
 			$this->mapper->entityToArray($entity),
 			$entity->isNew()
@@ -169,13 +182,13 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		if ($entity->isNew()) {
 			unset($data[$entity->getMapper()->getIdentifierEntityField()]);
 		}
-		$row = $entity->isNew() ? $this->create($data) : $this->update($entity, $data, $relationExistsCheck);
+		$query = $entity->isNew() ? $this->create($data) : $this->update($entity, $data, $relationExistsCheck);
 
-		$query = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $row->getId());
+		//$query = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $row->getId());
 
 		$entity = $this->mapper->arrayToEntity(
 			new $this->entityClassString,
-			$this->joinRelatedDataToParent($row->getData(), $this->getRelatedData($query, $with))
+			$this->joinRelatedDataToParent($query->getFirst(), $this->getRelatedData($query, $with))
 		);
 		return $entity;
 	}

@@ -5,18 +5,22 @@ namespace Computools\CLightORM\Mapper;
 use Computools\CLightORM\{
 	Entity\EntityInterface,
 	Exception\IdentifierDoesNotExistsException,
-	Exception\NestedEntityDoesNotExistsException,
-	Mapper\Relations\ManyToMany,
-	Mapper\Relations\ManyToOne,
-	Mapper\Relations\RelationInterface,
-	Mapper\Relations\ToOneInterface,
-	Mapper\Types\BooleanType,
-	Mapper\Types\ColumnType,
-	Mapper\Types\CreatedAtType,
-	Mapper\Types\DateTimeType,
-	Mapper\Types\FloatType,
-	Mapper\Types\IdType,
-	Mapper\Types\UpdatedAtType
+	Exception\NestedEntityDoesNotExistsException
+};
+use Computools\CLightORM\Mapper\Relations\{
+	ManyToMany,
+	ManyToOne,
+	RelationInterface,
+	ToOneInterface
+};
+use Computools\CLightORM\Mapper\Types\{
+	BooleanType,
+	ColumnType,
+	CreatedAtType,
+	DateTimeType,
+	FloatType,
+	IdType,
+	UpdatedAtType
 };
 
 abstract class Mapper implements MapperInterface

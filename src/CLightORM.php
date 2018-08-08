@@ -3,7 +3,9 @@
 namespace Computools\CLightORM;
 
 use Computools\CLightORM\Cache\CacheInterface;
+use Computools\CLightORM\Database\Query\DeleteQuery;
 use Computools\CLightORM\Database\Query\InsertQuery;
+use Computools\CLightORM\Database\Query\MySQL\MySQLDeleteQuery;
 use Computools\CLightORM\Database\Query\MySQL\MySQLInsertQuery;
 use Computools\CLightORM\Database\Query\MySQL\MySQLQuery;
 use Computools\CLightORM\Database\Query\MySQL\MySQLUpdateQuery;
@@ -47,5 +49,10 @@ class CLightORM
 	public function createUpdateQuery(): UpdateQuery
 	{
 		return new MySQLUpdateQuery($this->pdo);
+	}
+
+	public function createDeleteQuery(): DeleteQuery
+	{
+		return new MySQLDeleteQuery($this->pdo);
 	}
 }

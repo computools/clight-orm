@@ -18,10 +18,10 @@ abstract class Query
 		$statement = $this->pdo->prepare($this->getQuery());
 		$statement->execute(array_merge($this->params, $params));
 
-//		if ($statement->errorCode()) {
-//			print_r($statement->errorInfo());
-//			die();
-//		}
+		if ($statement->errorCode() !== \PDO::ERR_NONE) {
+			print_r($statement->errorInfo());
+			die();
+		}
 		$result = $statement->fetchAll();
 		$this->setResult($result);
 		return $this;
@@ -74,6 +74,16 @@ abstract class Query
 	{
 		$this->limit = $limit;
 		$this->offset = $offset;
+		return $this;
+	}
+
+	public function whereArray(array $criteria): self
+	{
+		foreach ($criteria as $key => $value) {
+			$paramName = md5(uniqid()) . '_' . $key;
+			$this->where[$key] = ':' . $paramName;
+			$this->params[$paramName] = $value;
+		}
 		return $this;
 	}
 

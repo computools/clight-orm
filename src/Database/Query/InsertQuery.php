@@ -40,7 +40,8 @@ abstract class InsertQuery
 		$statement = $this->pdo->prepare($this->getQuery());
 		$statement->execute(array_merge($this->params, $params));
 		if ($statement->errorCode() !== \PDO::ERR_NONE) {
-			$b = 1;
+			print_r($statement->errorInfo());
+			die();
 		}
 		return $this->pdo->lastInsertId();
 	}

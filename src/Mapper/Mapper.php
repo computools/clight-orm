@@ -8,10 +8,7 @@ use Computools\CLightORM\{
 	Exception\NestedEntityDoesNotExistsException
 };
 use Computools\CLightORM\Mapper\Relations\{
-	ManyToMany,
-	ManyToOne,
-	RelationInterface,
-	ToOneInterface
+	ManyToMany, ManyToOne, RelationInterface, ToManyInterface, ToOneInterface
 };
 use Computools\CLightORM\Mapper\Types\{
 	BooleanType,
@@ -36,6 +33,11 @@ abstract class Mapper implements MapperInterface
 		}, explode('_', $sting));
 		$camelCase = implode('', $fieldParts);
 		return $lowerFirst ? lcfirst($camelCase) : $camelCase;
+	}
+
+	public function getIdentifierFromArray(array $data): ?int
+	{
+		return $data[$this->getIdentifier()] ?? null;
 	}
 
 	public function getIdentifier(): string
@@ -140,6 +142,8 @@ abstract class Mapper implements MapperInterface
 							$result[] = $this->arrayToEntity(new $relatedEntityClass(), $collectionItem);
 						}
 						$entity->setField($entityField, $result);
+					} else if ($field instanceof ToManyInterface) {
+						$entity->setField($entityField, []);
 					}
 				}
 			}
@@ -170,6 +174,9 @@ abstract class Mapper implements MapperInterface
 				break;
 			case $columnType instanceof FloatType:
 				$result[$key] =  $entity->getField($entityField) ? floatval($entity->getField($entityField)) : null;
+				break;
+			case $columnType instanceof DateTimeType:
+				$result[$key] = ($datetime = $entity->getField($entityField)) ? $datetime->format($columnType->getFormat()) : null;
 				break;
 			default:
 				$result[$key] =  $entity->getField($entityField);

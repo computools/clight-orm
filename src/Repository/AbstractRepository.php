@@ -70,9 +70,12 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$query = $this->orm->createQuery();
 		$query
 			->from($this->table)
-			->where($this->mapper->getIdentifier(), $id);
-		$result = $query->getResult();
-		$result = $this->mapToEntity($result[0], $query, $with);
+			->where($this->mapper->getIdentifier(), $id)
+			->execute();
+		if (!$query->getFirst()) {
+			return null;
+		}
+		$result = $this->mapToEntity($query, $with);
 		$this->putToCache($result, $this->mergeCriteria($id, $with), $expiration);
 		return $result;
 	}
@@ -184,7 +187,9 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		}
 		$query = $entity->isNew() ? $this->create($data) : $this->update($entity, $data, $relationExistsCheck);
 
-		//$query = $this->database->table($this->table)->where($this->mapper->getIdentifier(), $row->getId());
+		$id = $this->mapper->getIdentifierFromArray($query->getFirst());
+
+		$this->applyRelationChanges($entity, $relationExistsCheck, $id);
 
 		$entity = $this->mapper->arrayToEntity(
 			new $this->entityClassString,

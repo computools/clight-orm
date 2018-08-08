@@ -71,6 +71,8 @@ abstract class RepositoryCore
 	 */
 	protected $cache;
 
+	protected $cachedEntities = [];
+
 	/**
 	 * This method maps relations defined at mapper to $relations
 	 * property as RelationMap objects with Entity's property names as keys
@@ -108,66 +110,75 @@ abstract class RepositoryCore
 	 */
 	final protected function mapNestedEntitiesToArray(array $data, $includeManyToMany = false): array
 	{
-		$b = 1;
 		foreach($this->relations as $key => $relation) {
 			if ($relation->getRelationType() instanceof ToOneInterface) {
-				if ($field = $data[$relation->getRelationType()->getFieldName()] ?? null) {
+				$identifier = $relation
+					->getRelationType()
+					->getRelatedEntity()
+					->getMapper()
+					->getIdentifier();
+				$identifierValue = $data[$relation->getRelationType()->getFieldName()] ?? null;
 
-					$query = $this->orm->createQuery();
-					$query
-						->from($relation->getTableName())
-						->where(
-							$relation
-								->getRelationType()
-								->getRelatedEntity()
-								->getMapper()
-								->getIdentifier(),
-							$data[$relation->getRelationType()->getFieldName()]
-						)->execute();
+				if (!$identifierValue) {
+					continue;
+				}
+				if (!isset($this->cachedEntities[$relation->getTableName()][$identifierValue])) {
+					if ($field = $data[$relation->getRelationType()->getFieldName()] ?? null) {
+						$query = $this->orm->createQuery();
+						$query->from($relation->getTableName())->where($identifier, $identifierValue)->execute();
 
-					if (!$relatedField = $query->getFirst()) {
-						throw new NestedEntityDoesNotExistsException();
+						if (!$relatedField = $query->getFirst()) {
+							throw new NestedEntityDoesNotExistsException();
+						}
+						$this->cachedEntities[$relation->getTableName()][$identifierValue] = $query->getFirst();
 					}
-//					if (!$relatedField = $this->database->table(
-//						$relation->getTableName()
-//					)->where(
-//						$relation
-//							->getRelationType()
-//							->getRelatedEntity()
-//							->getMapper()
-//							->getIdentifier(),
-//						$data[$relation->getRelationType()->getFieldName()])->fetch()
-//					) {
-//						throw new NestedEntityDoesNotExistsException();
-//					}
-					unset($data[$relation->getRelationType()->getFieldName()]);
-					$data[$relation->getEntityField()] = $relatedField;
 				}
 			} else if ($relation->getRelationType() instanceof ManyToMany) {
 				if (!$includeManyToMany) {
 					unset($data[$relation->getEntityField()]);
 					continue;
 				}
-				$relatedName = $relation->getRelationType()->getTable() . 'List';
+				$relatedName = $relation->getRelationType()->getTable();
 				if ($relatedIds = $data[$relation->getEntityField()] ?? null) {
 
-					$data[$relatedName] = [];
+					//$data[$relatedName] = [];
 					unset($data[$relation->getEntityField()]);
-					foreach ($relatedIds as $id) {
-						if (!$relatedField = $this->database->table($relation->getTableName())
-															->where(
-																$relation
-																	->getRelationType()
-																	->getRelatedEntity()
-																	->getMapper()
-																	->getIdentifier(),
-																$id)->fetch()) {
-							throw new NestedEntityDoesNotExistsException();
-						}
-						$data[$relatedName][] = [
-							$relation->getTableName() => $relatedField
-						];
+
+					$query = $this->orm->createQuery();
+					$query
+						->from($relation->getTableName())
+						->whereExpr($relation
+							->getRelationType()
+							->getRelatedEntity()
+							->getMapper()
+							->getIdentifier() . ' IN (' . implode(',', $relatedIds) . ')')
+						->execute();
+
+					if (count($relatedIds) > count($query->getResult())) {
+						throw new NestedEntityDoesNotExistsException();
 					}
+
+//					$data[$relatedName][] = [
+//						$relation->getTableName() => $query->getResult()
+//					];
+
+//					foreach ($relatedIds as $id) {
+//						if (!$relatedField = $this->database->table($relation->getTableName())
+//															->where(
+//																$relation
+//																	->getRelationType()
+//																	->getRelatedEntity()
+//																	->getMapper()
+//																	->getIdentifier(),
+//																$id)->fetch()) {
+//
+//						} {
+//
+//						}
+//						$data[$relatedName][] = [
+//							$relation->getTableName() => $relatedField
+//						];
+//					}
 				}
 			}
 		}
@@ -268,26 +279,35 @@ abstract class RepositoryCore
 	 * @param EntityInterface $entity
 	 * @param bool $relationExistsCheck
 	 */
-	final protected function applyRelationChanges(EntityInterface $entity, bool $relationExistsCheck): void
+	final protected function applyRelationChanges(EntityInterface $entity, bool $relationExistsCheck, $identifier = null): void
 	{
+		$id = $identifier ? $identifier : $entity->getIdValue();
 		foreach($entity->getRelationChanges() as $key => $field) {
 			foreach($field as $actionType => $value) {
 				$relationMap = $this->getRelationByField($key);
-				$table = $relationMap->getRelationType()->getTable() . 'List';
+				$table = $relationMap->getRelationType()->getTable();
 				if ($actionType === AbstractEntity::RELATION_CHANGE_REMOVE) {
 					$ids = implode(',', $value);
-					$this->database->table($table)->where(
-						$relationMap->getRelationType()->getColumnName() . '=' . $entity->getIdValue() . ' AND ' .
-						$relationMap->getRelationType()->getReferencedColumnName() . ' IN (' . $ids . ')'
-					)->delete();
+					$this->orm->createDeleteQuery()
+						->from($table)
+						->where($relationMap->getRelationType()->getColumnName(), $id)
+						->whereExpr($relationMap->getRelationType()->getReferencedColumnName() . ' IN (' . $ids . ')')
+						->execute();
 				} else if ($actionType === AbstractEntity::RELATION_CHANGE_ADD) {
 					foreach($value as $relatedId) {
 						$criteria = [
-							$relationMap->getRelationType()->getColumnName() => $entity->getIdValue(),
+							$relationMap->getRelationType()->getColumnName() => $id,
 							$relationMap->getRelationType()->getReferencedColumnName() => $relatedId
 						];
-						if (!$relationExistsCheck || !$this->database->$table()->where($criteria)->fetch()) {
-							$this->database->table($table)->insert($criteria);
+						$query = $this->orm->createQuery();
+						$query
+							->from($table)
+							->whereArray($criteria);
+						if (!$relationExistsCheck || !$query->execute()->getFirst()) {
+							$this->orm->createInsertQuery()
+								->into($table)
+								->values($criteria)
+								->execute();
 						}
 					}
 				}
@@ -332,8 +352,6 @@ abstract class RepositoryCore
 
 		$query = $this->orm->createQuery();
 		$query->from($this->table)->where($this->mapper->getIdentifier(), $entity->getIdValue());
-
-		$this->applyRelationChanges($entity, $relationExistsCheck);
 
 		$query->execute();
 		return $query;

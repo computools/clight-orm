@@ -4,6 +4,7 @@ namespace Computools\CLightORM\Database\Query;
 
 use Computools\CLightORM\Database\Query\Contract\SelectQueryInterface;
 use Computools\CLightORM\Database\Query\Structure\Join;
+use Computools\CLightORM\Exception\QueryException;
 
 abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 {
@@ -132,8 +133,7 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 		$statement->execute(array_merge($this->params, $params));
 
 		if ($statement->errorCode() !== \PDO::ERR_NONE) {
-			print_r($statement->errorInfo());
-			die();
+			throw new QueryException($statement->errorInfo());
 		}
 		$result = $statement->fetchAll();
 		$this->setResult($result);

@@ -3,16 +3,17 @@
 namespace Computools\CLightORM\Database\Query;
 
 use Computools\CLightORM\Database\Query\Contract\DeleteQueryInterface;
+use Computools\CLightORM\Exception\QueryException;
 
 abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
 {
 	protected $from;
 
-	protected $where;
+	protected $where = [];
 
 	protected $params;
 
-	protected $whereExpr;
+	protected $whereExpr = [];
 
 	public function from(string $from): DeleteQueryInterface
 	{
@@ -40,8 +41,7 @@ abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
 		$statement = $this->pdo->prepare($this->getQuery());
 		$statement->execute(array_merge($this->params, $params));
 		if ($statement->errorCode() !== \PDO::ERR_NONE) {
-			print_r($statement->errorInfo());
-			die();
+			throw new QueryException($statement->errorInfo());
 		}
 		return $this;
 	}

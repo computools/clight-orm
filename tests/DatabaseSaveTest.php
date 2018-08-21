@@ -96,7 +96,7 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testManyToOneSaveWithoutRelated()
 	{
-		$user = $this->cligtORM->createRepository(UserRepository::class)->find(1, [], 60);
+		$user = $this->cligtORM->createRepository(UserRepository::class)->find(1, []);
 		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
 
 		$post = new Post();
@@ -104,7 +104,7 @@ class DatabaseSaveTest extends BaseTest
 		$post->setEditor($user);
 		$post->setTitle('New post');
 		$post->setDatePublished(new \DateTime());
-		$post = $postRepository->save($post);
+		$postRepository->save($post);
 
 		$this->assertInstanceOf(Post::class, $post);
 		$this->assertNull($post->getAuthor());
@@ -205,4 +205,22 @@ class DatabaseSaveTest extends BaseTest
 		$this->assertInternalType('array', $book->themes);
 		$this->assertInstanceOf(Theme::class, $book->themes[0]);
 	}
+
+	public function testDelete()
+	{
+		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+		$post = $postRepository->findLast();
+
+		$this->assertInstanceOf(Post::class, $post);
+		$this->assertInternalType('int', $post->getIdValue());
+
+		$id = $post->getIdValue();
+
+		$postRepository->remove($post);
+
+		$post = $postRepository->find($id);
+
+		$this->assertNull($post);
+	}
+
 }

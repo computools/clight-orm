@@ -3,6 +3,7 @@
 namespace Computools\CLightORM\Database\Query;
 
 use Computools\CLightORM\Database\Query\Contract\InsertQueryInterface;
+use Computools\CLightORM\Exception\QueryException;
 
 abstract class InsertQuery extends AbstractQuery implements InsertQueryInterface
 {
@@ -33,8 +34,7 @@ abstract class InsertQuery extends AbstractQuery implements InsertQueryInterface
 		$statement = $this->pdo->prepare($this->getQuery());
 		$statement->execute(array_merge($this->params, $params));
 		if ($statement->errorCode() !== \PDO::ERR_NONE) {
-			print_r($statement->errorInfo());
-			die();
+			throw new QueryException($statement->errorInfo());
 		}
 		return $this;
 	}

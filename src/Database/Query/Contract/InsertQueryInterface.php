@@ -8,7 +8,5 @@ interface InsertQueryInterface extends CommonQueryInterface
 
 	public function values(array $values): InsertQueryInterface;
 
-	public function execute(): InsertQueryInterface;
-
 	public function getLastId(): int;
 }

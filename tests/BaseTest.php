@@ -5,15 +5,11 @@ namespace Computools\CLightORM\Test;
 use Computools\CLightORM\Cache\Filecache;
 use Computools\CLightORM\Cache\Memcache;
 use Computools\CLightORM\CLightORM;
-use LessQL\Database;
+
 
 class BaseTest extends \PHPUnit_Framework_TestCase
 {
 	public static $dumpLoaded = false;
-	/**
-	 * @var Database
-	 */
-	protected $database;
 
 	/**
 	 * @var CLightORM

@@ -1,6 +1,6 @@
 {
     "name": "computools/clight-orm",
-    "description":"LessQL based ORM",
+    "description":"Light ORM",
     "homepage": "https://github.com/computools/clight-orm",
     "license": "MIT",
     "authors": [
@@ -10,8 +10,7 @@
         }
     ],
     "require": {
-        "php": "^7.1",
-        "morris/lessql": "^0.3.5"
+        "php": "^7.1"
     },
     "require-dev": {
         "phpunit/phpunit": ">=4.8 < 6.0"

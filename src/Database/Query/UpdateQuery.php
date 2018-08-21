@@ -3,6 +3,7 @@
 namespace Computools\CLightORM\Database\Query;
 
 use Computools\CLightORM\Database\Query\Contract\UpdateQueryInterface;
+use Computools\CLightORM\Exception\QueryException;
 
 abstract class UpdateQuery extends AbstractQuery implements UpdateQueryInterface
 {
@@ -52,7 +53,7 @@ abstract class UpdateQuery extends AbstractQuery implements UpdateQueryInterface
 		$statement = $this->pdo->prepare($this->getQuery());
 		$statement->execute(array_merge($this->params, $params));
 		if ($statement->errorCode() !== \PDO::ERR_NONE) {
-			$b = 1;
+			throw new QueryException($statement->errorInfo());
 		}
 		return $this;
 	}

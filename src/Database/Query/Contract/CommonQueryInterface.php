@@ -6,5 +6,5 @@ interface CommonQueryInterface
 {
 	public function getQuery(): string;
 
-	public function execute();
+	public function execute(array $params = []);
 }

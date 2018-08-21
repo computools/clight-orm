@@ -4,14 +4,12 @@ namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\Cache\CacheInterface;
 use Computools\CLightORM\CLightORM;
+use Computools\CLightORM\Database\Query\Contract\SelectQueryInterface;
 use Computools\CLightORM\Database\Query\SelectQuery;
 use Computools\CLightORM\Entity\EntityInterface;
 use Computools\CLightORM\Exception\WrongRepositoryCalledException;
 use Computools\CLightORM\Tools\Order;
 use Computools\CLightORM\Tools\Pagination;
-use Computools\CLightORM\Database\Database;
-use LessQL\Result;
-use LessQL\Row;
 
 abstract class AbstractRepository extends RepositoryCore implements RepositoryInterface
 {
@@ -36,7 +34,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $criteria;
 	}
 
-	protected function mapToEntity(SelectQuery $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
+	protected function mapToEntity(SelectQueryInterface $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
 	{
 		return $this->mapper->arrayToEntity(
 			new $this->entityClassString,
@@ -44,7 +42,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		);
 	}
 
-	protected function mapToEntities(SelectQuery $query, array $with = []): array
+	protected function mapToEntities(SelectQueryInterface $query, array $with = []): array
 	{
 		$result = [];
 
@@ -61,7 +59,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $result;
 	}
 
-	public function find(int $id, array $with = [], $expiration = 0): ?EntityInterface
+	public function find(int $id, array $with = [], int $expiration = 0): ?EntityInterface
 	{
 		if ($result = $this->getFromCache($this->mergeCriteria($id, $with), $expiration)) {
 			return $result;
@@ -108,7 +106,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $this->mapToEntity($query, $with);
 	}
 
-	public function findOneBy(array $criteria, ?Order $order = null, array $with = [], $expiration = 0): ?EntityInterface
+	public function findOneBy(array $criteria, ?Order $order = null, array $with = [], int $expiration = 0): ?EntityInterface
 	{
 		if ($result = $this->getFromCache($this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration)) {
 			return $result;
@@ -129,7 +127,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $result;
 	}
 
-	public function findBy(array $criteria, ?Order $order = null, array $with = [], ?Pagination $pagination = null, $expiration = 0): array
+	public function findBy(array $criteria, ?Order $order = null, array $with = [], ?Pagination $pagination = null, int $expiration = 0): array
 	{
 		if ($result = $this->getFromCache(
 			$this->mergeCriteria($criteria, $with, $order ? $order->toArray() : [], $pagination ? $pagination->toArray(): null), $expiration)
@@ -138,9 +136,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		}
 
 		$query = $this->orm->createQuery();
-		$query->select('*');
 		$query->from($this->table);
-
 		$params = [];
 		foreach ($criteria as $key => $value) {
 			$query->where($key, $value);
@@ -170,7 +166,14 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		if (!$entity instanceof $this->entityClassString) {
 			throw new WrongRepositoryCalledException();
 		}
-		$this->database->table($this->mapper->getTable())->where($this->mapper->getIdentifier(), $entity->getIdValue())->delete();
+		$this
+			->orm
+			->createDeleteQuery()
+			->from($this->mapper->getTable())
+			->where(
+				$this->mapper->getIdentifier(),
+				$entity->getIdValue()
+			)->execute();
 	}
 
 	public function save(EntityInterface &$entity, array $with = [], $relationExistsCheck = false): EntityInterface

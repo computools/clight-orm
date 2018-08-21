@@ -1,7 +1,6 @@
 # CLight ORM
 
-This library designed as usual ORM and based on
-[LessQL library](https://github.com/morris/lessql).
+This library designed as usual ORM.
 
 Purpose for ORM development was to create fast and convenient tool for working with database and relation mapping.
 ORM allows you to link entities with One-To-Many, One-To-One, Many-To-One, Many-To-Many relation types.
@@ -25,13 +24,13 @@ For examples you may look at *tests* directory.
 Lets have a look:
 ## Mapper 
     
-    use Computools\LessqlORM\Mapper\Mapper;
-    use Computools\LessqlORM\Mapper\Relations\ManyToMany;
-    use Computools\LessqlORM\Mapper\Types\FloatType;
-    use Computools\LessqlORM\Mapper\Types\IdType;
-    use Computools\LessqlORM\Mapper\Types\StringType;
-    use Computools\LessqlORM\Test\Entity\Author;
-    use Computools\LessqlORM\Test\Entity\Theme;
+    use Computools\CLightORM\Mapper\Mapper;
+    use Computools\CLightORM\Mapper\Relations\ManyToMany;
+    use Computools\CLightORM\Mapper\Types\FloatType;
+    use Computools\CLightORM\Mapper\Types\IdType;
+    use Computools\CLightORM\Mapper\Types\StringType;
+    use Computools\CLightORM\Test\Entity\Author;
+    use Computools\CLightORM\Test\Entity\Theme;
     
     class BookMapper extends Mapper
     {
@@ -82,9 +81,9 @@ No matter if it's camel case or underscore used for database columns and field m
 ## Entity
 
 
-    use Computools\LessqlORM\Entity\AbstractEntity;
-    use Computools\LessqlORM\Mapper\MapperInterface;
-    use Computools\LessqlORM\Test\Mapper\BookMapper;
+    use Computools\CLightORM\Entity\AbstractEntity;
+    use Computools\CLightORM\Mapper\MapperInterface;
+    use Computools\CLightORM\Test\Mapper\BookMapper;
     
     class Book extends AbstractEntity
     {
@@ -164,9 +163,9 @@ Id field must have ability to take null in case of new entity, that have not bee
 
 Another option is using public properties instead of getters and setters. This library supports that kind of entities.
 
-    use Computools\LessqlORM\Entity\AbstractEntity;
-    use Computools\LessqlORM\Mapper\MapperInterface;
-    use Computools\LessqlORM\Test\Mapper\BookMapper;
+    use Computools\CLightORM\Entity\AbstractEntity;
+    use Computools\CLightORM\Mapper\MapperInterface;
+    use Computools\CLightORM\Test\Mapper\BookMapper;
         
     class Book extends AbstractEntity
     {
@@ -195,8 +194,8 @@ If you want to add many-to-many relation for two entities, you can call *addRela
 
 
 ## Repository
-    use Computools\LessqlORM\Repository\AbstractRepository;
-    use Computools\LessqlORM\Test\Entity\Book;
+    use Computools\CLightORM\Repository\AbstractRepository;
+    use Computools\CLightORM\Test\Entity\Book;
     
     class BookRepository extends AbstractRepository
     {
@@ -306,7 +305,7 @@ But, of course, you can use return value:
 
 If there is a collection given as repository result, that would be an array of entities.
 
-You can use Computools\LessqlORM\Tools\Pagination as third parameter for findBy to paginate result.
+You can use Computools\CLightORM\Tools\Pagination as third parameter for findBy to paginate result.
 
     $posts = $repository->findByUser($this->getUser(), ['theme'], (new Pagination())->setPagination(1, 20));
     

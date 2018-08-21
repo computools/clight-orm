@@ -10,10 +10,6 @@ use Computools\CLightORM\Mapper\Relations\{
 	ManyToMany, RelationInterface, ToOneInterface
 };
 
-use Computools\CLightORM\Database\Database;
-use LessQL\Result;
-use LessQL\Row;
-
 abstract class RepositoryCore
 {
 
@@ -169,14 +165,14 @@ abstract class RepositoryCore
 	}
 
 	/**
-	 * Gets related data for objects. Requires LessQL\Result object, that filters parent entity and 'with' array
+	 * Gets related data for objects. Requires SelectQueryInterface, that filters parent entity and 'with' array
 	 *
-	 * @param Result $parentEntityQuery
+	 * @param SelectQueryInterface $parentEntityQuery
 	 * @param array $with
 	 * @param array $relations
 	 * @return array
 	 */
-	final protected function getRelatedData(SelectQuery $parentEntityQuery, array $with = [], array $relations = null): array
+	final protected function getRelatedData(SelectQueryInterface $parentEntityQuery, array $with = [], array $relations = null): array
 	{
 		$relatedData = [];
 		$innerWith = [];

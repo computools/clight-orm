@@ -2,9 +2,9 @@
 
 namespace Computools\CLightORM\Database\Query\MySQL;
 
-use Computools\CLightORM\Database\Query\Query;
+use Computools\CLightORM\Database\Query\SelectQuery;
 
-class MySQLQuery extends Query
+class MySQLSelectSelectQuery extends SelectQuery
 {
 	public function getQuery(): string
 	{
@@ -31,17 +31,7 @@ class MySQLQuery extends Query
 
 		$joinString = implode(' ', $joinStrings);
 
-		$query = "
-			SELECT
-			{$this->select}
-			FROM
-			{$this->from} AS {$this->tables[$this->from]}
-			{$joinString}
-			{$where}
-			{$group}
-			{$order}
-			{$limit}
-		;";
+		$query = "SELECT {$this->select} FROM {$this->from} AS {$this->tables[$this->from]} {$joinString} {$where} {$group} {$order} {$limit};";
 
 		return $query;
 	}

@@ -4,7 +4,7 @@ namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\Cache\CacheInterface;
 use Computools\CLightORM\CLightORM;
-use Computools\CLightORM\Database\Query\Query;
+use Computools\CLightORM\Database\Query\SelectQuery;
 use Computools\CLightORM\Entity\EntityInterface;
 use Computools\CLightORM\Exception\WrongRepositoryCalledException;
 use Computools\CLightORM\Tools\Order;
@@ -36,7 +36,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $criteria;
 	}
 
-	protected function mapToEntity(Query $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
+	protected function mapToEntity(SelectQuery $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
 	{
 		return $this->mapper->arrayToEntity(
 			new $this->entityClassString,
@@ -44,7 +44,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		);
 	}
 
-	protected function mapToEntities(Query $query, array $with = []): array
+	protected function mapToEntities(SelectQuery $query, array $with = []): array
 	{
 		$result = [];
 

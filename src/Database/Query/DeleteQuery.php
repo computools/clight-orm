@@ -2,12 +2,10 @@
 
 namespace Computools\CLightORM\Database\Query;
 
-abstract class DeleteQuery
+use Computools\CLightORM\Database\Query\Contract\DeleteQueryInterface;
+
+abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
 {
-	abstract public function getQuery(): string;
-
-	private $pdo;
-
 	protected $from;
 
 	protected $where;
@@ -16,18 +14,13 @@ abstract class DeleteQuery
 
 	protected $whereExpr;
 
-	public function __construct(\PDO $pdo)
-	{
-		$this->pdo = $pdo;
-	}
-
-	public function from(string $from): self
+	public function from(string $from): DeleteQueryInterface
 	{
 		$this->from = $from;
 		return $this;
 	}
 
-	public function where(string $field, string $value): self
+	public function where(string $field, string $value): DeleteQueryInterface
 	{
 		$paramName = md5(uniqid()) . '_' . $field;
 		$this->where[$field] = ':' . $paramName;
@@ -36,13 +29,13 @@ abstract class DeleteQuery
 		return $this;
 	}
 
-	public function whereExpr(string $whereExpr): self
+	public function whereExpr(string $whereExpr): DeleteQueryInterface
 	{
 		$this->whereExpr[] = '(' . $whereExpr . ')';
 		return $this;
 	}
 
-	public function execute(array $params = []): self
+	public function execute(array $params = []): DeleteQueryInterface
 	{
 		$statement = $this->pdo->prepare($this->getQuery());
 		$statement->execute(array_merge($this->params, $params));

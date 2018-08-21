@@ -2,9 +2,10 @@
 
 namespace Computools\CLightORM\Database\Query\MySQL;
 
+use Computools\CLightORM\Database\Query\Contract\DeleteQueryInterface;
 use Computools\CLightORM\Database\Query\DeleteQuery;
 
-class MySQLDeleteQuery extends DeleteQuery
+class MySQLDeleteQuery extends DeleteQuery implements DeleteQueryInterface
 {
 	public function getQuery(): string
 	{

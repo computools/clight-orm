@@ -2,31 +2,11 @@
 
 namespace Computools\CLightORM\Database\Query;
 
-abstract class Query
+use Computools\CLightORM\Database\Query\Contract\SelectQueryInterface;
+use Computools\CLightORM\Database\Query\Structure\Join;
+
+abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 {
-	protected $pdo;
-
-	abstract public function getQuery(): string;
-
-	public function __construct(\PDO $pdo)
-	{
-		$this->pdo = $pdo;
-	}
-
-	public function execute(array $params = []): self
-	{
-		$statement = $this->pdo->prepare($this->getQuery());
-		$statement->execute(array_merge($this->params, $params));
-
-		if ($statement->errorCode() !== \PDO::ERR_NONE) {
-			print_r($statement->errorInfo());
-			die();
-		}
-		$result = $statement->fetchAll();
-		$this->setResult($result);
-		return $this;
-	}
-
 	protected $select = '*';
 
 	/**
@@ -56,13 +36,13 @@ abstract class Query
 
 	protected $params = [];
 
-	public function addSubquery(Query $query)
+	public function addSubquery(SelectQueryInterface $query): SelectQueryInterface
 	{
 		$this->subqueries[] = $query;
 		return $this;
 	}
 
-	public function join(Join $join): self
+	public function join(Join $join): SelectQueryInterface
 	{
 		$this->joins[] = $join;
 		$alias = $join->getAlias() ? $join->getAlias() : $join->getTable();
@@ -70,14 +50,14 @@ abstract class Query
 		return $this;
 	}
 
-	public function limit(int $limit, int $offset = 0)
+	public function limit(int $limit, int $offset = 0): SelectQueryInterface
 	{
 		$this->limit = $limit;
 		$this->offset = $offset;
 		return $this;
 	}
 
-	public function whereArray(array $criteria): self
+	public function whereArray(array $criteria): SelectQueryInterface
 	{
 		foreach ($criteria as $key => $value) {
 			$paramName = md5(uniqid()) . '_' . $key;
@@ -87,7 +67,7 @@ abstract class Query
 		return $this;
 	}
 
-	public function where(string $field, string $value): self
+	public function where(string $field, string $value): SelectQueryInterface
 	{
 		$paramName = md5(uniqid()) . '_' . $field;
 		$this->where[$field] = ':' . $paramName;
@@ -96,25 +76,25 @@ abstract class Query
 		return $this;
 	}
 
-	public function whereExpr(string $whereExpr): self
+	public function whereExpr(string $whereExpr): SelectQueryInterface
 	{
 		$this->whereExpr[] = '(' . $whereExpr . ')';
 		return $this;
 	}
 
-	public function orderBy(string $field, string $direction = 'ASC'): self
+	public function orderBy(string $field, string $direction = 'ASC'): SelectQueryInterface
 	{
 		$this->order[] = "{$field} {$direction}";
 		return $this;
 	}
 
-	public function select(string $select): self
+	public function select(string $select): SelectQueryInterface
 	{
 		$this->select = $select;
 		return $this;
 	}
 
-	public function from(string $table, string $alias = null)
+	public function from(string $table, string $alias = null): SelectQueryInterface
 	{
 		$this->from = $table;
 		if (!$alias) {
@@ -124,13 +104,13 @@ abstract class Query
 		return $this;
 	}
 
-	public function groupBy(string $field)
+	public function groupBy(string $field): SelectQueryInterface
 	{
 		$this->group[] = $field;
 		return $this;
 	}
 
-	public function getResult()
+	public function getResult(): array
 	{
 		return $this->result;
 	}
@@ -140,10 +120,23 @@ abstract class Query
 		return $this->result[0] ?? null;
 	}
 
-
-	public function setResult($result)
+	public function setResult($result): SelectQueryInterface
 	{
 		$this->result = $result;
+		return $this;
+	}
+
+	public function execute(array $params = []): SelectQueryInterface
+	{
+		$statement = $this->pdo->prepare($this->getQuery());
+		$statement->execute(array_merge($this->params, $params));
+
+		if ($statement->errorCode() !== \PDO::ERR_NONE) {
+			print_r($statement->errorInfo());
+			die();
+		}
+		$result = $statement->fetchAll();
+		$this->setResult($result);
 		return $this;
 	}
 }

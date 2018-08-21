@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\{
-	Cache\CacheInterface, CLightORM, Database\Query\Query, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
+	Cache\CacheInterface, CLightORM, Database\Query\Contract\SelectQueryInterface, Database\Query\SelectQuery, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
 };
 
 use Computools\CLightORM\Mapper\Relations\{
@@ -138,10 +138,7 @@ abstract class RepositoryCore
 					unset($data[$relation->getEntityField()]);
 					continue;
 				}
-				$relatedName = $relation->getRelationType()->getTable();
 				if ($relatedIds = $data[$relation->getEntityField()] ?? null) {
-
-					//$data[$relatedName] = [];
 					unset($data[$relation->getEntityField()]);
 
 					$query = $this->orm->createQuery();
@@ -157,28 +154,6 @@ abstract class RepositoryCore
 					if (count($relatedIds) > count($query->getResult())) {
 						throw new NestedEntityDoesNotExistsException();
 					}
-
-//					$data[$relatedName][] = [
-//						$relation->getTableName() => $query->getResult()
-//					];
-
-//					foreach ($relatedIds as $id) {
-//						if (!$relatedField = $this->database->table($relation->getTableName())
-//															->where(
-//																$relation
-//																	->getRelationType()
-//																	->getRelatedEntity()
-//																	->getMapper()
-//																	->getIdentifier(),
-//																$id)->fetch()) {
-//
-//						} {
-//
-//						}
-//						$data[$relatedName][] = [
-//							$relation->getTableName() => $relatedField
-//						];
-//					}
 				}
 			}
 		}
@@ -201,7 +176,7 @@ abstract class RepositoryCore
 	 * @param array $relations
 	 * @return array
 	 */
-	final protected function getRelatedData(Query $parentEntityQuery, array $with = [], array $relations = null): array
+	final protected function getRelatedData(SelectQuery $parentEntityQuery, array $with = [], array $relations = null): array
 	{
 		$relatedData = [];
 		$innerWith = [];
@@ -319,16 +294,16 @@ abstract class RepositoryCore
 	 * Database insert operation
 	 *
 	 * @param array $data
-	 * @return Row
+	 * @return SelectQueryInterface
 	 */
-	protected function create(array $data): Query
+	protected function create(array $data): SelectQueryInterface
 	{
 		$query = $this->orm->createInsertQuery();
 
 		$query
 			->into($this->table)
 			->values($data);
-		$id = $query->execute();
+		$id = $query->execute()->getLastId();
 
 		return $this->orm->createQuery()
 						 ->from($this->table)
@@ -342,9 +317,9 @@ abstract class RepositoryCore
 	 * @param EntityInterface $entity
 	 * @param array $data
 	 * @param bool $relationExistsCheck
-	 * @return Row
+	 * @return SelectQueryInterface
 	 */
-	protected function update(EntityInterface $entity, array $data, $relationExistsCheck = false): Query
+	protected function update(EntityInterface $entity, array $data, $relationExistsCheck = false): SelectQueryInterface
 	{
 		unset($data[$this->mapper->getIdentifier()]);
 		$query = $this->orm->createUpdateQuery();

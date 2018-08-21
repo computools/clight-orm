@@ -2,9 +2,8 @@
 
 namespace Computools\CLightORM\Repository;
 
-use Computools\CLightORM\Database\Query\Join;
-use Computools\CLightORM\Database\Query\MySQLQuery;
-use Computools\CLightORM\Database\Query\Query;
+use Computools\CLightORM\Database\Query\Structure\Join;
+use Computools\CLightORM\Database\Query\SelectQuery;
 use Computools\CLightORM\Exception\InvalidFieldMapException;
 use Computools\CLightORM\Mapper\RelationMap;
 use Computools\CLightORM\Mapper\Relations\ManyToMany;
@@ -34,9 +33,9 @@ trait RelatedDataTrait
 	 * @param Result $parentEntityQuery
 	 * @param RelationMap $relation
 	 * @param array $relatedData
-	 * @return Result
+	 * @return SelectQuery
 	 */
-	private function getRelatedDataResult(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
+	private function getRelatedDataResult(SelectQuery $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQuery
 	{
 		$this->createEmptyRelatedDataItem($relation, $relatedData);
 
@@ -64,12 +63,12 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getOneToManyRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
+	private function getOneToManyRelatedData(SelectQuery $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQuery
 	{
 		$table = $relation->getRelationType()->getRelatedEntity()->getMapper()->getTable();
 
 		/**
-		 * @var Query $query
+		 * @var SelectQuery $query
 		 */
 		$query = $this->orm->createQuery();
 
@@ -104,14 +103,14 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getManyOrOneToOneRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
+	private function getManyOrOneToOneRelatedData(SelectQuery $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQuery
 	{
 		$table = $relation->getTableName();
 
 		$parentIds = $this->makeInArgument($parentEntityQuery->getResult(), $relation->getRelationType()->getFieldName());
 
 		/**
-		 * @var Query $query
+		 * @var SelectQuery $query
 		 */
 		$query = $this->orm->createQuery();
 		$query
@@ -142,7 +141,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return Result
 	 */
-	private function getManyToManyRelatedData(Query $parentEntityQuery, RelationMap $relation, array &$relatedData): Query
+	private function getManyToManyRelatedData(SelectQuery $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQuery
 	{
 		$table = $relation->getRelationType()->getTable();
 		$relatedTableName = $relation->getTableName();
@@ -153,7 +152,7 @@ trait RelatedDataTrait
 		//find relation table rows
 
 		/**
-		 * @var Query $query
+		 * @var SelectQuery $query
 		 */
 		$query = $this->orm->createQuery();
 
@@ -234,7 +233,7 @@ trait RelatedDataTrait
 	 * @param RelationMap $relation
 	 * @param $relatedData
 	 */
-	private function getInnerData(array $innerWith = [], Query $query, RelationMap $relation, &$relatedData)
+	private function getInnerData(array $innerWith = [], SelectQuery $query, RelationMap $relation, &$relatedData)
 	{
 		if ($query && !empty($innerWith)) {
 			$innerData = $this->getRelatedData(

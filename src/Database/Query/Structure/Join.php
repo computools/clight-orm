@@ -1,6 +1,6 @@
 <?php
 
-namespace Computools\CLightORM\Database\Query;
+namespace Computools\CLightORM\Database\Query\Structure;
 
 class Join
 {

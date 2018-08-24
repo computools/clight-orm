@@ -3,11 +3,15 @@
 namespace Computools\CLightORM\Database\Query\MySQL;
 
 use Computools\CLightORM\Database\Query\SelectQuery;
+use Computools\CLightORM\Exception\Query\TableNotSpecifiedException;
 
 class MySQLSelectSelectQuery extends SelectQuery
 {
 	public function getQuery(): string
 	{
+		if (empty($this->from)) {
+			throw new TableNotSpecifiedException();
+		}
 		$where = [];
 		foreach ($this->where as $key => $value) {
 			$where[] = $key . '=' . $value;

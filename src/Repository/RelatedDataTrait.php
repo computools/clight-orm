@@ -2,6 +2,7 @@
 
 namespace Computools\CLightORM\Repository;
 
+use Computools\CLightORM\Database\Query\Contract\ResultQueryInterface;
 use Computools\CLightORM\Database\Query\Contract\SelectQueryInterface;
 use Computools\CLightORM\Database\Query\Structure\Join;
 use Computools\CLightORM\Database\Query\SelectQuery;
@@ -35,7 +36,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getRelatedDataResult(SelectQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getRelatedDataResult(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
 	{
 		$this->createEmptyRelatedDataItem($relation, $relatedData);
 
@@ -63,7 +64,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getOneToManyRelatedData(SelectQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getOneToManyRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
 	{
 		$table = $relation->getRelationType()->getRelatedEntity()->getMapper()->getTable();
 
@@ -103,7 +104,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getManyOrOneToOneRelatedData(SelectQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getManyOrOneToOneRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
 	{
 		$table = $relation->getTableName();
 
@@ -141,7 +142,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getManyToManyRelatedData(SelectQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getManyToManyRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
 	{
 		$table = $relation->getRelationType()->getTable();
 		$relatedTableName = $relation->getTableName();
@@ -229,7 +230,7 @@ trait RelatedDataTrait
 	 * @param RelationMap $relation
 	 * @param $relatedData
 	 */
-	private function getInnerData(array $innerWith = [], SelectQueryInterface $query, RelationMap $relation, &$relatedData): void
+	private function getInnerData(array $innerWith = [], ResultQueryInterface $query, RelationMap $relation, &$relatedData): void
 	{
 		if ($query && !empty($innerWith)) {
 			$innerData = $this->getRelatedData(

@@ -13,27 +13,33 @@ class PostRepository extends AbstractRepository
 		return Post::class;
 	}
 
-	public function findByAuthor(User $user, $with = []): array
+	public function findLastNative()
 	{
-		$query = $this->database->table(
-			$this->entity->getMapper()->getTable()
-		)->where('author_id', $user->getId());
-		return $this->mapToEntities($query->fetchAll(), $query, $with);
+		$query = $this->orm->createQuery();
+		$query->from($this->table);
+		$query->orderBy('id', 'DESC');
+		$query->limit(1);
+		$query->execute();
+		return $this->mapToEntity($query, ['author', 'editor']);
 	}
 
-	public function findByAuthorNative(User $user): array
+	public function findFirstNative()
 	{
-		$query = $this->database->prepare('
-			SELECT * FROM post WHERE author_id = :authorId
-		');
-		$query->execute([
-			'authorId' => $user->getId()
-		]);
+		$query = $this->orm->createQuery();
+		$query
+			->from($this->table)
+			->whereExpr('id < :id')
+			->limit(1)
+			->execute(['id' => 6]);
+		return $this->mapToEntity($query, ['author']);
+	}
 
-		$result = [];
-		foreach ($query->fetchAll() as $row) {
-			$result[] = $this->entity->getMapper()->arrayToEntity(new Post(), $row);
-		}
-		return $result;
+	public function findByNativeQuery()
+	{
+		$query = $this->orm->createNativeQuery();
+		$query->setQuery("SELECT * FROM post WHERE id=:id;");
+		$query->addParameter('id', 6);
+		$query->execute();
+		return $this->mapToEntity($query, ['author' => ['posts_as_author']]);
 	}
 }

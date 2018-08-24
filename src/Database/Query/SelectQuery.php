@@ -4,10 +4,16 @@ namespace Computools\CLightORM\Database\Query;
 
 use Computools\CLightORM\Database\Query\Contract\SelectQueryInterface;
 use Computools\CLightORM\Database\Query\Structure\Join;
+use Computools\CLightORM\Exception\Query\InvalidOrderDirectionException;
 use Computools\CLightORM\Exception\QueryException;
 
 abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 {
+	protected $possibleOrderDirections = [
+		'asc',
+		'desc'
+	];
+
 	protected $select = '*';
 
 	/**
@@ -36,12 +42,6 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 	protected $result = null;
 
 	protected $params = [];
-
-	public function addSubquery(SelectQueryInterface $query): SelectQueryInterface
-	{
-		$this->subqueries[] = $query;
-		return $this;
-	}
 
 	public function join(Join $join): SelectQueryInterface
 	{
@@ -85,6 +85,9 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 
 	public function orderBy(string $field, string $direction = 'ASC'): SelectQueryInterface
 	{
+		if (!in_array(mb_strtolower($direction), $this->possibleOrderDirections)) {
+			throw new InvalidOrderDirectionException();
+		}
 		$this->order[] = "{$field} {$direction}";
 		return $this;
 	}
@@ -111,7 +114,7 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 		return $this;
 	}
 
-	public function getResult(): array
+	public function getResult(): ?array
 	{
 		return $this->result;
 	}

@@ -4,8 +4,7 @@ namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\Cache\CacheInterface;
 use Computools\CLightORM\CLightORM;
-use Computools\CLightORM\Database\Query\Contract\SelectQueryInterface;
-use Computools\CLightORM\Database\Query\SelectQuery;
+use Computools\CLightORM\Database\Query\Contract\ResultQueryInterface;
 use Computools\CLightORM\Entity\EntityInterface;
 use Computools\CLightORM\Exception\WrongRepositoryCalledException;
 use Computools\CLightORM\Tools\Order;
@@ -34,7 +33,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		return $criteria;
 	}
 
-	protected function mapToEntity(SelectQueryInterface $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
+	protected function mapToEntity(ResultQueryInterface $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
 	{
 		return $this->mapper->arrayToEntity(
 			new $this->entityClassString,
@@ -42,17 +41,12 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		);
 	}
 
-	protected function mapToEntities(SelectQueryInterface $query, array $with = []): array
+	protected function mapToEntities(ResultQueryInterface $query, array $with = []): array
 	{
 		$result = [];
-
 		$relatedData = $this->getRelatedData($query, $with);
-
 		$rows = $query->getResult();
 
-		/**
-		 * @var Row[] $rows
-		 */
 		foreach($rows as $row) {
 			$result[] = $this->mapToEntity($query, $with, $row, $relatedData);
 		}

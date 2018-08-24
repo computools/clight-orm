@@ -255,7 +255,7 @@ To get certain entity repository just call create method with class string as ar
     )
     
 *expiration* parameter can be used to store search result to cache. If isn't equals 0 than first call result will be stored to cache. Then method call will return data from cache, until expires.
-For detailed description see [Cache](##Cache)
+For detailed description see *Cache* part.
 
 *With* parameter provides you possibility to include related entities into result. You may also get related entities of related entity etc.
 For example:
@@ -313,53 +313,68 @@ Or
 
     $posts = $repository->findByUser($this->getUser(), ['theme'], (new Pagination())->setLimitOffset(20, 0));
     
-You can also use ***database*** object inside the repository class to make some custom queries, based on ***LessQL***.
-For example:
+You can also use **orm** object inside the repository class to make some custom queries.
 
-    public function findByUser(User $user): ?Post
-    {
-        return $this->findBy(['user_id' => $user->getId()]);
-    }
-    
-This construction can be changed like this:
+##Queries
 
-    public function findByUser(User $user, array $with = [], ?Pagination $pagination = null): array
+You can use built-in queries objects to do some custom logic.
+
+CLightORM object can create any type of queries. This object is accessable inside any repository:
+
+    class PostRepository extends AstractRepository
     {
-        $query = $this->database->table(
-            $this->entity->getMapper()->getTable()
-        )
-        ->where('user_id', $user->getId())
-        ->limit($pagination->getLimit(), $pagination->getOffset());
+        public function getEntityClass(): string
+        {
+            return Post::class;
+        }
         
-        return $this->mapToEntities($query->fetchAll(), $query, $with);
+        public function findPostsCustom()
+        {
+            $query = $this->orm->createQuery();
+            
+            $query
+                ->select('id, name')
+                ->from($this->table)
+                ->where('title', 'test')
+                ->where('type', 'test')
+                ->whereExpr('id < 5')
+                ->whereExpr('id > 2')
+                ->whereArray([
+                    'title' => 'test',
+                    'type' => 'test'
+                ])
+                ->groupBy('id')
+                ->order('id', 'DESC')
+                ->limit(10, 5)
+                ->execute();
+                
+            return $query->getResult();
+        }
     }
+
+Method above demonstrates possible methods for query. It returns array as result. If you want to map result to some entity, you must not specify select fields, and call *mapToEntity* or *mapToEntities* method:
+
+    $query
+        ->from($this->table);
+        ->whereExpr('id < 5')
+        ->whereExpr('id > 2')
+        ->execute();
+    return $this->mapToEntities($query, ['author', 'editor']);
     
-Original query **must** be provided as second argument to build relations (if needed). Also this way of implementation supports ***$with*** relations search.
-If you want to find one entity but not array, you can call:
-    
-    $this->mapToEntity($query->fetch(), $query, $with)
-    
-Third way is to implement native query:
+To use JOIN command, you can use Computools\CLightORM\Database\Query\Structure\Join.
+Constructor arguments are:
+* string $type (LEFT, RIGHT, INNER)
+* string $table (table name)
+* string $condition (on p.user_id = u.id for example)
+* string $alias = null
 
 
-    public function findByAuthorNative(User $user): array
-	{
-            $query = $this->database->prepare('
-                SELECT * FROM post WHERE author_id = :authorId
-            ');
-            $query->execute([
-                'authorId' => $user->getId()
-            ]);
+    $query
+        ->from('post', 'p')
+        ->join(new Join('INNER', 'user', 'ON p.author_id = u.id', 'u'))
+        ->where('p.id', 5)
+        ->execute()
     
-            $result = [];
-            foreach ($query->fetchAll() as $row) {
-                $result[] = $this->entity->getMapper()->arrayToEntity(new Post(), $row);
-            }
-            return $result;
-	}
-	
-This way is not support relations mapping, so you need to make it by yourself.
-
 **Many-to-Many** relations saving can do checks for already existed relations. So if you want relations to not duplicate, you can provide third parameter as **true**:
 
     $post = $postRepository->find(1);

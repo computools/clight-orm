@@ -174,4 +174,53 @@ class DatabaseFindTest extends BaseTest
 		$this->assertInstanceOf(User::class, $post->getAuthor());
 		$this->assertInstanceOf(UserProfile::class, $post->getAuthor()->getProfile());
 	}
+
+	public function testFindLastNative()
+	{
+		/**
+		 * @var PostRepository $postRepository
+		 */
+		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+
+		/**
+		 * @var Post $post
+		 */
+		$post = $postRepository->findLastNative();
+
+		$this->assertInstanceOf(Post::class, $post);
+		$this->assertInstanceOf(User::class, $post->getAuthor());
+		$this->assertInstanceOf(User::class, $post->getEditor());
+	}
+
+	public function testFirstNativeExpression()
+	{
+		/**
+		 * @var PostRepository $postRepository
+		 */
+		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+
+		/**
+		 * @var Post $post
+		 */
+		$post = $postRepository->findFirstNative();
+
+		$this->assertInstanceOf(Post::class, $post);
+		$this->assertInstanceOf(User::class, $post->getAuthor());
+		$this->assertNull($post->getEditor());
+	}
+
+	public function testNativeQuery()
+	{
+		/**
+		 * @var PostRepository $postRepository
+		 */
+		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
+		/**
+		 * @var Post $post
+		 */
+		$post = $postRepository->findByNativeQuery();
+
+		$this->assertInstanceOf(Post::class, $post);
+		$this->assertInstanceOf(User::class, $post->getAuthor());
+	}
 }

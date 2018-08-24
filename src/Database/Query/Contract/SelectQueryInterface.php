@@ -4,11 +4,8 @@ namespace Computools\CLightORM\Database\Query\Contract;
 
 use Computools\CLightORM\Database\Query\Structure\Join;
 
-interface
-SelectQueryInterface extends CommonQueryInterface
+interface SelectQueryInterface extends ResultQueryInterface
 {
-	public function addSubquery(SelectQueryInterface $query): SelectQueryInterface;
-
 	public function join(Join $join): SelectQueryInterface;
 
 	public function limit(int $limit, int $offset = 0): SelectQueryInterface;
@@ -26,8 +23,4 @@ SelectQueryInterface extends CommonQueryInterface
 	public function from(string $table, string $alias = null): SelectQueryInterface;
 
 	public function groupBy(string $field): SelectQueryInterface;
-
-	public function getResult(): array;
-
-	public function getFirst(): ?array;
 }

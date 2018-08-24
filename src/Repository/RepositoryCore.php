@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\{
-	Cache\CacheInterface, CLightORM, Database\Query\Contract\SelectQueryInterface, Database\Query\SelectQuery, Entity\AbstractEntity, Entity\EntityInterface, Exception\EntityDoesNotExistsException, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
+	Cache\CacheInterface, CLightORM, Database\Query\Contract\ResultQueryInterface, Database\Query\Contract\SelectQueryInterface, Entity\AbstractEntity, Entity\EntityInterface, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
 };
 
 use Computools\CLightORM\Mapper\Relations\{
@@ -172,7 +172,7 @@ abstract class RepositoryCore
 	 * @param array $relations
 	 * @return array
 	 */
-	final protected function getRelatedData(SelectQueryInterface $parentEntityQuery, array $with = [], array $relations = null): array
+	final protected function getRelatedData(ResultQueryInterface $parentEntityQuery, array $with = [], array $relations = null): array
 	{
 		$relatedData = [];
 		$innerWith = [];

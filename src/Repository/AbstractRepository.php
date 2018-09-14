@@ -113,6 +113,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			$query->where($key , $value);
 		}
 		$query->limit(1);
+		$query->execute();
 		if (!$result = $query->getFirst()) {
 			return null;
 		}

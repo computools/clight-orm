@@ -5,7 +5,7 @@ namespace Computools\CLightORM\Database\Query\MySQL;
 use Computools\CLightORM\Database\Query\SelectQuery;
 use Computools\CLightORM\Exception\Query\TableNotSpecifiedException;
 
-class MySQLSelectSelectQuery extends SelectQuery
+class MySQLSelectQuery extends SelectQuery
 {
 	public function getQuery(): string
 	{
@@ -38,5 +38,10 @@ class MySQLSelectSelectQuery extends SelectQuery
 		$query = "SELECT {$this->select} FROM {$this->from} AS {$this->tables[$this->from]} {$joinString} {$where} {$group} {$order} {$limit};";
 
 		return $query;
+	}
+
+	public function getConcatQuery(string $field, string $separator, string $alias): string
+	{
+		return "GROUP_CONCAT(DISTINCT $field SEPARATOR '$separator') AS $alias";
 	}
 }

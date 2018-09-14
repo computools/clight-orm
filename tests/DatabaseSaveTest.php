@@ -222,5 +222,4 @@ class DatabaseSaveTest extends BaseTest
 
 		$this->assertNull($post);
 	}
-
 }

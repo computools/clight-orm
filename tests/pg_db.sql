@@ -80,7 +80,8 @@ ALTER SEQUENCE authors_id_seq OWNED BY authors.id;
 
 CREATE TABLE books (
     id integer NOT NULL,
-    name character varying(255) NOT NULL
+    title character varying(255) NOT NULL,
+    price real
 );
 
 
@@ -174,7 +175,7 @@ CREATE TABLE post (
     editor_id integer,
     is_published boolean NOT NULL,
     date_published timestamp(0) without time zone NOT NULL,
-    title character varying(255) NOT NULL
+    post_title character varying(255) NOT NULL
 );
 
 
@@ -275,7 +276,8 @@ ALTER SEQUENCE user_profile_id_seq OWNED BY user_profile.id;
 
 CREATE TABLE users (
     id integer NOT NULL,
-    name character varying(255) NOT NULL
+    name character varying(255) NOT NULL,
+    profile_id integer
 );
 
 
@@ -370,6 +372,53 @@ COPY authors_books (book_id, author_id) FROM stdin;
 1	1
 1	1
 1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
 \.
 
 
@@ -384,8 +433,8 @@ SELECT pg_catalog.setval('authors_id_seq', 1, true);
 -- Data for Name: books; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-COPY books (id, name) FROM stdin;
-1	test book
+COPY books (id, title, price) FROM stdin;
+1	test book	15.2200003
 \.
 
 
@@ -401,6 +450,53 @@ SELECT pg_catalog.setval('books_id_seq', 1, true);
 --
 
 COPY books_theme (theme_id, book_id) FROM stdin;
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
+1	1
 1	1
 1	1
 1	1
@@ -427,6 +523,31 @@ COPY categorization (post_id, category_id) FROM stdin;
 20	1
 23	1
 23	1
+5	1
+8	1
+8	1
+11	1
+11	1
+14	1
+14	1
+17	1
+17	1
+20	1
+20	1
+23	1
+23	1
+26	1
+26	1
+29	1
+29	1
+29	2
+32	1
+35	1
+35	2
+1	1
+1	2
+2	2
+2	1
 \.
 
 
@@ -436,6 +557,9 @@ COPY categorization (post_id, category_id) FROM stdin;
 
 COPY category (id, title) FROM stdin;
 1	test category
+2	new category
+3	new category 2
+4	new category 4
 \.
 
 
@@ -450,15 +574,7 @@ SELECT pg_catalog.setval('category_id_seq', 1, true);
 -- Data for Name: post; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-COPY post (id, author_id, editor_id, is_published, date_published, title) FROM stdin;
-1	1	1	f	2018-05-25 14:06:23	New post
-2	1	1	f	2018-05-25 14:06:23	New post
-3	1	1	f	2018-05-25 14:07:26	New post
-4	1	1	f	2018-05-25 14:07:26	New post
-5	1	1	t	2018-05-25 14:07:26	some title
-6	1	1	f	2018-05-25 14:08:01	New post
-7	1	1	f	2018-05-25 14:08:01	New post
-8	1	1	t	2018-05-25 14:08:01	some title
+COPY post (id, author_id, editor_id, is_published, date_published, post_title) FROM stdin;
 9	1	1	f	2018-05-25 14:08:11	New post
 10	1	1	f	2018-05-25 14:08:11	New post
 11	1	1	t	2018-05-25 14:08:11	some title
@@ -474,6 +590,52 @@ COPY post (id, author_id, editor_id, is_published, date_published, title) FROM s
 21	1	1	f	2018-05-25 14:10:02	New post
 22	1	1	f	2018-05-25 14:10:02	New post
 23	1	1	t	2018-05-25 14:10:02	some title
+24	1	1	f	2018-05-25 14:17:50	New post
+25	1	1	f	2018-05-25 14:17:50	New post
+26	1	1	t	2018-05-25 14:17:50	some title
+27	1	1	f	2018-05-25 14:19:48	New post
+28	1	1	f	2018-05-25 14:19:48	New post
+57	1	1	f	2018-08-28 15:46:03	New post
+58	1	1	f	2018-08-28 15:46:03	New post
+29	1	1	t	2018-05-25 14:19:48	some title
+30	1	1	f	2018-08-28 15:42:48	New post
+31	1	1	f	2018-08-28 15:42:48	New post
+32	1	1	t	2018-08-28 15:42:48	some title
+33	1	1	f	2018-08-28 15:42:53	New post
+34	1	1	f	2018-08-28 15:42:53	New post
+35	1	1	t	2018-08-28 15:42:53	some title
+36	1	1	f	2018-08-28 15:43:02	New post
+37	1	1	f	2018-08-28 15:43:02	New post
+60	1	1	f	2018-08-28 15:50:37	New post
+61	1	1	f	2018-08-28 15:50:37	New post
+39	1	1	f	2018-08-28 15:43:22	New post
+40	1	1	f	2018-08-28 15:43:22	New post
+42	1	1	f	2018-08-28 15:43:35	New post
+43	1	1	f	2018-08-28 15:43:35	New post
+63	1	1	f	2018-08-28 15:50:39	New post
+64	1	1	f	2018-08-28 15:50:39	New post
+45	1	1	f	2018-08-28 15:43:36	New post
+46	1	1	f	2018-08-28 15:43:36	New post
+48	1	1	f	2018-08-28 15:43:37	New post
+49	1	1	f	2018-08-28 15:43:37	New post
+1	5	5	f	2018-05-25 14:06:23	New post
+2	5	5	f	2018-05-25 14:06:23	New post
+3	5	5	f	2018-05-25 14:07:26	New post
+51	1	1	f	2018-08-28 15:43:51	New post
+52	1	1	f	2018-08-28 15:43:51	New post
+4	5	5	f	2018-05-25 14:07:26	New post
+5	5	5	t	2018-05-25 14:07:26	some title
+6	5	5	f	2018-05-25 14:08:01	New post
+54	1	1	f	2018-08-28 15:43:52	New post
+55	1	1	f	2018-08-28 15:43:52	New post
+7	5	5	f	2018-05-25 14:08:01	New post
+8	5	5	t	2018-05-25 14:08:01	some title
+66	5	5	f	2018-08-31 15:04:38	New post
+67	1	1	f	2018-08-31 15:04:38	New post
+69	5	5	f	2018-08-31 15:04:40	New post
+70	1	1	f	2018-08-31 15:04:40	New post
+72	5	5	f	2018-08-31 15:04:42	New post
+73	1	1	f	2018-08-31 15:04:42	New post
 \.
 
 
@@ -481,7 +643,7 @@ COPY post (id, author_id, editor_id, is_published, date_published, title) FROM s
 -- Name: post_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('post_id_seq', 23, true);
+SELECT pg_catalog.setval('post_id_seq', 74, true);
 
 
 --
@@ -513,6 +675,29 @@ COPY user_profile (id, user_id, first_name, last_name) FROM stdin;
 6	1	test	test
 7	1	test	test
 8	1	test	test
+9	1	test	test
+10	1	test	test
+11	1	test	test
+12	1	test	test
+13	1	test	test
+14	1	test	test
+15	1	test	test
+16	1	test	test
+17	1	test	test
+18	1	test	test
+19	1	test	test
+20	1	test	test
+21	1	test	test
+22	1	test	test
+23	1	test	test
+24	1	test	test
+25	1	test	test
+26	1	test	test
+27	1	test	test
+28	1	test	test
+29	5	test	test
+30	5	test	test
+31	5	test	test
 \.
 
 
@@ -520,22 +705,70 @@ COPY user_profile (id, user_id, first_name, last_name) FROM stdin;
 -- Name: user_profile_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('user_profile_id_seq', 8, true);
+SELECT pg_catalog.setval('user_profile_id_seq', 31, true);
 
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-COPY users (id, name) FROM stdin;
-1	New name
-2	New name
-3	New name
-4	New name
-5	New name
-6	New name
-7	New name
-8	New name
+COPY users (id, name, profile_id) FROM stdin;
+5	New name	\N
+6	New name	\N
+7	New name	\N
+8	New name	\N
+9	New name	\N
+10	New name	\N
+11	Test name	\N
+12	New name	\N
+13	Test name	\N
+14	New name	\N
+15	6d21c595fc59997	\N
+16	New name	\N
+17	b46ee365b6e3aa4	\N
+18	New name	\N
+19	84cdc327304049d	\N
+20	New name	\N
+21	ee024e77ab50025	\N
+22	New name	\N
+23	299178ee27a2c7c	\N
+24	New name	\N
+25	a57fd6092b0fccb	\N
+26	New name	\N
+27	73ecab86e6315d8	\N
+28	New name	\N
+29	0aa4ac8b7f4527b	\N
+30	New name	\N
+31	b3abfd231dbb926	\N
+32	New name	\N
+33	891601163abe404	\N
+34	New name	\N
+35	e5019798de7e18f	\N
+36	New name	\N
+37	5eac0eefbba1872	\N
+38	New name	\N
+39	d99b5fe15828bd1	\N
+40	New name	\N
+41	0fb991997060a1c	\N
+42	New name	\N
+43	b3b2544f05bf572	\N
+44	New name	\N
+45	325bfe24ce08586	\N
+46	New name	\N
+47	17660a9a8d2b85d	\N
+48	New name	\N
+49	468fa80cef30e59	\N
+50	New name	\N
+1	New name	2
+2	New name	3
+3	New name	2
+4	New name	3
+51	8c6ee01c2b76c68	\N
+52	New name	\N
+53	3b60658f97b4c78	\N
+54	New name	\N
+55	83d1c4c5fc6419c	\N
+56	New name	\N
 \.
 
 
@@ -543,7 +776,7 @@ COPY users (id, name) FROM stdin;
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('users_id_seq', 8, true);
+SELECT pg_catalog.setval('users_id_seq', 56, true);
 
 
 --

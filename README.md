@@ -234,7 +234,7 @@ Here is the example:
     
 To get certain entity repository just call create method with class string as argument:
 
-    $repository = $clightORM->create(PostRepository::class);
+    $repository = $clightORM->createRepository(PostRepository::class);
     $repository->find(2);
 
 ### Repository methods
@@ -315,7 +315,8 @@ Or
     
 You can also use **orm** object inside the repository class to make some custom queries.
 
-##Queries
+
+## Query
 
 You can use built-in queries objects to do some custom logic.
 

@@ -13,9 +13,14 @@ use Computools\CLightORM\Database\Query\Contract\{
 
 use Computools\CLightORM\Database\Query\MySQL\MySQLDeleteQuery;
 use Computools\CLightORM\Database\Query\MySQL\MySQLInsertQuery;
-use Computools\CLightORM\Database\Query\MySQL\MySQLSelectSelectQuery;
+use Computools\CLightORM\Database\Query\MySQL\MySQLSelectQuery;
 use Computools\CLightORM\Database\Query\MySQL\MySQLUpdateQuery;
+use Computools\CLightORM\Database\Query\PostgreSQL\PostgreSQLSelectQuery;
+use Computools\CLightORM\Database\Query\PostgreSQL\PostgreSQLUpdateQuery;
+use Computools\CLightORM\Database\Query\PostgreSQL\PostgreSQLInsertQuery;
+use Computools\CLightORM\Database\Query\PostgreSQL\PostgreSQLDeleteQuery;
 use Computools\CLightORM\Database\Query\NativeQuery;
+
 use Computools\CLightORM\Exception\DriverIsNotSupportedException;
 use Computools\CLightORM\Repository\RepositoryInterface;
 
@@ -28,10 +33,16 @@ class CLightORM
 
 	private $classMap = [
 		'mysql' => [
-			self::SELECT => MySQLSelectSelectQuery::class,
+			self::SELECT => MySQLSelectQuery::class,
 			self::UPDATE => MySQLUpdateQuery::class,
 			self::INSERT => MySQLInsertQuery::class,
 			self::DELETE => MySQLDeleteQuery::class
+		],
+		'pgsql' => [
+			self::SELECT => PostgreSQLSelectQuery::class,
+			self::UPDATE => PostgreSQLUpdateQuery::class,
+			self::INSERT => PostgreSQLInsertQuery::class,
+			self::DELETE => PostgreSQLDeleteQuery::class
 		]
 	];
 

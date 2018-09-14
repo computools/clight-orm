@@ -19,6 +19,7 @@ use Computools\CLightORM\Test\Repository\{
 	PostRepository,
 	UserRepository
 };
+use Computools\CLightORM\Tools\Order;
 use Computools\CLightORM\Tools\Pagination;
 
 class DatabaseFindTest extends BaseTest
@@ -39,6 +40,7 @@ class DatabaseFindTest extends BaseTest
 
 		$this->assertInstanceOf(Post::class, $user->getPostsAsEditor()[0]);
 		$this->assertInstanceOf(Post::class, $user->getPostsAsAuthor()[0]);
+
 	}
 
 	public function testManyToOneRelations()
@@ -59,7 +61,7 @@ class DatabaseFindTest extends BaseTest
 	public function testManyToManyRelations()
 	{
 		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
-		$posts = $postRepository->findBy([], null, ['categories'], (new Pagination())->setLimitOffset(2, 0));
+		$posts = $postRepository->findBy([], new Order('id'), ['categories'], (new Pagination())->setLimitOffset(2, 0));
 
 		$this->assertInternalType('array', $posts);
 
@@ -97,7 +99,7 @@ class DatabaseFindTest extends BaseTest
 	{
 		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
 
-		$users = $userRepository->findBy([], null, ['profile'], (new Pagination())->setLimitOffset(2, 0));
+		$users = $userRepository->findBy([], new Order('id'), ['profile'], (new Pagination())->setLimitOffset(2, 0));
 
 		$this->assertInternalType('array', $users);
 

@@ -23,4 +23,6 @@ interface SelectQueryInterface extends ResultQueryInterface
 	public function from(string $table, string $alias = null): SelectQueryInterface;
 
 	public function groupBy(string $field): SelectQueryInterface;
+
+	public function getConcatQuery(string $field, string $separator, string $alias): string;
 }

@@ -3,9 +3,7 @@
 namespace Computools\CLightORM\Mapper;
 
 use Computools\CLightORM\{
-	Entity\EntityInterface,
-	Exception\IdentifierDoesNotExistsException,
-	Exception\NestedEntityDoesNotExistsException
+	Entity\EntityInterface, Exception\IdentifierDoesNotExistsException, Exception\InvalidFieldMapException, Exception\NestedEntityDoesNotExistsException
 };
 use Computools\CLightORM\Mapper\Relations\{
 	ManyToMany, ManyToOne, RelationInterface, ToManyInterface, ToOneInterface
@@ -101,6 +99,9 @@ abstract class Mapper implements MapperInterface
 			$entityField = $key;
 			if (!$field instanceof RelationInterface) {
 				$key = $field->getColumnName() ? $field->getColumnName() : $key;
+				if (!array_key_exists($key, $data)) {
+					throw new InvalidFieldMapException(get_class($entity), $key);
+				}
 				switch (true) {
 					case $field instanceof DateTimeType:
 						if ($data[$key]) {

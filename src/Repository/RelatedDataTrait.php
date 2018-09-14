@@ -18,6 +18,9 @@ trait RelatedDataTrait
 	private function makeInArgument(array $data, string $identifier): string
 	{
 		$childIds = array_map(function($item) use ($identifier) {
+			if (!array_key_exists($identifier, $item)) {
+				throw new InvalidFieldMapException($this->entityClassString, $identifier);
+			}
 			return $item[$identifier];
 		}, $data);
 
@@ -84,9 +87,11 @@ trait RelatedDataTrait
 			))
 		;
 
-		$query->execute([
-			'ids' => $parentIds
-		]);
+		if (!empty($parentIds)) {
+			$query->execute();
+		} else {
+			$query->setResult([]);
+		}
 
 		foreach($query->getResult() as $relationData) {
 			$relatedData[$relation->getEntityField()]['data'][$relationData[$relation->getRelationType()->getRelatedTableField()]][] =
@@ -122,12 +127,23 @@ trait RelatedDataTrait
 				$parentIds
 			));
 
-		$query->execute();
+		if (!empty($parentIds)) {
+			$query->execute();
+		} else {
+			$query->setResult([]);
+		}
 
 		foreach($parentEntityQuery->getResult() as $parentResult) {
-			foreach($query->getResult() as $childResult) {
-				if ($parentResult[$relation->getRelationType()->getFieldName()] == $childResult[$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier()]) {
-					$relatedData[$relation->getEntityField()]['data'][$childResult[$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier()]] = $childResult;
+			if ($query->getResult()) {
+				foreach ($query->getResult() as $childResult) {
+					if ($parentResult[$relation->getRelationType()->getFieldName()] ==
+						$childResult[$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier()]) {
+						$relatedData[$relation->getEntityField()]['data'][$childResult[$relation->getRelationType()
+																								->getRelatedEntity()
+																								->getMapper()
+																								->getIdentifier()
+						]] = $childResult;
+					}
 				}
 			}
 		}
@@ -153,7 +169,7 @@ trait RelatedDataTrait
 
 		//find relation table rows
 		/**
-		 * @var SelectQuery $query
+		 * @var SelectQueryInterface $query
 		 */
 		$query = $this->orm->createQuery();
 
@@ -173,11 +189,12 @@ trait RelatedDataTrait
 			implode(',', $parentIds)
 		);
 
-		$select = sprintf('GROUP_CONCAT(%s.%s) AS ids, %s.*',
+		$select = sprintf($query->getConcatQuery('%s.%s', ',', 'ids') . ', %s.*',
 			$table,
 			$relation->getRelationType()->getColumnName(),
 			$relatedTableName
 		);
+
 
 		$query
 			->select($select)
@@ -186,8 +203,11 @@ trait RelatedDataTrait
 			->whereExpr($where)
 			->groupBy($relation->getTableName() . '.' . $relatedTableIdentifier);
 
-		$query->execute();
-
+		if (!empty($parentIds)) {
+			$query->execute();
+		} else {
+			$query->setResult([]);
+		}
 
 		foreach ($parentEntityQuery->getResult() as $parentResult) {
 			foreach ($query->getResult() as $childResult) {

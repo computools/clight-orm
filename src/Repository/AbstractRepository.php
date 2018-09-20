@@ -132,10 +132,9 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 
 		$query = $this->orm->createQuery();
 		$query->from($this->table);
-		$params = [];
+
 		foreach ($criteria as $key => $value) {
 			$query->where($key, $value);
-			$params[$key] = $value;
 		}
 
 		if ($order) {
@@ -150,7 +149,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			}
 		}
 
-		$query->execute($params);
+		$query->execute();
 		$result = $this->mapToEntities($query, $with);
 		$this->putToCache($result, $this->mergeCriteria($criteria, $with, $order ? $order->toArray() : []), $expiration);
 		return $result;

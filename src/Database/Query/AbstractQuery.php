@@ -17,4 +17,9 @@ abstract class AbstractQuery
 	{
 		$this->pdo = $pdo;
 	}
+
+	protected function generateParamName(string $key): string
+    {
+        return  md5(uniqid()) . '_' . str_replace('.', '', $key);
+    }
 }

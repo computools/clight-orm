@@ -22,7 +22,7 @@ abstract class InsertQuery extends AbstractQuery implements InsertQueryInterface
 	public function values(array $values): InsertQueryInterface
 	{
 		foreach ($values as $key => $value) {
-			$paramName = md5(uniqid()) . '_' . $key;
+			$paramName = $this->generateParamName($key);
 			$this->values[$key] = ':' . $paramName;
 			$this->params[$paramName] = $value;
 		}

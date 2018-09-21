@@ -61,7 +61,7 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 	public function whereArray(array $criteria): SelectQueryInterface
 	{
 		foreach ($criteria as $key => $value) {
-			$paramName = md5(uniqid()) . '_' . $key;
+			$paramName = $this->generateParamName($key);
 			$this->where[$key] = ':' . $paramName;
 			$this->params[$paramName] = $value;
 		}
@@ -70,7 +70,7 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 
 	public function where(string $field, string $value): SelectQueryInterface
 	{
-		$paramName = md5(uniqid()) . '_' . $field;
+		$paramName = $this->generateParamName($field);
 		$this->where[$field] = ':' . $paramName;
 		$this->params[$paramName] = $value;
 

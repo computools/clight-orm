@@ -19,7 +19,7 @@ abstract class UpdateQuery extends AbstractQuery implements UpdateQueryInterface
 
 	public function where(string $field, string $value): UpdateQueryInterface
 	{
-		$paramName = md5(uniqid()) . '_' . $field;
+		$paramName = $this->generateParamName($field);
 		$this->where[$field] = ':' . $paramName;
 		$this->params[$paramName] = $value;
 

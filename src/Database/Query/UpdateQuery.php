@@ -19,11 +19,14 @@ abstract class UpdateQuery extends AbstractQuery implements UpdateQueryInterface
 
 	public function where(string $field, string $value): UpdateQueryInterface
 	{
-		$paramName = $this->generateParamName($field);
-		$this->where[$field] = ':' . $paramName;
-		$this->params[$paramName] = $value;
+        $paramName = $this->generateParamName($field);
+        $this->where[$field] = ':' . $paramName;
+        if (is_bool($value)) {
+            $value = $value ? 'TRUE' : 'FALSE';
+        }
+        $this->params[$paramName] = $value;
 
-		return $this;
+        return $this;
 	}
 
 	public function whereExpr(string $whereExpr): UpdateQueryInterface
@@ -40,12 +43,15 @@ abstract class UpdateQuery extends AbstractQuery implements UpdateQueryInterface
 
 	public function values(array $values): UpdateQueryInterface
 	{
-		foreach ($values as $key => $value) {
-			$paramName = md5(uniqid()) . '_' . $key;
-			$this->values[$key] = ':' . $paramName;
-			$this->params[$paramName] = $value;
-		}
-		return $this;
+        foreach ($values as $key => $value) {
+            $paramName = md5(uniqid()) . '_' . $key;
+            $this->values[$key] = ':' . $paramName;
+            if (is_bool($value)) {
+                $value = $value ? 'TRUE' : 'FALSE';
+            }
+            $this->params[$paramName] = $value;
+        }
+        return $this;
 	}
 
 	public function execute(array $params = []): UpdateQueryInterface

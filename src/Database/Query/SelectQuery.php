@@ -60,21 +60,27 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 
 	public function whereArray(array $criteria): SelectQueryInterface
 	{
-		foreach ($criteria as $key => $value) {
-			$paramName = $this->generateParamName($key);
-			$this->where[$key] = ':' . $paramName;
-			$this->params[$paramName] = $value;
-		}
-		return $this;
+        foreach ($criteria as $key => $value) {
+            $paramName = $this->generateParamName($key);
+            $this->where[$key] = ':' . $paramName;
+            if (is_bool($value)) {
+                $value = $value ? 'TRUE' : 'FALSE';
+            }
+            $this->params[$paramName] = $value;
+        }
+        return $this;
 	}
 
 	public function where(string $field, string $value): SelectQueryInterface
 	{
-		$paramName = $this->generateParamName($field);
-		$this->where[$field] = ':' . $paramName;
-		$this->params[$paramName] = $value;
+        $paramName = $this->generateParamName($field);
+        $this->where[$field] = ':' . $paramName;
+        if (is_bool($value)) {
+            $value = $value ? 'TRUE' : 'FALSE';
+        }
+        $this->params[$paramName] = $value;
 
-		return $this;
+        return $this;
 	}
 
 	public function whereExpr(string $whereExpr): SelectQueryInterface

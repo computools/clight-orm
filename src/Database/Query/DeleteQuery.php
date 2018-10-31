@@ -30,6 +30,19 @@ abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
 		return $this;
 	}
 
+    public function whereArray(array $criteria): DeleteQueryInterface
+    {
+        foreach ($criteria as $key => $value) {
+            $paramName = $this->generateParamName($key);
+            $this->where[$key] = ':' . $paramName;
+            if (is_bool($value)) {
+                $value = $value ? 'TRUE' : 'FALSE';
+            }
+            $this->params[$paramName] = $value;
+        }
+        return $this;
+    }
+
 	public function whereExpr(string $whereExpr): DeleteQueryInterface
 	{
 		$this->whereExpr[] = '(' . $whereExpr . ')';

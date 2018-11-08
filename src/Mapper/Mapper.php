@@ -9,13 +9,8 @@ use Computools\CLightORM\Mapper\Relations\{
 	ManyToMany, ManyToOne, RelationInterface, ToManyInterface, ToOneInterface
 };
 use Computools\CLightORM\Mapper\Types\{
-	BooleanType,
 	ColumnType,
-	CreatedAtType,
-	DateTimeType,
-	FloatType,
-	IdType,
-	UpdatedAtType
+	IdType
 };
 
 abstract class Mapper implements MapperInterface
@@ -61,31 +56,12 @@ abstract class Mapper implements MapperInterface
 				if (!array_key_exists($key, $data)) {
 					throw new InvalidFieldMapException(get_class($entity), $key);
 				}
-				switch (true) {
-					case $field instanceof DateTimeType:
-						if ($data[$key]) {
-							if ($data[$key] instanceof \DateTime) {
-                                ReflectionHelper::setEntityProperty($entity, $entityField, $data[$key]);
-							} else {
-                                ReflectionHelper::setEntityProperty($entity, $entityField, new \DateTime($data[$key]));
-							}
-						} else {
-                            ReflectionHelper::setEntityProperty($entity, $entityField, null);
-						}
-						break;
-					case $field instanceof BooleanType:
-                        ReflectionHelper::setEntityProperty($entity, $entityField, (int) $data[$key] ? true : false);
-						break;
-					case $field instanceof IdType:
-                        ReflectionHelper::setEntityProperty($entity, $entityField, $data[$entity->getMapper()->getIdentifier()]);
-						break;
-					case $field instanceof FloatType:
-                        ReflectionHelper::setEntityProperty($entity, $entityField, $data[$key] ? floatval($data[$key]) : null);
-						break;
-					default:
-                        ReflectionHelper::setEntityProperty($entity, $entityField, $data[$key]);
-						break;
-				}
+
+				if ($field instanceof IdType) {
+                    ReflectionHelper::setEntityProperty($entity, $entityField, $data[$entity->getMapper()->getIdentifier()]);
+                } else {
+                    ReflectionHelper::setEntityProperty($entity, $entityField, $field->unserialize($data[$key], $entity));
+                }
 			} else {
 				$relatedEntityClass = $field->getEntityClass();
 				if ($field instanceof ManyToOne) {
@@ -108,44 +84,13 @@ abstract class Mapper implements MapperInterface
 		return $entity;
 	}
 
-	public function cleanField(EntityInterface $entity, string $field): EntityInterface
-	{
-		$setter = $this->defineSetterName($field);
-		$entity->$setter(null);
-		return $entity;
-	}
-
 	private function mapBaseTypeToArray(EntityInterface $entity, ColumnType $columnType, string $key, array &$result): void
 	{
 		$entityField = $key;
 		$key = $columnType->getColumnName() ? $columnType->getColumnName() : $key;
 
 		$entityValue = ReflectionHelper::getEntityProperty($entity, $entityField);
-		switch (true) {
-			case $columnType instanceof CreatedAtType:
-				$result[$key] = $entity->isNew()
-                    ? (new \DateTime())->format($columnType->getFormat())
-                    : (
-                        $entityValue
-                            ? $entityValue->format($columnType->getFormat())
-                            : null
-                    );
-				break;
-			case $columnType instanceof UpdatedAtType:
-				$result[$key] = (new \DateTime())->format($columnType->getFormat());
-				break;
-			case $columnType instanceof BooleanType:
-				$result[$key] =  $columnType->asInt() ? ($entityValue ? 1 : 0) : ($entityValue);
-				break;
-			case $columnType instanceof FloatType:
-				$result[$key] =  $entityValue ? floatval($entityValue) : null;
-				break;
-			case $columnType instanceof DateTimeType:
-				$result[$key] = ($entityValue) ? $entityValue->format($columnType->getFormat()) : null;
-				break;
-			default:
-				$result[$key] =  $entityValue;
-		}
+        $result[$key] = $columnType->serialize($entityValue, $entity);
 	}
 
 	private function mapRelationToArray(EntityInterface $entity, RelationInterface $relation, string $key, array &$result): void

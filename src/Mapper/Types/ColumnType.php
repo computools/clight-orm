@@ -2,6 +2,8 @@
 
 namespace Computools\CLightORM\Mapper\Types;
 
+use Computools\CLightORM\Entity\EntityInterface;
+
 abstract class ColumnType
 {
 	protected $columnName;
@@ -15,4 +17,14 @@ abstract class ColumnType
 	{
 		return $this->columnName;
 	}
+
+	public function serialize($value, EntityInterface $entity)
+    {
+        return $value;
+    }
+
+	public function unserialize($value, EntityInterface $entity)
+    {
+        return $value;
+    }
 }

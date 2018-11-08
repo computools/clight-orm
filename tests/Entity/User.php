@@ -12,7 +12,7 @@ class User extends AbstractEntity
 
 	private $name;
 
-	private $postsAsAuthor;
+	private $posts_as_author;
 
 	private $postsAsEditor;
 
@@ -58,12 +58,12 @@ class User extends AbstractEntity
 	 */
 	public function getPostsAsAuthor()
 	{
-		return $this->postsAsAuthor;
+		return $this->posts_as_author;
 	}
 
 	public function setPostsAsAuthor($postsAsAuthor)
 	{
-		$this->postsAsAuthor = $postsAsAuthor;
+		$this->posts_as_author = $postsAsAuthor;
 	}
 
 	public function getPostsAsEditor()

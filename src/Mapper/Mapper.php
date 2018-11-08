@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Mapper;
 
 use Computools\CLightORM\{
-	Entity\EntityInterface, Exception\IdentifierDoesNotExistsException, Exception\InvalidFieldMapException, Exception\NestedEntityDoesNotExistsException
+    Entity\EntityInterface, Exception\IdentifierDoesNotExistsException, Exception\InvalidFieldMapException, Exception\NestedEntityDoesNotExistsException, Helper\ReflectionHelper, Helper\StringHelper
 };
 use Computools\CLightORM\Mapper\Relations\{
 	ManyToMany, ManyToOne, RelationInterface, ToManyInterface, ToOneInterface
@@ -23,15 +23,6 @@ abstract class Mapper implements MapperInterface
 	abstract function getFields(): array;
 
 	abstract function getTable(): string;
-
-	private function toCamelCase(string $sting, $lowerFirst = false): string
-	{
-		$fieldParts = array_map(function($item) {
-			return ucfirst($item);
-		}, explode('_', $sting));
-		$camelCase = implode('', $fieldParts);
-		return $lowerFirst ? lcfirst($camelCase) : $camelCase;
-	}
 
 	public function getIdentifierFromArray(array $data): ?int
 	{
@@ -61,38 +52,6 @@ abstract class Mapper implements MapperInterface
 		throw new IdentifierDoesNotExistsException();
 	}
 
-	public function defineSetterName(string $field, bool $addKeyword = true): string
-	{
-		return sprintf(
-			'%s%s',
-			$addKeyword ? 'set' : '',
-			$this->toCamelCase($field, !$addKeyword)
-		);
-	}
-
-	public function defineGetterName(string $field, bool $addKeyword = true): string
-	{
-		return sprintf(
-			'%s%s',
-			$addKeyword ? 'get' : '',
-			$this->toCamelCase($field, !$addKeyword)
-		);
-	}
-
-	public function mapList(EntityInterface $entity, string $field, array $collection): EntityInterface
-	{
-		$field = $this->defineSetterName($field);
-		$entity->$field($collection);
-		return $entity;
-	}
-
-	public function mapEntity(EntityInterface $parentEntity, string $field, EntityInterface $childEntity): EntityInterface
-	{
-		$field = $this->defineSetterName($field);
-		$parentEntity->$field($childEntity);
-		return $parentEntity;
-	}
-
 	final public function arrayToEntity(EntityInterface $entity, array $data = null): ?EntityInterface
 	{
 		foreach ($entity->getMapper()->getFields() as $key => $field) {
@@ -106,45 +65,42 @@ abstract class Mapper implements MapperInterface
 					case $field instanceof DateTimeType:
 						if ($data[$key]) {
 							if ($data[$key] instanceof \DateTime) {
-								$entity->setField($entityField, $data[$key]);
+                                ReflectionHelper::setEntityProperty($entity, $entityField, $data[$key]);
 							} else {
-								$entity->setField($entityField, new \DateTime($data[$key]));
+                                ReflectionHelper::setEntityProperty($entity, $entityField, new \DateTime($data[$key]));
 							}
 						} else {
-							$entity->setField($entityField, null);
+                            ReflectionHelper::setEntityProperty($entity, $entityField, null);
 						}
 						break;
 					case $field instanceof BooleanType:
-						$entity->setField($entityField, (int) $data[$key] ? true : false);
+                        ReflectionHelper::setEntityProperty($entity, $entityField, (int) $data[$key] ? true : false);
 						break;
 					case $field instanceof IdType:
-						$entity->setField($entityField, $data[$entity->getMapper()->getIdentifier()]);
+                        ReflectionHelper::setEntityProperty($entity, $entityField, $data[$entity->getMapper()->getIdentifier()]);
 						break;
 					case $field instanceof FloatType:
-						$entity->setField($entityField, $data[$key] ? floatval($data[$key]) : null);
+                        ReflectionHelper::setEntityProperty($entity, $entityField, $data[$key] ? floatval($data[$key]) : null);
 						break;
 					default:
-						$entity->setField($entityField, $data[$key]);
+                        ReflectionHelper::setEntityProperty($entity, $entityField, $data[$key]);
 						break;
 				}
 			} else {
 				$relatedEntityClass = $field->getEntityClass();
 				if ($field instanceof ManyToOne) {
 					if ($data[$key] ?? null) {
-						$entity->setField(
-							$entityField,
-							$this->arrayToEntity(new $relatedEntityClass(), $data[$key])
-						);
+                        ReflectionHelper::setEntityProperty($entity, $entityField, $this->arrayToEntity(new $relatedEntityClass(), $data[$key]));
 					}
 				} else {
 					if ($data[$key] ?? null) {
-						$result = [];
+						$collection = [];
 						foreach ($data[$key] as $collectionItem) {
-							$result[] = $this->arrayToEntity(new $relatedEntityClass(), $collectionItem);
+                            $collection[] = $this->arrayToEntity(new $relatedEntityClass(), $collectionItem);
 						}
-						$entity->setField($entityField, $result);
+                        ReflectionHelper::setEntityProperty($entity, $entityField, $collection);
 					} else if ($field instanceof ToManyInterface) {
-						$entity->setField($entityField, []);
+						ReflectionHelper::setEntityProperty($entity, $entityField, []);
 					}
 				}
 			}
@@ -163,24 +119,32 @@ abstract class Mapper implements MapperInterface
 	{
 		$entityField = $key;
 		$key = $columnType->getColumnName() ? $columnType->getColumnName() : $key;
+
+		$entityValue = ReflectionHelper::getEntityProperty($entity, $entityField);
 		switch (true) {
 			case $columnType instanceof CreatedAtType:
-				$result[$key] = $entity->isNew() ? (new \DateTime())->format($columnType->getFormat()) : ($entity->getField($entityField) ? $entity->getField($entityField)->format($columnType->getFormat()) : null);
+				$result[$key] = $entity->isNew()
+                    ? (new \DateTime())->format($columnType->getFormat())
+                    : (
+                        $entityValue
+                            ? $entityValue->format($columnType->getFormat())
+                            : null
+                    );
 				break;
 			case $columnType instanceof UpdatedAtType:
 				$result[$key] = (new \DateTime())->format($columnType->getFormat());
 				break;
 			case $columnType instanceof BooleanType:
-				$result[$key] =  $columnType->asInt() ? ($entity->getField($entityField) ? 1 : 0) : ($entity->getField($entityField));
+				$result[$key] =  $columnType->asInt() ? ($entityValue ? 1 : 0) : ($entityValue);
 				break;
 			case $columnType instanceof FloatType:
-				$result[$key] =  $entity->getField($entityField) ? floatval($entity->getField($entityField)) : null;
+				$result[$key] =  $entityValue ? floatval($entityValue) : null;
 				break;
 			case $columnType instanceof DateTimeType:
-				$result[$key] = ($datetime = $entity->getField($entityField)) ? $datetime->format($columnType->getFormat()) : null;
+				$result[$key] = ($entityValue) ? $entityValue->format($columnType->getFormat()) : null;
 				break;
 			default:
-				$result[$key] =  $entity->getField($entityField);
+				$result[$key] =  $entityValue;
 		}
 	}
 
@@ -188,15 +152,15 @@ abstract class Mapper implements MapperInterface
 	{
 		$entityField = $key;
 		if ($relation instanceof ToOneInterface) {
-			$nestedEntity = $entity->getField($entityField);
+			$nestedEntity = ReflectionHelper::getEntityProperty($entity, $entityField);
 			if ($nestedEntity) {
-				if (!$id = $entity->getField($entityField)->getIdValue()) {
+				if (!$id = $nestedEntity->getIdValue()) {
 					throw new NestedEntityDoesNotExistsException();
 				}
 				$result[$relation->getFieldName()] = $id;
 			}
 		} else if ($relation instanceof ManyToMany) {
-			$relatedObjects = $entity->getField($entityField);
+			$relatedObjects = ReflectionHelper::getEntityProperty($entity, $entityField);
 
 			if (!empty($relatedObjects)) {
 				$result[$key] = [];

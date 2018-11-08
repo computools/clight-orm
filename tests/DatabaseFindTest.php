@@ -24,6 +24,15 @@ use Computools\CLightORM\Tools\Pagination;
 
 class DatabaseFindTest extends BaseTest
 {
+    public function testFind()
+    {
+        $userRepository = $this->cligtORM->createRepository(UserRepository::class);
+        $user = $userRepository->find(1, ['posts_as_author' => ['author']]);
+
+
+        $b = 1;
+    }
+
 	public function testOneToManyRelations()
 	{
 		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
@@ -144,7 +153,7 @@ class DatabaseFindTest extends BaseTest
 			 * @var User $user
 			 */
 		$user = $userRepository->findFirst([
-			'posts_as_author' => [
+			'postsAsAuthor' => [
 				'categories' => [
 					'posts'
 				]

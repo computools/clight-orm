@@ -19,17 +19,17 @@ use Computools\CLightORM\Test\Repository\UserRepository;
 
 class DatabaseSaveTest extends BaseTest
 {
-	public function testSave()
-	{
-		$user = new User();
-		$user->setName('Test name');
-		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
-
-		$userRepository->save($user);
-
-		$this->assertInstanceOf(User::class, $user);
-		$this->assertInternalType('integer', $user->getId());
-	}
+//	public function testSave()
+//	{
+//		$user = new User();
+//		$user->setName('Test name');
+//		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
+//
+//		$userRepository->save($user);
+//
+//		$this->assertInstanceOf(User::class, $user);
+//		$this->assertInternalType('integer', $user->getId());
+//	}
 
 	public function testUpdate()
 	{

@@ -19,30 +19,30 @@ class BaseTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		// mysql
-		$pdo = new \PDO(
-			sprintf(
-				'%s:host=%s;port=%s;dbname=%s',
-				'mysql',
-				'127.0.0.1',
-				'3306',
-				'test'
-			),
-		'root',
-		'1234'
-		);
-
-		// pgsql
 //		$pdo = new \PDO(
 //			sprintf(
 //				'%s:host=%s;port=%s;dbname=%s',
-//				'pgsql',
+//				'mysql',
 //				'127.0.0.1',
-//				'5432',
+//				'3306',
 //				'test'
 //			),
-//			'postgres',
-//			'postgres'
+//		'root',
+//		'1234'
 //		);
+
+		// pgsql
+		$pdo = new \PDO(
+			sprintf(
+				'%s:host=%s;port=%s;dbname=%s',
+				'pgsql',
+				'127.0.0.1',
+				'5432',
+				'test'
+			),
+			'postgres',
+			'postgres'
+		);
 
 
 		$this->cligtORM = new CLightORM($pdo, new Filecache());

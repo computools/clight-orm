@@ -8,10 +8,6 @@ interface EntityInterface
 {
 	public function getIdValue(): ?int;
 
-	public function getField(string $field);
-
-	public function setField(string $field, $value = null);
-
 	public function getMapper(): MapperInterface;
 
 	public function isNew(): bool;

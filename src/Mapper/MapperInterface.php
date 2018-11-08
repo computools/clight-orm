@@ -12,10 +12,6 @@ interface MapperInterface
 
 	public function arrayToEntity(EntityInterface $entity, array $data): ?EntityInterface;
 
-	public function mapList(EntityInterface $entity, string $field, array $collection): EntityInterface;
-
-	public function mapEntity(EntityInterface $parentEntity, string $field, EntityInterface $childEntity): EntityInterface;
-
 	public function entityToArray(EntityInterface $entity): array;
 
 	public function cleanField(EntityInterface $entity, string $field): EntityInterface;
@@ -23,8 +19,4 @@ interface MapperInterface
 	public function getIdentifier(): string;
 
 	public function getIdentifierEntityField(): string;
-
-	public function defineGetterName(string $field, bool $addKeyword = true): string;
-
-	public function defineSetterName(string $field, bool $addKeyword = true): string;
 }

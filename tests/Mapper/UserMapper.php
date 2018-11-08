@@ -22,7 +22,7 @@ class UserMapper extends Mapper
 		return [
 			'id' => new IdType(),
 			'name' => new StringType(),
-			'posts_as_author' => new OneToMany(new Post(), 'author_id'),
+			'postsAsAuthor' => new OneToMany(new Post(), 'author_id'),
 			'posts_as_editor' => new OneToMany(new Post(), 'editor_id'),
 			'profile' => new OneToOne(new UserProfile(), 'profile_id')
 		];

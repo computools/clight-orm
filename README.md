@@ -55,7 +55,6 @@ Lets have a look:
 
 Keys must be specified as table column names.
 
-No matter if it's camel case or underscore used for database columns and field map keys, entity fields supposed to be named in camel case.
  
 ### Allowed field types:
 * **IdType** with optional parameter 'identifierField', that need to be specified if tables identifier column name is not 'id'
@@ -96,9 +95,9 @@ No matter if it's camel case or underscore used for database columns and field m
     
         private $name;
     
-        private $authors;
+        private $authors = [];
     
-        private $themes;
+        private $themes = [];
     
         private $price;
     
@@ -107,12 +106,7 @@ No matter if it's camel case or underscore used for database columns and field m
             return $this->id;
         }
     
-        public function setId(?int $id): void
-        {
-            $this->id = $id;
-        }
-    
-        public function getName(): ?string
+        public function getName(): ?tring
         {
             return $this->name;
         }
@@ -122,25 +116,14 @@ No matter if it's camel case or underscore used for database columns and field m
             $this->name = $name;
         }
     
-        public function getAuthors(): ?array
+        public function getAuthors(): array
         {
             return $this->authors;
         }
     
-        public function setAuthors(?array $authors)
-        {
-            $this->authors = $authors;
-        }
-    
-    
-        public function getThemes(): ?array
+        public function getThemes(): array
         {
             return $this->themes;
-        }
-    
-        public function setThemes(?array $themes): void
-        {
-            $this->themes = $themes;
         }
         
         public function getPrice(): ?float 
@@ -148,16 +131,13 @@ No matter if it's camel case or underscore used for database columns and field m
             return $this->price;
         }
         
-        public function setPrice(?float $price)
+        public function setPrice(float $price)
         {
             $this->price = $price;
         }
     }
     
 Get mapper method is required.
-
-Also if you want to use type hints, make sure that you always will set this parameters. Otherwise allow them to take and return null.
-
 
 Id field must have ability to take null in case of new entity, that have not been saved to database yet.
 

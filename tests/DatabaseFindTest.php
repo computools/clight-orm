@@ -24,13 +24,19 @@ use Computools\CLightORM\Tools\Pagination;
 
 class DatabaseFindTest extends BaseTest
 {
-    public function testFind()
+    public function testHaving()
     {
-        $userRepository = $this->cligtORM->createRepository(UserRepository::class);
-        $user = $userRepository->find(1, ['posts_as_author' => ['author']]);
+        $queryBuilder = $this->cligtORM->createQuery();
+        $queryBuilder->select('COUNT(*), category_id');
+        $queryBuilder->from('categorization');
+        $queryBuilder->where('category_id', 2);
+        $queryBuilder->groupBy('category_id');
+        $queryBuilder->having('category_id > :id');
+        $queryBuilder->execute(['id' => 1]);
+        $result = $queryBuilder->getResult();
 
-
-        $b = 1;
+        $this->assertInternalType('array', $result);
+        $this->assertGreaterThan(0, count($result));
     }
 
 	public function testOneToManyRelations()

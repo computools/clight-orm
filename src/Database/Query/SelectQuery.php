@@ -43,6 +43,8 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 
 	protected $params = [];
 
+	protected $having = [];
+
 	public function join(Join $join): SelectQueryInterface
 	{
 		$this->joins[] = $join;
@@ -50,6 +52,12 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 		$this->tables[$join->getTable()] = $alias;
 		return $this;
 	}
+
+	public function having(string $condition): SelectQueryInterface
+    {
+        $this->having[] = '(' . $condition . ')';
+        return $this;
+    }
 
 	public function limit(int $limit, int $offset = 0): SelectQueryInterface
 	{

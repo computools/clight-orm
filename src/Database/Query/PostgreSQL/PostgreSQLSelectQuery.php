@@ -18,6 +18,7 @@ class PostgreSQLSelectQuery extends SelectQuery
 		}
 		$where = empty($this->where) && empty($this->whereExpr) ? '' : ' WHERE ' . implode(' AND ', array_merge($where, $this->whereExpr));
 		$group = empty($this->group) ? '' : ' GROUP BY ' . implode(',', $this->group);
+        $having = empty($this->having) ? '' : 'HAVING ' . implode(' AND ', $this->having);
 		$order = empty($this->order) ? '' : ' ORDER BY ' . implode(',', $this->order);
 		$limit = empty($this->limit) ? '' : " LIMIT {$this->limit}";
 		$offset = empty($this->offset) ? '' : " OFFSET {$this->offset}";
@@ -36,7 +37,7 @@ class PostgreSQLSelectQuery extends SelectQuery
 
 		$joinString = implode(' ', $joinStrings);
 
-		$query = "SELECT {$this->select} FROM {$this->from} AS {$this->tables[$this->from]} {$joinString} {$where} {$group} {$order} {$limit} {$offset};";
+		$query = "SELECT {$this->select} FROM {$this->from} AS {$this->tables[$this->from]} {$joinString} {$where} {$group} {$having} {$order} {$limit} {$offset};";
 
 		return $query;
 	}

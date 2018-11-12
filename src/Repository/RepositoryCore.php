@@ -257,34 +257,41 @@ abstract class RepositoryCore
 			foreach($field as $actionType => $value) {
 				$relationMap = $this->getRelationByField($key);
 				$table = $relationMap->getRelationType()->getTable();
+                $ids = implode(',', $value);
 				if ($actionType === AbstractEntity::RELATION_CHANGE_REMOVE) {
-					$ids = implode(',', $value);
 					$this->orm->createDeleteQuery()
 						->from($table)
 						->where($relationMap->getRelationType()->getColumnName(), $id)
 						->whereExpr($relationMap->getRelationType()->getReferencedColumnName() . ' IN (' . $ids . ')')
 						->execute();
 				} else if ($actionType === AbstractEntity::RELATION_CHANGE_ADD) {
+				    $query = $this->orm->createQuery();
+				    $query
+                        ->select($relationMap->getRelationType()->getReferencedColumnName())
+                        ->from($table)
+                        ->where($relationMap->getRelationType()->getColumnName(), $id)
+                        ->whereExpr($relationMap->getRelationType()->getReferencedColumnName() . ' IN (' . $ids . ')')
+                        ->execute();
+                    $existedIds = $query->getPick($relationMap->getRelationType()->getReferencedColumnName());
+
 					foreach($value as $relatedId) {
-						$criteria = [
-							$relationMap->getRelationType()->getColumnName() => $id,
-							$relationMap->getRelationType()->getReferencedColumnName() => $relatedId
-						];
-						$query = $this->orm->createQuery();
-						$query
-							->from($table)
-							->whereArray($criteria);
-						if (!$relationExistsCheck || !$query->execute()->getFirst()) {
-							$this->orm->createInsertQuery()
-								->into($table)
-								->values($criteria)
-								->execute();
-						}
+                        if (!$relationExistsCheck || !in_array($relatedId, $existedIds)) {
+                            $criteria = [
+                                $relationMap->getRelationType()->getColumnName() => $id,
+                                $relationMap->getRelationType()->getReferencedColumnName() => $relatedId
+                            ];
+
+                            $this->orm->createInsertQuery()
+                                    ->into($table)
+                                    ->values($criteria)
+                                    ->execute();
+                        }
 					}
 				}
 			}
 		}
-	}
+    }
+
 
 	/**
 	 * Database insert operation

@@ -133,6 +133,16 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 		return $this->result;
 	}
 
+    public function getPick(string $field): array
+    {
+        if (!is_array($this->result)) {
+            return [];
+        }
+        return array_map(function(array $item) use ($field) {
+            return $item[$field] ?? null;
+        }, $this->result);
+    }
+
 	public function getFirst(): ?array
 	{
 		return $this->result[0] ?? null;

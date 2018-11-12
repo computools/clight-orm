@@ -19,17 +19,17 @@ use Computools\CLightORM\Test\Repository\UserRepository;
 
 class DatabaseSaveTest extends BaseTest
 {
-//	public function testSave()
-//	{
-//		$user = new User();
-//		$user->setName('Test name');
-//		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
-//
-//		$userRepository->save($user);
-//
-//		$this->assertInstanceOf(User::class, $user);
-//		$this->assertInternalType('integer', $user->getId());
-//	}
+	public function testSave()
+	{
+		$user = new User();
+		$user->setName('Test name');
+		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
+
+		$userRepository->save($user);
+
+		$this->assertInstanceOf(User::class, $user);
+		$this->assertInternalType('integer', $user->getId());
+	}
 
 	public function testUpdate()
 	{
@@ -171,16 +171,27 @@ class DatabaseSaveTest extends BaseTest
 
 	public function testUpdateManyToManyWithUniqueCheck()
 	{
-		$category = $this->cligtORM->createRepository(CategoryRepository::class)->findFirst();
+	    $categoryRepository = $this->cligtORM->createRepository(CategoryRepository::class);
+		$category = new Category();
+		$category->setTitle('test new');
+		$categoryRepository->save($category);
+
 		$postRepository = $this->cligtORM->createRepository(PostRepository::class);
 
-		$post = $postRepository->findLast();
-		$post->addRelation($category);
-		$post = $postRepository->save($post, ['categories'], true);
+		/**
+         * @var Post $post
+         */
+		$post = $postRepository->findFirst(['categories']);
 
-		$this->assertInstanceOf(Post::class, $post);
-		$this->assertInternalType('array', $post->getCategories());
-		$this->assertEquals(2, count($post->getCategories()));
+		$existedCategory = $post->getCategories()[0];
+		$existedCategoriesCount = count($post->getCategories());
+
+		$post->addRelation($category);
+        $post->addRelation($existedCategory);
+
+		$postRepository->save($post, ['categories'], true);
+
+		$this->assertEquals($existedCategoriesCount + 1, count($post->getCategories()));
 	}
 
 	public function testMultipleManyToManyConnections()

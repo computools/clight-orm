@@ -78,6 +78,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$query
 			->select('*')
 			->from($this->table)
+            ->orderBy($this->mapper->getIdentifier())
 			->limit(1);
 		$query->execute();
 

@@ -11,7 +11,7 @@ abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
 
 	protected $where = [];
 
-	protected $params;
+	protected $params = [];
 
 	protected $whereExpr = [];
 

@@ -19,7 +19,25 @@ use Computools\CLightORM\Test\Repository\UserRepository;
 
 class DatabaseSaveTest extends BaseTest
 {
-	public function testSave()
+	public function testMassFill()
+    {
+        $title = 'some title';
+        $price = 123;
+
+        $book = new Book();
+        $book->fill([
+            'name' => $title,
+            'price' => $price
+        ]);
+        $this->cligtORM->createRepository(BookRepository::class)->save($book);
+
+        $this->assertInstanceOf(Book::class, $book);
+        $this->assertEquals($title, $book->name);
+        $this->assertEquals($price, $book->price);
+        $this->assertInternalType('integer', $book->id);
+    }
+
+    public function testSave()
 	{
 		$user = new User();
 		$user->setName('Test name');

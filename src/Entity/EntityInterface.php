@@ -14,6 +14,8 @@ interface EntityInterface
 
 	public function getRelationChanges(): array;
 
+	public function fill(array $values): EntityInterface;
+
 	public function addRelation(EntityInterface $entity): void;
 
 	public function removeRelation(EntityInterface $entity): void;

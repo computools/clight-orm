@@ -13,6 +13,11 @@ class Book extends AbstractEntity
 		return new BookMapper();
 	}
 
+	protected $allowedFields = [
+	    'name',
+        'price'
+    ];
+
 	public $id;
 
 	public $name;

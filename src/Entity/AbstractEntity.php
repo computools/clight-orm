@@ -14,6 +14,18 @@ abstract class AbstractEntity implements EntityInterface
 
 	private $relationChanges = [];
 
+	protected $allowedFields = [];
+
+	public function fill(array $values): EntityInterface
+    {
+        foreach ($values as $key => $value) {
+            if (in_array($key, $this->allowedFields)) {
+                ReflectionHelper::setEntityProperty($this, $key, $value);
+            }
+        }
+        return $this;
+    }
+
 	public function getIdValue(): ?int
 	{
 		return ReflectionHelper::getEntityProperty($this, $this->getMapper()->getIdentifierEntityField());

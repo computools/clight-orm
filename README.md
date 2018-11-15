@@ -172,6 +172,38 @@ If you want to add many-to-many relation for two entities, you can call *addRela
     
     $post->removeRelation($user);
 
+ORM has ability to execute mass assignment for entity. So you can use this construction
+    
+    $book = new Book();
+    $book->fill([
+        'name' => 'Book name',
+        'price' => 10.99
+    ]);
+    $bookRepository->save($book);
+    
+instead of
+
+    $book = new Book();
+    $book->setName('Book name');
+    $book->setPrice(10.99);
+    $bookRepository->save($book);
+
+That kind of action will be allowed if $allowedFields property was set for entity.
+So it will looks like
+
+    class Book
+    {
+        protected $allowedFields = [
+            'name',
+            'price'
+        ];
+        
+        public $name;
+        
+        public $price;
+    }
+
+This is list of fields, that can be set with fill() method. If specified field is not presents in the list - it will be skipped.
 
 ## Repository
     use Computools\CLightORM\Repository\AbstractRepository;

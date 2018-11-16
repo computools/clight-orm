@@ -2,23 +2,52 @@
 
 namespace Computools\CLightORM\Test;
 
-use Computools\CLightORM\Test\Entity\Author;
-use Computools\CLightORM\Test\Entity\Book;
-use Computools\CLightORM\Test\Entity\Category;
-use Computools\CLightORM\Test\Entity\Post;
-use Computools\CLightORM\Test\Entity\Theme;
-use Computools\CLightORM\Test\Entity\User;
-use Computools\CLightORM\Test\Entity\UserProfile;
-use Computools\CLightORM\Test\Repository\AuthorRepository;
-use Computools\CLightORM\Test\Repository\BookRepository;
-use Computools\CLightORM\Test\Repository\CategoryRepository;
-use Computools\CLightORM\Test\Repository\PostRepository;
-use Computools\CLightORM\Test\Repository\ThemeRepository;
-use Computools\CLightORM\Test\Repository\UserProfileRepository;
-use Computools\CLightORM\Test\Repository\UserRepository;
+use Computools\CLightORM\Test\Entity\{
+    Author,
+    Book,
+    Category,
+    Post,
+    Theme,
+    User,
+    UserProfile
+};
+use Computools\CLightORM\Test\Repository\{
+    AuthorRepository,
+    BookRepository,
+    CategoryRepository,
+    PostRepository,
+    ThemeRepository,
+    UserProfileRepository,
+    UserRepository
+};
+
 
 class DatabaseSaveTest extends BaseTest
 {
+    public function testJsonType()
+    {
+        $book = new Book();
+        $book->price = 10;
+        $book->name = 'Test';
+        $book->data = [
+            'test' => 'test',
+            'new test' => 'new test'
+        ];
+        $book->dataBinary = [
+            'binary test' => 'binary test',
+            'new binary test' => 'new binary test'
+        ];
+
+        $bookRepository = $this->cligtORM->createRepository(BookRepository::class);
+        $bookRepository->save($book);
+
+        $this->assertInstanceOf(Book::class, $book);
+        $this->assertInternalType('array', $book->data);
+        $this->assertArrayHasKey('test', $book->data);
+        $this->assertInternalType('array', $book->dataBinary);
+        $this->assertArrayHasKey('binary test', $book->dataBinary);
+    }
+
 	public function testMassFill()
     {
         $title = 'some title';
@@ -34,7 +63,7 @@ class DatabaseSaveTest extends BaseTest
         $this->assertInstanceOf(Book::class, $book);
         $this->assertEquals($title, $book->name);
         $this->assertEquals($price, $book->price);
-        $this->assertInternalType('integer', $book->id);
+        $this->assertNotNull($book->id);
     }
 
     public function testSave()
@@ -92,7 +121,7 @@ class DatabaseSaveTest extends BaseTest
 		$user = $this->cligtORM->createRepository(UserRepository::class)->save($user);
 		$this->assertInstanceOf(User::class, $user);
 		$this->assertEquals($user->getName(), $name);
-		$this->assertInternalType('int', $user->getId());
+		$this->assertNotNull($user->getId());
 	}
 
 	public function testManyToOneSaveWithRelated()

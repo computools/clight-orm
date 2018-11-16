@@ -27,4 +27,8 @@ class Book extends AbstractEntity
 	public $themes;
 
 	public $price;
+
+	public $data;
+
+	public $dataBinary;
 }

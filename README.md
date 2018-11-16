@@ -65,6 +65,7 @@ Keys must be specified as table column names.
 * **CreatedAtType** - datetime, value will be defined automatically while entity creation. First parameter is columnName, second - datetime format, both are optional.
 * **UpdatedAtType** - datetime, value will be defined automatically while entity is updating. First parameter is columnName, second - datetime format, both are optional.
 * **BooleanType** - boolean, first parameter is column name if different than table field name, second parameter defines if field must be saved as int (default is true).
+* **JsonType** - json, saves json to database and convert to array for entity. First parameter - table field name.
 
 ### Allowed relation types:
 * **OneToOne**  - first parameter is related entity instance, second is main table field name

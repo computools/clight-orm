@@ -14,8 +14,6 @@ use Computools\CLightORM\Test\Entity\{
 
 use Computools\CLightORM\Test\Repository\{
 	AuthorRepository,
-	BookRepository,
-	CategoryRepository,
 	PostRepository,
 	UserRepository
 };

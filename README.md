@@ -166,6 +166,19 @@ Another option is using public properties instead of getters and setters. This l
         public $price; 
     }
     
+If you want to set null to one-to-one or many-to-one relation you can use *destroyToOneRelation(string $field)* method:
+    
+    $post->destroyToOneRelation('author');
+    $postRepository->save();
+    
+This operation will save null to author_id field for post record. This can be used regardless method that was used to receive entity.
+So both will work:
+
+    $postRepository->find(1, ['author']);
+    $post->destroyToOneRelation('author');
+    
+    $postRepository->find(1);
+    $post->destroyToOneRelation('author');
     
 If you want to add many-to-many relation for two entities, you can call *addRelation(EntityInterface $entity)* method and *removeRelation(EntityInterface $entity)* to remove.
 

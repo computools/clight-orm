@@ -614,6 +614,34 @@ COPY public.authors_books (book_id, author_id) FROM stdin;
 8	1
 15	1
 17	1
+19	1
+21	1
+23	1
+25	1
+27	1
+29	1
+31	1
+33	1
+35	1
+37	1
+39	1
+41	1
+43	1
+45	1
+47	1
+49	1
+51	1
+53	1
+55	1
+57	1
+59	1
+61	1
+63	1
+65	1
+67	1
+69	1
+71	1
+73	1
 \.
 
 
@@ -629,6 +657,8 @@ SELECT pg_catalog.setval('public.authors_id_seq', 1, true);
 --
 
 COPY public.books (id, title, price, data, data_binary) FROM stdin;
+55	some title	15.2200003	null	null
+56	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
 1	test book	15.2200003	\N	\N
 4	some title	123	\N	\N
 5	some title	15.2200003	\N	\N
@@ -644,6 +674,60 @@ COPY public.books (id, title, price, data, data_binary) FROM stdin;
 15	some title	15.2200003	null	null
 16	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
 17	some title	15.2200003	null	null
+18	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+19	some title	15.2200003	null	null
+20	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+21	some title	15.2200003	null	null
+22	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+23	some title	15.2200003	null	null
+24	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+25	some title	15.2200003	null	null
+26	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+27	some title	15.2200003	null	null
+28	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+29	some title	15.2200003	null	null
+30	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+31	some title	15.2200003	null	null
+32	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+33	some title	15.2200003	null	null
+34	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+35	some title	15.2200003	null	null
+36	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+57	some title	15.2200003	null	null
+37	some title	15.2200003	null	null
+38	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+39	some title	15.2200003	null	null
+40	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+41	some title	15.2200003	null	null
+42	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+43	some title	15.2200003	null	null
+44	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+45	some title	15.2200003	null	null
+46	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+47	some title	15.2200003	null	null
+48	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+49	some title	15.2200003	null	null
+50	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+51	some title	15.2200003	null	null
+52	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+53	some title	15.2200003	null	null
+54	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+58	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+59	some title	15.2200003	null	null
+60	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+61	some title	15.2200003	null	null
+62	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+63	some title	15.2200003	null	null
+64	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+65	some title	15.2200003	null	null
+66	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+67	some title	15.2200003	null	null
+68	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+69	some title	15.2200003	null	null
+70	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+71	some title	15.2200003	null	null
+72	Test	10	{"test":"test","new test":"new test"}	{"binary test": "binary test", "new binary test": "new binary test"}
+73	some title	15.2200003	null	null
 \.
 
 
@@ -651,7 +735,7 @@ COPY public.books (id, title, price, data, data_binary) FROM stdin;
 -- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.books_id_seq', 17, true);
+SELECT pg_catalog.setval('public.books_id_seq', 73, true);
 
 
 --
@@ -905,6 +989,34 @@ COPY public.books_theme (theme_id, book_id) FROM stdin;
 1	8
 1	15
 1	17
+1	19
+1	21
+1	23
+1	25
+1	27
+1	29
+1	31
+1	33
+1	35
+1	37
+1	39
+1	41
+1	43
+1	45
+1	47
+1	49
+1	51
+1	53
+1	55
+1	57
+1	59
+1	61
+1	63
+1	65
+1	67
+1	69
+1	71
+1	73
 \.
 
 
@@ -914,16 +1026,22 @@ COPY public.books_theme (theme_id, book_id) FROM stdin;
 
 COPY public.categorization (post_id, category_id) FROM stdin;
 528	1
+713	5
 1	22
 529	1
 599	1
 599	2
+1	75
 1	23
 529	2
+1	76
 1	1
 1	2
 2	2
 2	1
+681	26
+681	27
+1	77
 612	1
 612	4
 615	1
@@ -943,17 +1061,39 @@ COPY public.categorization (post_id, category_id) FROM stdin;
 1	10
 1	11
 1	12
+708	44
+708	45
 1	13
 10	1
 10	2
+708	46
+708	47
+708	48
 1	14
+708	49
+708	50
+708	51
 1	15
+1	61
 1	16
+1	62
 1	17
+1	63
 1	18
 1	19
+1	64
 1	20
+1	65
 1	21
+1	66
+1	67
+1	68
+1	69
+1	70
+1	71
+1	72
+1	73
+1	74
 \.
 
 
@@ -985,6 +1125,60 @@ COPY public.category (id, title) FROM stdin;
 21	test new
 22	test new
 23	test new
+24	test new
+25	test new
+26	test new
+27	test new
+28	test new
+29	test new
+30	test new
+31	test new
+32	test new
+33	test new
+34	test new
+35	test new
+36	test new
+37	test new
+38	test new
+39	test new
+40	test new
+41	test new
+42	test new
+43	test new
+44	test new
+45	test new
+46	test new
+47	test new
+48	test new
+49	test new
+50	test new
+51	test new
+52	test new
+53	test new
+54	test new
+55	test new
+56	test new
+57	test new
+58	test new
+59	test new
+60	test new
+61	test new
+62	test new
+63	test new
+64	test new
+65	test new
+66	test new
+67	test new
+68	test new
+69	test new
+70	test new
+71	test new
+72	test new
+73	test new
+74	test new
+75	test new
+76	test new
+77	test new
 \.
 
 
@@ -992,7 +1186,7 @@ COPY public.category (id, title) FROM stdin;
 -- Name: category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.category_id_seq', 23, true);
+SELECT pg_catalog.setval('public.category_id_seq', 77, true);
 
 
 --
@@ -1000,6 +1194,7 @@ SELECT pg_catalog.setval('public.category_id_seq', 23, true);
 --
 
 COPY public.post (id, author_id, editor_id, is_published, date_published, post_title) FROM stdin;
+713	1	1	f	2018-11-21 15:05:30	New post
 10	1	1	f	2018-05-25 14:08:11	New post
 11	1	1	t	2018-05-25 14:08:11	some title
 12	1	1	f	2018-05-25 14:08:22	New post
@@ -1062,7 +1257,6 @@ COPY public.post (id, author_id, editor_id, is_published, date_published, post_t
 75	5	5	f	2018-10-31 14:40:56	New post
 76	1	1	f	2018-10-31 14:40:56	New post
 201	5	5	f	2018-11-08 12:26:30	New post
-1	5	5	f	2018-05-25 14:06:23	New post
 78	5	5	f	2018-10-31 14:40:58	New post
 79	1	1	f	2018-10-31 14:40:58	New post
 111	5	5	f	2018-11-08 12:12:41	New post
@@ -1465,6 +1659,67 @@ COPY public.post (id, author_id, editor_id, is_published, date_published, post_t
 669	1	1	f	2018-11-16 10:29:20	New post
 671	1	1	f	2018-11-16 10:29:21	New post
 672	1	1	f	2018-11-16 10:29:21	New post
+711	\N	1	f	2018-11-21 13:54:32	New post
+674	1	1	f	2018-11-21 13:32:16	New post
+675	1	1	f	2018-11-21 13:32:16	New post
+714	\N	1	f	2018-11-21 15:05:30	New post
+716	1	1	f	2018-11-21 15:08:23	New post
+677	1	1	f	2018-11-21 13:33:10	New post
+678	1	1	f	2018-11-21 13:33:10	New post
+717	1	1	f	2018-11-21 15:08:23	New post
+680	1	1	f	2018-11-21 13:33:11	New post
+719	1	1	f	2018-11-21 15:30:13	New post
+681	1	1	f	2018-11-21 13:33:11	New post
+683	1	1	f	2018-11-21 13:36:46	New post
+684	1	1	f	2018-11-21 13:36:46	New post
+747	354	1	f	2018-11-21 15:33:03	New post
+686	1	1	f	2018-11-21 13:37:10	New post
+687	1	1	f	2018-11-21 13:37:10	New post
+749	1	1	f	2018-11-21 15:33:04	New post
+720	\N	1	f	2018-11-21 15:30:13	New post
+723	1	1	f	2018-11-21 15:30:42	New post
+689	1	1	f	2018-11-21 13:37:18	New post
+690	1	1	f	2018-11-21 13:37:18	New post
+692	1	1	f	2018-11-21 13:42:45	New post
+693	1	1	f	2018-11-21 13:42:45	New post
+724	\N	1	f	2018-11-21 15:30:42	New post
+695	1	1	f	2018-11-21 13:42:47	New post
+696	1	1	f	2018-11-21 13:42:47	New post
+726	\N	\N	f	2018-11-21 15:30:43	test title
+727	1	1	f	2018-11-21 15:30:50	New post
+698	1	1	f	2018-11-21 13:42:55	New post
+699	1	1	f	2018-11-21 13:42:55	New post
+701	1	1	f	2018-11-21 13:43:46	New post
+702	1	1	f	2018-11-21 13:43:46	New post
+728	\N	1	f	2018-11-21 15:30:50	New post
+704	1	1	f	2018-11-21 13:43:54	New post
+705	1	1	f	2018-11-21 13:43:54	New post
+730	\N	\N	f	2018-11-21 15:30:50	test title
+731	1	1	f	2018-11-21 15:32:44	New post
+707	1	1	f	2018-11-21 13:43:56	New post
+750	356	1	f	2018-11-21 15:33:04	New post
+732	346	1	f	2018-11-21 15:32:45	New post
+734	346	\N	f	2018-11-21 15:32:45	test title
+708	1	1	f	2018-11-21 13:43:56	New post
+710	1	1	f	2018-11-21 13:54:32	New post
+735	1	1	f	2018-11-21 15:32:46	New post
+752	1	1	f	2018-11-21 15:33:39	New post
+736	348	1	f	2018-11-21 15:32:46	New post
+738	348	\N	f	2018-11-21 15:32:46	test title
+739	1	1	f	2018-11-21 15:32:47	New post
+740	350	1	f	2018-11-21 15:32:47	New post
+742	350	\N	f	2018-11-21 15:32:47	test title
+743	1	1	f	2018-11-21 15:33:02	New post
+744	352	1	f	2018-11-21 15:33:02	New post
+746	1	1	f	2018-11-21 15:33:03	New post
+753	358	1	f	2018-11-21 15:33:39	New post
+755	1	1	f	2018-11-21 15:40:27	New post
+756	360	1	f	2018-11-21 15:40:27	New post
+758	1	1	f	2018-11-21 15:40:28	New post
+759	362	1	f	2018-11-21 15:40:28	New post
+761	1	1	f	2018-11-21 15:40:29	New post
+1	5	5	f	2018-05-25 14:06:23	New post
+762	364	1	f	2018-11-21 15:40:29	New post
 \.
 
 
@@ -1472,7 +1727,7 @@ COPY public.post (id, author_id, editor_id, is_published, date_published, post_t
 -- Name: post_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.post_id_seq', 673, true);
+SELECT pg_catalog.setval('public.post_id_seq', 763, true);
 
 
 --
@@ -1725,6 +1980,34 @@ COPY public.user_profile (id, user_id, first_name, last_name) FROM stdin;
 227	1	test	test
 228	1	test	test
 229	1	test	test
+230	1	test	test
+231	1	test	test
+232	1	test	test
+233	1	test	test
+234	1	test	test
+235	1	test	test
+236	1	test	test
+237	1	test	test
+238	1	test	test
+239	1	test	test
+240	1	test	test
+241	1	test	test
+242	1	test	test
+243	1	test	test
+244	1	test	test
+245	1	test	test
+246	1	test	test
+247	1	test	test
+248	1	test	test
+249	1	test	test
+250	1	test	test
+251	1	test	test
+252	1	test	test
+253	1	test	test
+254	1	test	test
+255	1	test	test
+256	1	test	test
+257	1	test	test
 \.
 
 
@@ -1732,7 +2015,7 @@ COPY public.user_profile (id, user_id, first_name, last_name) FROM stdin;
 -- Name: user_profile_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_profile_id_seq', 229, true);
+SELECT pg_catalog.setval('public.user_profile_id_seq', 257, true);
 
 
 --
@@ -2048,6 +2331,62 @@ COPY public.users (id, name, profile_id) FROM stdin;
 306	New name	\N
 307	2b74534ff7ba008	\N
 308	New name	\N
+309	176c985bec3afe6	\N
+310	New name	\N
+311	382c10821c1a890	\N
+312	New name	\N
+313	8339ccc8092aa90	\N
+314	New name	\N
+315	a81f44804227586	\N
+316	New name	\N
+317	e76b15b85f056ab	\N
+318	New name	\N
+319	2a7dcaf61362293	\N
+320	New name	\N
+321	fd2ba8fd5ffcfef	\N
+322	New name	\N
+323	a4aaf14705c2916	\N
+324	New name	\N
+325	4442a97250d0d06	\N
+326	New name	\N
+327	1a87a4a4bad8736	\N
+328	New name	\N
+329	2a5b0e26e1bd17b	\N
+330	New name	\N
+331	219b8696d6fd33a	\N
+332	New name	\N
+333	5f98c172a9a4f20	\N
+334	New name	\N
+335	e13f0c07ceac4be	\N
+336	New name	\N
+337	629108fa9f00ac6	\N
+338	New name	\N
+339	4b9e21506d2e5e7	\N
+340	New name	\N
+341	566fffc44ef70d8	\N
+342	New name	\N
+343	2bb6a636485bc05	\N
+344	New name	\N
+345	78eeaa27aa694b8	\N
+346	New name	\N
+347	d69016404ec2b3d	\N
+348	New name	\N
+349	5c1045bb9db5fe9	\N
+350	New name	\N
+351	780cda7edd62847	\N
+352	New name	\N
+353	a8df95504d9aab4	\N
+354	New name	\N
+355	4d71d729161c7f5	\N
+356	New name	\N
+357	359aab754ceedba	\N
+358	New name	\N
+359	2540b5786efdb9c	\N
+360	New name	\N
+361	8cefca4292dc76a	\N
+362	New name	\N
+363	2ac47ce08430ab6	\N
+364	New name	\N
 \.
 
 
@@ -2055,7 +2394,7 @@ COPY public.users (id, name, profile_id) FROM stdin;
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 308, true);
+SELECT pg_catalog.setval('public.users_id_seq', 364, true);
 
 
 --

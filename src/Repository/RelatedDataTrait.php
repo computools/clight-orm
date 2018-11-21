@@ -34,7 +34,7 @@ trait RelatedDataTrait
 	/**
 	 * Method calls related data search dependent on relation type
 	 *
-	 * @param SelectQueryInterface $parentEntityQuery
+	 * @param ResultQueryInterface $parentEntityQuery
 	 * @param RelationMap $relation
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
@@ -62,7 +62,7 @@ trait RelatedDataTrait
 	/**
 	 * Used for OneToMany related data search
 	 *
-	 * @param SelectQueryInterface $parentEntityQuery
+	 * @param ResultQueryInterface $parentEntityQuery
 	 * @param RelationMap $relation
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
@@ -104,7 +104,7 @@ trait RelatedDataTrait
 	/**
 	 * Used for ManyToOne or OneToOne related data search
 	 *
-	 * @param SelectQueryInterface $parentEntityQuery
+	 * @param ResultQueryInterface $parentEntityQuery
 	 * @param RelationMap $relation
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
@@ -153,7 +153,7 @@ trait RelatedDataTrait
 	/**
 	 * Used for ManyToMany related data search
 	 *
-	 * @param SelectQueryInterface $parentEntityQuery
+	 * @param ResultQueryInterface $parentEntityQuery
 	 * @param RelationMap $relation
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
@@ -246,7 +246,7 @@ trait RelatedDataTrait
 	 * Gets related data for specified inner relation
 	 *
 	 * @param array $innerWith
-	 * @param SelectQueryInterface $query
+	 * @param ResultQueryInterface $query
 	 * @param RelationMap $relation
 	 * @param $relatedData
 	 */

@@ -280,4 +280,49 @@ class DatabaseSaveTest extends BaseTest
 
 		$this->assertNull($post);
 	}
+
+    public function testRelationSetNull()
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->cligtORM->createRepository(UserRepository::class)->findLast();
+
+        $postRepository = $this->cligtORM->createRepository(PostRepository::class);
+        /**
+         * @var Post $post
+         */
+        $post = $postRepository->findLast();
+        $post->destroyToOneRelation('author');
+
+        $postRepository->save($post, ['author']);
+
+        $this->assertNull($post->getAuthor());
+
+        $post->setAuthor($user);
+        $postRepository->save($post);
+    }
+
+    public function testRelationSetNullWith()
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->cligtORM->createRepository(UserRepository::class)->findLast();
+
+        $postRepository = $this->cligtORM->createRepository(PostRepository::class);
+
+        /**
+         * @var Post $post
+         */
+        $post = $postRepository->findLast(['author']);
+        $post->destroyToOneRelation('author');
+
+        $postRepository->save($post, ['author']);
+
+        $this->assertNull($post->getAuthor());
+
+        $post->setAuthor($user);
+        $postRepository->save($post);
+    }
 }

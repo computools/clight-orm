@@ -7,7 +7,7 @@ use Computools\CLightORM\{
 };
 
 use Computools\CLightORM\Mapper\Relations\{
-	ManyToMany, RelationInterface, ToOneInterface
+    ManyToMany, RelationChangesList, RelationInterface, ToOneInterface
 };
 
 abstract class RepositoryCore
@@ -104,9 +104,10 @@ abstract class RepositoryCore
 	 * @param bool $includeManyToMany
 	 * @return array
 	 */
-	final protected function mapNestedEntitiesToArray(array $data, $includeManyToMany = false): array
+	final protected function mapNestedEntitiesToArray(EntityInterface $rootEntity, array $data, $includeManyToMany = false): array
 	{
-		foreach($this->relations as $key => $relation) {
+	    $b = 1;
+		foreach ($this->relations as $key => $relation) {
 			if ($relation->getRelationType() instanceof ToOneInterface) {
 				$identifier = $relation
 					->getRelationType()
@@ -116,8 +117,12 @@ abstract class RepositoryCore
 				$identifierValue = $data[$relation->getRelationType()->getFieldName()] ?? null;
 
 				if (!$identifierValue) {
+				    if ($tableField = $rootEntity->getRelationChangesList()->getToOneByKey($key)) {
+				        $data[$tableField] = null;
+                    }
 					continue;
 				}
+
 				if (!isset($this->cachedEntities[$relation->getTableName()][$identifierValue])) {
 					if ($field = $data[$relation->getRelationType()->getFieldName()] ?? null) {
 						$query = $this->orm->createQuery();
@@ -253,18 +258,18 @@ abstract class RepositoryCore
 	final protected function applyRelationChanges(EntityInterface $entity, bool $relationExistsCheck, $identifier = null): void
 	{
 		$id = $identifier ? $identifier : $entity->getIdValue();
-		foreach($entity->getRelationChanges() as $key => $field) {
+		foreach($entity->getRelationChangesList()->getToManyChanges() as $key => $field) {
 			foreach($field as $actionType => $value) {
 				$relationMap = $this->getRelationByField($key);
 				$table = $relationMap->getRelationType()->getTable();
                 $ids = implode(',', $value);
-				if ($actionType === AbstractEntity::RELATION_CHANGE_REMOVE) {
+				if ($actionType === RelationChangesList::RELATION_CHANGE_REMOVE) {
 					$this->orm->createDeleteQuery()
 						->from($table)
 						->where($relationMap->getRelationType()->getColumnName(), $id)
 						->whereExpr($relationMap->getRelationType()->getReferencedColumnName() . ' IN (' . $ids . ')')
 						->execute();
-				} else if ($actionType === AbstractEntity::RELATION_CHANGE_ADD) {
+				} else if ($actionType === RelationChangesList::RELATION_CHANGE_ADD) {
 				    $query = $this->orm->createQuery();
 				    $query
                         ->select($relationMap->getRelationType()->getReferencedColumnName())

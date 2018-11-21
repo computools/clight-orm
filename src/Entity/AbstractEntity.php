@@ -3,20 +3,35 @@
 namespace Computools\CLightORM\Entity;
 
 use Computools\CLightORM\{
-	Exception\EntityFieldDoesNotExistsException, Exception\PropertyDoesNotExistsException, Mapper\Relations\ManyToMany, Mapper\Relations\RelationInterface
+    Exception\EntityFieldDoesNotExistsException, Exception\EntityRelationDoesNotExistsException, Mapper\Relations\ManyToMany, Mapper\Relations\RelationChangesList, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface
 };
 use Computools\CLightORM\Helper\ReflectionHelper;
 
 abstract class AbstractEntity implements EntityInterface
 {
-	const RELATION_CHANGE_ADD = 'add';
-	const RELATION_CHANGE_REMOVE = 'remove';
-
-	private $relationChanges = [];
+    /**
+     * @var RelationChangesList
+     */
+	protected $relationChangesList;
 
 	protected $allowedFields = [];
 
-	public function fill(array $values): EntityInterface
+	protected $originalData = [];
+
+	protected $referencesToDestroy = [];
+
+	final public function getOriginalData(): array
+    {
+        return $this->originalData;
+    }
+
+    final public function setOriginalData(array $originalData): EntityInterface
+    {
+        $this->originalData = $originalData;
+        return $this;
+    }
+
+    final public function fill(array $values): EntityInterface
     {
         foreach ($values as $key => $value) {
             if (in_array($key, $this->allowedFields)) {
@@ -26,7 +41,7 @@ abstract class AbstractEntity implements EntityInterface
         return $this;
     }
 
-	public function getIdValue(): ?int
+	final public function getIdValue(): ?int
 	{
 		return ReflectionHelper::getEntityProperty($this, $this->getMapper()->getIdentifierEntityField());
 	}
@@ -49,9 +64,12 @@ abstract class AbstractEntity implements EntityInterface
 	 *
 	 * @return array
 	 */
-	public function getRelationChanges(): array
+	final public function getRelationChangesList(): RelationChangesList
 	{
-		return $this->relationChanges;
+	    if (!$this->relationChangesList) {
+	        $this->relationChangesList = new RelationChangesList();
+        }
+		return $this->relationChangesList;
 	}
 
 	/**
@@ -59,21 +77,18 @@ abstract class AbstractEntity implements EntityInterface
 	 *
 	 * @return bool
 	 */
-	public function isNew(): bool
+	final public function isNew(): bool
 	{
 		return ReflectionHelper::getEntityProperty($this, $this->getMapper()->getIdentifierEntityField()) ? false : true;
 	}
 
-	private function addRelationChange(string $relation, string $type, int $id): void
+	private function changeRelation(string $relation, string $type, int $id): void
 	{
-		if (!isset($this->relationChanges[$relation])) {
-            $this->relationChanges[$relation] = [];
+	    if (!$this->relationChangesList) {
+	        $this->relationChangesList = new RelationChangesList();
         }
-		if (!isset($this->relationChanges[$relation][$type])) {
-			$this->relationChanges[$relation][$type] = [];
-		}
 
-		$this->relationChanges[$relation][$type][] = $id;
+        $this->relationChangesList->addToManyChange($relation, $type, $id);
 	}
 
 	private function getEntityRelationField(EntityInterface $entity): array
@@ -86,10 +101,34 @@ abstract class AbstractEntity implements EntityInterface
 		throw new EntityFieldDoesNotExistsException($entity, $this);
 	}
 
+	private function getEntityRelationByKey(string $key): array
+    {
+        foreach ($this->getMapper()->getFields() as $entityFieldName => $field) {
+            if ($key === $entityFieldName && $field instanceof ToOneInterface) {
+                return [
+                    $entityFieldName,
+                    $field->getFieldName()
+                ];
+            }
+        }
+        throw new EntityRelationDoesNotExistsException($key, $this);
+    }
+
+	final public function destroyToOneRelation(string $field): EntityInterface
+    {
+        if (!$this->relationChangesList) {
+            $this->relationChangesList = new RelationChangesList();
+        }
+        list($entityField, $tableField) = $this->getEntityRelationByKey($field);
+        $this->relationChangesList->addToOneChange($entityField, $tableField);
+        ReflectionHelper::setEntityProperty($this, $field, null);
+        return $this;
+    }
+
 	/**
 	 * This method must be used to add many-to-many relation
 	 */
-	public function addRelation(EntityInterface $entity): void
+	final public function addRelation(EntityInterface $entity): EntityInterface
 	{
 		list($relation, $relationType) = $this->getEntityRelationField($entity);
 
@@ -101,13 +140,15 @@ abstract class AbstractEntity implements EntityInterface
 			$list[] = $entity;
 			ReflectionHelper::setEntityProperty($this, $relation, $list);
 		}
-		$this->addRelationChange($relation, self::RELATION_CHANGE_ADD, $entity->getIdValue());
+
+		$this->changeRelation($relation, RelationChangesList::RELATION_CHANGE_ADD, $entity->getIdValue());
+		return $this;
 	}
 
 	/**
 	 * This method must be used to remove many-to-many relation
 	 */
-	public function removeRelation(EntityInterface $entity): void
+	final public function removeRelation(EntityInterface $entity): EntityInterface
 	{
 		list($relation, $relationType) = $this->getEntityRelationField($entity);
 		$list = ReflectionHelper::getEntityProperty($this, $relation);
@@ -123,6 +164,8 @@ abstract class AbstractEntity implements EntityInterface
 
         ReflectionHelper::setEntityProperty($this, $relation, $list);
 
-		$this->addRelationChange($relation, self::RELATION_CHANGE_REMOVE, $entity->getIdValue());
+		$this->changeRelation($relation, RelationChangesList::RELATION_CHANGE_REMOVE, $entity->getIdValue());
+
+		return $this;
 	}
 }

@@ -36,7 +36,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 	protected function mapToEntity(ResultQueryInterface $query, array $with = [], $data = null, array $relatedData = null): EntityInterface
 	{
 		return $this->mapper->arrayToEntity(
-			new $this->entityClassString,
+			$this->createEntityClass($this->entityClassString)->setOriginalData($data ? $data : $query->getFirst()),
 			$this->joinRelatedDataToParent($data ? $data : $query->getFirst(), $relatedData ? $relatedData : $this->getRelatedData($query, $with))
 		);
 	}
@@ -177,6 +177,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			throw new WrongRepositoryCalledException();
 		}
 		$data = $this->mapNestedEntitiesToArray(
+		    $entity,
 			$this->mapper->entityToArray($entity),
 			$entity->isNew()
 		);
@@ -195,4 +196,9 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		);
 		return $entity;
 	}
+
+	private function createEntityClass(string $class): EntityInterface
+    {
+        return new $class;
+    }
 }

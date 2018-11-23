@@ -21,4 +21,6 @@ interface MapperInterface
 	public function getIdentifier(): string;
 
 	public function getIdentifierEntityField(): string;
+
+    public function getIdentifierFromArray(array $data): ?int;
 }

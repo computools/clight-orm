@@ -19,12 +19,12 @@ abstract class Mapper implements MapperInterface
 
 	abstract function getTable(): string;
 
-	public function getIdentifierFromArray(array $data): ?int
+	final public function getIdentifierFromArray(array $data): ?int
 	{
 		return $data[$this->getIdentifier()] ?? null;
 	}
 
-	public function getIdentifier(): string
+	final public function getIdentifier(): string
 	{
 		foreach($this->getFields() as $key => $value) {
 			if ($value instanceof IdType) {
@@ -37,7 +37,7 @@ abstract class Mapper implements MapperInterface
 		throw new IdentifierDoesNotExistsException();
 	}
 
-	public function getIdentifierEntityField(): string
+	final public function getIdentifierEntityField(): string
 	{
 		foreach($this->getFields() as $key => $value) {
 			if ($value instanceof IdType) {

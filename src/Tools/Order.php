@@ -4,7 +4,10 @@ namespace Computools\CLightORM\Tools;
 
 class Order
 {
-	const DEFAULT_DIRECTION = 'ASC';
+	public const SORT_ASC = 'ASC';
+	public const SORT_DESC = 'DESC';
+
+    public const DEFAULT_DIRECTION = self::SORT_ASC;
 
 	private $direction;
 

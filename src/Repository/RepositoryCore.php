@@ -100,13 +100,13 @@ abstract class RepositoryCore
 	/**
 	 * This method allows you to map nested entities to array
 	 *
+     * @param EntityInterface $rootEntity
 	 * @param array $data
 	 * @param bool $includeManyToMany
 	 * @return array
 	 */
 	final protected function mapNestedEntitiesToArray(EntityInterface $rootEntity, array $data, $includeManyToMany = false): array
 	{
-	    $b = 1;
 		foreach ($this->relations as $key => $relation) {
 			if ($relation->getRelationType() instanceof ToOneInterface) {
 				$identifier = $relation

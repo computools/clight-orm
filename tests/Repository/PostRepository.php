@@ -16,7 +16,7 @@ class PostRepository extends AbstractRepository
 	{
 		$query = $this->orm->createQuery();
 		$query->from($this->table);
-		$query->orderBy('id', 'DESC');
+		$query->orderBy('id', 'ASC');
 		$query->limit(1);
 		$query->execute();
 		return $this->mapToEntity($query, ['author', 'editor']);

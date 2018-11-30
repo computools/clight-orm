@@ -20,7 +20,7 @@ class ReflectionHelper
     private static function getPropertyReflection(EntityInterface $entity, string $key): \ReflectionProperty
     {
         $reflection = new \ReflectionClass($entity);
-        list($camelCase, $underScore) = StringHelper::getStringOptions($key);
+        list($camelCase, $underScore) = $entity::getMappedFieldNames($key);
         if ($reflection->hasProperty($camelCase)) {
             $property = $reflection->getProperty($camelCase);
         } else if ($reflection->hasProperty($underScore)) {

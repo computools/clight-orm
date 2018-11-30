@@ -312,6 +312,12 @@ class DatabaseSaveTest extends BaseTest
 
         $postRepository = $this->cligtORM->createRepository(PostRepository::class);
 
+        $post = new Post();
+        $post->setAuthor($user);
+        $post->setTitle('test title');
+        $post->setDatePublished(new \DateTime());
+        $postRepository->save($post);
+
         /**
          * @var Post $post
          */

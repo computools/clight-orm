@@ -3,12 +3,22 @@
 namespace Computools\CLightORM\Entity;
 
 use Computools\CLightORM\{
-    Exception\EntityFieldDoesNotExistsException, Exception\EntityRelationDoesNotExistsException, Mapper\Relations\ManyToMany, Mapper\Relations\RelationChangesList, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface
+    Exception\EntityFieldDoesNotExistsException, Exception\EntityRelationDoesNotExistsException, Helper\StringHelper, Mapper\Relations\ManyToMany, Mapper\Relations\RelationChangesList, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface
 };
 use Computools\CLightORM\Helper\ReflectionHelper;
 
 abstract class AbstractEntity implements EntityInterface
 {
+    static $mappedFieldNames = [];
+
+    public static function getMappedFieldNames(string $key)
+    {
+        if (!(static::$mappedFieldNames[$key] ?? null)) {
+            static::$mappedFieldNames[$key] = StringHelper::getStringOptions($key);
+        }
+        return static::$mappedFieldNames[$key];
+    }
+
     /**
      * @var RelationChangesList
      */

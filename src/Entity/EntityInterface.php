@@ -26,4 +26,6 @@ interface EntityInterface
 	public function setOriginalData(array $originalData): EntityInterface;
 
     public function destroyToOneRelation(string $field): EntityInterface;
+
+    public static function getMappedFieldNames(string $key);
 }

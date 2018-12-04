@@ -3,15 +3,26 @@
 namespace Computools\CLightORM\Test\Entity;
 
 use Computools\CLightORM\Entity\AbstractEntity;
-use Computools\CLightORM\Mapper\MapperInterface;
-use Computools\CLightORM\Test\Mapper\UserProfileMapper;
+use Computools\CLightORM\Mapper\Relations\OneToOne;
+use Computools\CLightORM\Mapper\Types\IdType;
+use Computools\CLightORM\Mapper\Types\StringType;
 
 class UserProfile extends AbstractEntity
 {
-	public function getMapper(): MapperInterface
-	{
-		return new UserProfileMapper();
-	}
+    public function getTable(): string
+    {
+        return 'user_profile';
+    }
+
+    public function getFields(): array
+    {
+        return [
+            'id' => new IdType(),
+            'user' => new OneToOne(new User(), 'user_id'),
+            'first_name' => new StringType(),
+            'last_name' => new StringType()
+        ];
+    }
 
 	private $id;
 

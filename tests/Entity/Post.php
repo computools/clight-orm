@@ -3,15 +3,32 @@
 namespace Computools\CLightORM\Test\Entity;
 
 use Computools\CLightORM\Entity\AbstractEntity;
-use Computools\CLightORM\Mapper\MapperInterface;
-use Computools\CLightORM\Test\Mapper\PostMapper;
+use Computools\CLightORM\Mapper\Relations\ManyToMany;
+use Computools\CLightORM\Mapper\Relations\ManyToOne;
+use Computools\CLightORM\Mapper\Types\BooleanType;
+use Computools\CLightORM\Mapper\Types\DateTimeType;
+use Computools\CLightORM\Mapper\Types\IdType;
+use Computools\CLightORM\Mapper\Types\StringType;
 
 class Post extends AbstractEntity
 {
-	public function getMapper(): MapperInterface
-	{
-		return new PostMapper();
-	}
+    public function getTable(): string
+    {
+        return 'post';
+    }
+
+    public function getFields(): array
+    {
+        return [
+            'id' => new IdType(),
+            'author' => new ManyToOne(new User(), 'author_id'),
+            'editor' => new ManyToOne(new User(), 'editor_id'),
+            'is_published' => new BooleanType(),
+            'date_published' => new DateTimeType(),
+            'title' => new StringType('post_title'),
+            'categories' => new ManyToMany(new Category(), 'categorization', 'post_id', 'category_id')
+        ];
+    }
 
 	public function getId(): ?int
 	{

@@ -7,6 +7,7 @@ use Computools\CLightORM\CLightORM;
 use Computools\CLightORM\Database\Query\Contract\ResultQueryInterface;
 use Computools\CLightORM\Entity\EntityInterface;
 use Computools\CLightORM\Exception\WrongRepositoryCalledException;
+use Computools\CLightORM\Mapper\Mapper;
 use Computools\CLightORM\Tools\Order;
 use Computools\CLightORM\Tools\Pagination;
 
@@ -22,8 +23,8 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$this->cache = $cache;
 		$this->entityClassString = $this->getEntityClass();
 		$this->entity = new $this->entityClassString;
-		$this->mapper = $this->entity->getMapper();
-		$this->table = $this->mapper->getTable();
+		$this->mapper = new Mapper();
+		$this->table = $this->entity->getTable();
 		$this->mapRelations();
 		$this->defineIdentifier();
 	}
@@ -62,7 +63,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$query = $this->orm->createQuery();
 		$query
 			->from($this->table)
-			->where($this->mapper->getIdentifier(), $id)
+			->where($this->entity->getIdentifier(), $id)
 			->execute();
 		if (!$query->getFirst()) {
 			return null;
@@ -78,7 +79,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$query
 			->select('*')
 			->from($this->table)
-            ->orderBy($this->mapper->getIdentifier())
+            ->orderBy($this->entity->getIdentifier())
 			->limit(1);
 		$query->execute();
 
@@ -91,7 +92,7 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$query
 			->select('*')
 			->from($this->table)
-			->orderBy($this->mapper->getIdentifier(), 'DESC')
+			->orderBy($this->entity->getIdentifier(), 'DESC')
 			->limit(1)
 			->execute();
 
@@ -164,9 +165,9 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 		$this
 			->orm
 			->createDeleteQuery()
-			->from($this->mapper->getTable())
+			->from($this->entity->getTable())
 			->where(
-				$this->mapper->getIdentifier(),
+				$this->entity->getIdentifier(),
 				$entity->getIdValue()
 			)->execute();
 	}
@@ -182,11 +183,11 @@ abstract class AbstractRepository extends RepositoryCore implements RepositoryIn
 			$entity->isNew()
 		);
 		if ($entity->isNew()) {
-			unset($data[$entity->getMapper()->getIdentifierEntityField()]);
+			unset($data[$entity->getIdentifierEntityField()]);
 		}
 		$query = $entity->isNew() ? $this->create($data) : $this->update($entity, $data, $relationExistsCheck);
 
-		$id = $this->mapper->getIdentifierFromArray($query->getFirst());
+		$id = $this->entity->getIdentifierFromArray($query->getFirst());
 
 		$this->applyRelationChanges($entity, $relationExistsCheck, $id);
 

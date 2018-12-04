@@ -2,14 +2,11 @@
 
 namespace Computools\CLightORM\Entity;
 
-use Computools\CLightORM\Mapper\MapperInterface;
 use Computools\CLightORM\Mapper\Relations\RelationChangesList;
 
 interface EntityInterface
 {
 	public function getIdValue(): ?int;
-
-	public function getMapper(): MapperInterface;
 
 	public function isNew(): bool;
 
@@ -27,5 +24,13 @@ interface EntityInterface
 
     public function destroyToOneRelation(string $field): EntityInterface;
 
-    public static function getMappedFieldNames(string $key);
+    public function getTable(): string;
+
+    public function getIdentifier(): string;
+
+    public function getIdentifierEntityField(): string;
+
+    public function getIdentifierFromArray(array $data): ?int;
+
+    public function getFields(): array;
 }

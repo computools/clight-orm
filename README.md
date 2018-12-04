@@ -11,47 +11,18 @@ ORM allows you to link entities with One-To-Many, One-To-One, Many-To-One, Many-
 # Structural elements:
 
 * **Entity** - representation of database table. This objects must have getters and setters for properties and extends *AbstractEntity* from library.
- 
-* **Mapper** - this objects maps entity to array and back. Must implement *getMapper()* method with field rules.
 
 * **Repository** - based on Repository Pattern, this objects must have Entity objects definition and be extended from *AbstractRepository*.
 Abstract repository contains all common (like find, findBy, etc) methods for data search and saving.
-
 
 # Examples
 For examples you may look at *tests* directory.
 
 Lets have a look:
-## Mapper 
-    
-    use Computools\CLightORM\Mapper\Mapper;
-    use Computools\CLightORM\Mapper\Relations\ManyToMany;
-    use Computools\CLightORM\Mapper\Types\FloatType;
-    use Computools\CLightORM\Mapper\Types\IdType;
-    use Computools\CLightORM\Mapper\Types\StringType;
-    use Computools\CLightORM\Test\Entity\Author;
-    use Computools\CLightORM\Test\Entity\Theme;
-    
-    class BookMapper extends Mapper
-    {
-        public function getTable(): string
-        {
-            return 'books';
-        }
-    
-        public function getFields(): array
-        {
-            return [
-                'id' => new IdType(),
-                'name' => new StringType('title'),
-                'price' => new FloatType(),
-                'authors' => new ManyToMany(new Author(), 'authors_books', 'book_id', 'author_id'),
-                'themes' => new ManyToMany(new Theme(), 'books_theme', 'book_id', 'theme_id')
-            ];
-        }
-    }
-    
-*Mapper* inheritance involves implementation of *getTable()* method, that will define database table name and *getFields()* method, that returns array of rules.
+
+## Entity
+
+*AbstractEntity* inheritance involves implementation of *getTable()* method, that will define database table name and *getFields()* method, that returns array of rules.
 
 Keys must be specified as table column names.
 
@@ -78,18 +49,24 @@ Keys must be specified as table column names.
     * referencedColumnName - relation table column name that corresponds referenced table
     
     
-## Entity
-
-
     use Computools\CLightORM\Entity\AbstractEntity;
-    use Computools\CLightORM\Mapper\MapperInterface;
-    use Computools\CLightORM\Test\Mapper\BookMapper;
     
     class Book extends AbstractEntity
     {
-        public function getMapper(): MapperInterface
+        public function getTable(): string
         {
-            return new BookMapper();
+            return 'books';
+        }
+            
+        public function getFields(): array
+        {
+            return [
+                'id' => new IdType(),
+                'name' => new StringType('title'),
+                'price' => new FloatType(),
+                'authors' => new ManyToMany(new Author(), 'authors_books', 'book_id', 'author_id'),
+                'themes' => new ManyToMany(new Theme(), 'books_theme', 'book_id', 'theme_id')
+            ];
         }
 
         private $id;
@@ -138,23 +115,16 @@ Keys must be specified as table column names.
         }
     }
     
-Get mapper method is required.
+
 
 Id field must have ability to take null in case of new entity, that have not been saved to database yet.
 
 Another option is using public properties instead of getters and setters. This library supports that kind of entities.
 
     use Computools\CLightORM\Entity\AbstractEntity;
-    use Computools\CLightORM\Mapper\MapperInterface;
-    use Computools\CLightORM\Test\Mapper\BookMapper;
         
     class Book extends AbstractEntity
     {
-        public function getMapper(): MapperInterface
-        {
-            return new BookMapper();
-        }
-
         public $id;
     
         public $name;

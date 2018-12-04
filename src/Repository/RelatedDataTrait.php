@@ -69,7 +69,7 @@ trait RelatedDataTrait
 	 */
 	private function getOneToManyRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
 	{
-		$table = $relation->getRelationType()->getRelatedEntity()->getMapper()->getTable();
+		$table = $relation->getRelationType()->getRelatedEntity()->getTable();
 
 		/**
 		 * @var SelectQuery $query
@@ -123,7 +123,7 @@ trait RelatedDataTrait
 			->from($table)
 			->whereExpr(sprintf(
 				"%s IN (%s)",
-				$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier(),
+				$relation->getRelationType()->getRelatedEntity()->getIdentifier(),
 				$parentIds
 			));
 
@@ -137,10 +137,9 @@ trait RelatedDataTrait
 			if ($query->getResult()) {
 				foreach ($query->getResult() as $childResult) {
 					if ($parentResult[$relation->getRelationType()->getFieldName()] ==
-						$childResult[$relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier()]) {
+						$childResult[$relation->getRelationType()->getRelatedEntity()->getIdentifier()]) {
 						$relatedData[$relation->getEntityField()]['data'][$childResult[$relation->getRelationType()
 																								->getRelatedEntity()
-																								->getMapper()
 																								->getIdentifier()
 						]] = $childResult;
 					}
@@ -173,7 +172,7 @@ trait RelatedDataTrait
 		 */
 		$query = $this->orm->createQuery();
 
-		$relatedTableIdentifier = $relation->getRelationType()->getRelatedEntity()->getMapper()->getIdentifier();
+		$relatedTableIdentifier = $relation->getRelationType()->getRelatedEntity()->getIdentifier();
 
 		$on = sprintf(
 			'ON %s.%s = %s.%s',
@@ -257,7 +256,7 @@ trait RelatedDataTrait
 				$query,
 				$innerWith,
 				$this->mapAlienRelations(
-					$relation->getRelationType()->getRelatedEntity()->getMapper()
+					$relation->getRelationType()->getRelatedEntity()
 				)
 			);
 

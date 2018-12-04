@@ -4,6 +4,7 @@ namespace Computools\CLightORM\Helper;
 
 use Computools\CLightORM\Entity\EntityInterface;
 use Computools\CLightORM\Exception\InvalidFieldMapException;
+use Computools\CLightORM\Mapper\FieldMapStorage;
 
 class ReflectionHelper
 {
@@ -20,7 +21,7 @@ class ReflectionHelper
     private static function getPropertyReflection(EntityInterface $entity, string $key): \ReflectionProperty
     {
         $reflection = new \ReflectionClass($entity);
-        list($camelCase, $underScore) = $entity::getMappedFieldNames($key);
+        list($camelCase, $underScore) = FieldMapStorage::getMappedFieldNames($entity, $key);
         if ($reflection->hasProperty($camelCase)) {
             $property = $reflection->getProperty($camelCase);
         } else if ($reflection->hasProperty($underScore)) {

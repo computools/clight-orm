@@ -4,10 +4,29 @@ namespace Computools\CLightORM\Test\Entity;
 
 use Computools\CLightORM\Entity\AbstractEntity;
 use Computools\CLightORM\Mapper\MapperInterface;
-use Computools\CLightORM\Test\Mapper\UserMapper;
+use Computools\CLightORM\Mapper\Relations\OneToMany;
+use Computools\CLightORM\Mapper\Relations\OneToOne;
+use Computools\CLightORM\Mapper\Types\IdType;
+use Computools\CLightORM\Mapper\Types\StringType;
 
 class User extends AbstractEntity
 {
+    public function getTable(): string
+    {
+        return 'users';
+    }
+
+    public function getFields(): array
+    {
+        return [
+            'id' => new IdType(),
+            'name' => new StringType(),
+            'postsAsAuthor' => new OneToMany(new Post(), 'author_id'),
+            'posts_as_editor' => new OneToMany(new Post(), 'editor_id'),
+            'profile' => new OneToOne(new UserProfile(), 'profile_id')
+        ];
+    }
+
 	private $id;
 
 	private $name;

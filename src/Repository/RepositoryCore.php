@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\{
-	Cache\CacheInterface, CLightORM, Database\Query\Contract\ResultQueryInterface, Database\Query\Contract\SelectQueryInterface, Entity\AbstractEntity, Entity\EntityInterface, Exception\NestedEntityDoesNotExistsException, Mapper\RelationMap, Mapper\MapperInterface
+    Cache\CacheInterface, CLightORM, Database\Query\Contract\ResultQueryInterface, Database\Query\Contract\SelectQueryInterface, Entity\EntityInterface, Exception\NestedEntityDoesNotExistsException, Mapper\FieldMapStorage, Mapper\RelationMap, Mapper\MapperInterface
 };
 
 use Computools\CLightORM\Mapper\Relations\{
@@ -75,22 +75,22 @@ abstract class RepositoryCore
 	 */
 	final protected function mapRelations(): void
 	{
-		foreach($this->mapper->getFields() as $name => $type) {
+		foreach(FieldMapStorage::getFields($this->entity) as $name => $type) {
 			if ($type instanceof RelationInterface) {
 				$this->relations[$name] = new RelationMap(
-					$type->getRelatedEntity()->getMapper()->getTable(), $name, $type, $this->mapper->getIdentifier()
+					$type->getRelatedEntity()->getTable(), $name, $type, $this->entity->getIdentifier()
 				);
 			}
 		}
 	}
 
-	final protected function mapAlienRelations(MapperInterface $mapper): array
+	final protected function mapAlienRelations(EntityInterface $entity): array
 	{
 		$relations = [];
-		foreach($mapper->getFields() as $name => $type) {
+		foreach(FieldMapStorage::getFields($entity) as $name => $type) {
 			if ($type instanceof RelationInterface) {
 				$relations[$name] =
-					new RelationMap($type->getRelatedEntity()->getMapper()->getTable(), $name, $type, $mapper->getIdentifier())
+					new RelationMap($type->getRelatedEntity()->getTable(), $name, $type, $type->getRelatedEntity()->getIdentifier())
 				;
 			}
 		}
@@ -112,7 +112,6 @@ abstract class RepositoryCore
 				$identifier = $relation
 					->getRelationType()
 					->getRelatedEntity()
-					->getMapper()
 					->getIdentifier();
 				$identifierValue = $data[$relation->getRelationType()->getFieldName()] ?? null;
 
@@ -148,7 +147,6 @@ abstract class RepositoryCore
 						->whereExpr($relation
 							->getRelationType()
 							->getRelatedEntity()
-							->getMapper()
 							->getIdentifier() . ' IN (' . implode(',', $relatedIds) . ')')
 						->execute();
 
@@ -162,11 +160,11 @@ abstract class RepositoryCore
 	}
 
 	/**
-	 * Defines table identifier based on Mapper:ID type
+	 * Defines table identifier based on IdType field
 	 */
 	final protected function defineIdentifier(): void
 	{
-		$this->identifier = $this->mapper->getIdentifier();
+		$this->identifier = $this->entity->getIdentifier();
 	}
 
 	/**
@@ -315,7 +313,7 @@ abstract class RepositoryCore
 
 		return $this->orm->createQuery()
 						 ->from($this->table)
-						 ->where($this->mapper->getIdentifier(), $id)
+						 ->where($this->entity->getIdentifier(), $id)
 						 ->execute();
 	}
 
@@ -329,12 +327,12 @@ abstract class RepositoryCore
 	 */
 	protected function update(EntityInterface $entity, array $data, $relationExistsCheck = false): SelectQueryInterface
 	{
-		unset($data[$this->mapper->getIdentifier()]);
+		unset($data[$this->entity->getIdentifier()]);
 		$query = $this->orm->createUpdateQuery();
-		$query->table($this->table)->values($data)->where($this->mapper->getIdentifier(), $entity->getIdValue())->execute();
+		$query->table($this->table)->values($data)->where($this->entity->getIdentifier(), $entity->getIdValue())->execute();
 
 		$query = $this->orm->createQuery();
-		$query->from($this->table)->where($this->mapper->getIdentifier(), $entity->getIdValue());
+		$query->from($this->table)->where($this->entity->getIdentifier(), $entity->getIdValue());
 
 		$query->execute();
 		return $query;

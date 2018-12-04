@@ -13,43 +13,11 @@ use Computools\CLightORM\Mapper\Types\{
 	IdType
 };
 
-abstract class Mapper implements MapperInterface
+class Mapper implements MapperInterface
 {
-	abstract function getFields(): array;
-
-	abstract function getTable(): string;
-
-	final public function getIdentifierFromArray(array $data): ?int
-	{
-		return $data[$this->getIdentifier()] ?? null;
-	}
-
-	final public function getIdentifier(): string
-	{
-		foreach($this->getFields() as $key => $value) {
-			if ($value instanceof IdType) {
-				if ($value->getIdentifierField()) {
-					return $value->getIdentifierField();
-				}
-				return $key;
-			}
-		}
-		throw new IdentifierDoesNotExistsException();
-	}
-
-	final public function getIdentifierEntityField(): string
-	{
-		foreach($this->getFields() as $key => $value) {
-			if ($value instanceof IdType) {
-				return $key;
-			}
-		}
-		throw new IdentifierDoesNotExistsException();
-	}
-
 	final public function arrayToEntity(EntityInterface $entity, array $data = null): ?EntityInterface
 	{
-		foreach ($entity->getMapper()->getFields() as $key => $field) {
+		foreach (FieldMapStorage::getFields($entity) as $key => $field) {
 			$entityField = $key;
 			if (!$field instanceof RelationInterface) {
 				$key = $field->getColumnName() ? $field->getColumnName() : $key;
@@ -58,7 +26,7 @@ abstract class Mapper implements MapperInterface
 				}
 
 				if ($field instanceof IdType) {
-                    ReflectionHelper::setEntityProperty($entity, $entityField, $data[$entity->getMapper()->getIdentifier()]);
+                    ReflectionHelper::setEntityProperty($entity, $entityField, $data[$entity->getIdentifier()]);
                 } else {
                     ReflectionHelper::setEntityProperty($entity, $entityField, $field->unserialize($data[$key], $entity));
                 }
@@ -125,7 +93,7 @@ abstract class Mapper implements MapperInterface
 	final public function entityToArray(EntityInterface $entity): array
 	{
 		$result = [];
-		foreach($this->getFields() as $key => $field) {
+		foreach(FieldMapStorage::getFields($entity) as $key => $field) {
 			if (!$field instanceof RelationInterface) {
 				$this->mapBaseTypeToArray($entity, $field, $key, $result);
 			} else {

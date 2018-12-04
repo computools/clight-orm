@@ -3,15 +3,23 @@
 namespace Computools\CLightORM\Test\Entity;
 
 use Computools\CLightORM\Entity\AbstractEntity;
-use Computools\CLightORM\Mapper\MapperInterface;
-use Computools\CLightORM\Test\Mapper\ThemeMapper;
+use Computools\CLightORM\Mapper\Types\IdType;
+use Computools\CLightORM\Mapper\Types\StringType;
 
 class Theme extends AbstractEntity
 {
-	public function getMapper(): MapperInterface
-	{
-		return new ThemeMapper();
-	}
+    public function getTable(): string
+    {
+        return 'theme';
+    }
+
+    public function getFields(): array
+    {
+        return [
+            'id' => new IdType(),
+            'title' => new StringType()
+        ];
+    }
 
 	private $id;
 

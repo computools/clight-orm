@@ -3,20 +3,42 @@
 namespace Computools\CLightORM\Entity;
 
 use Computools\CLightORM\{
-    Exception\EntityFieldDoesNotExistsException, Exception\EntityRelationDoesNotExistsException, Helper\StringHelper, Mapper\Relations\ManyToMany, Mapper\Relations\RelationChangesList, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface
+    Exception\EntityFieldDoesNotExistsException, Exception\EntityRelationDoesNotExistsException, Exception\IdentifierDoesNotExistsException, Helper\StringHelper, Mapper\FieldMapStorage, Mapper\Relations\ManyToMany, Mapper\Relations\RelationChangesList, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface, Mapper\Types\IdType
 };
 use Computools\CLightORM\Helper\ReflectionHelper;
 
 abstract class AbstractEntity implements EntityInterface
 {
-    static $mappedFieldNames = [];
+    abstract public function getTable(): string;
 
-    public static function getMappedFieldNames(string $key)
+    abstract public function getFields(): array;
+
+    final public function getIdentifierFromArray(array $data): ?int
     {
-        if (!(static::$mappedFieldNames[$key] ?? null)) {
-            static::$mappedFieldNames[$key] = StringHelper::getStringOptions($key);
+        return $data[$this->getIdentifier()] ?? null;
+    }
+
+    final public function getIdentifierEntityField(): string
+    {
+        foreach(FieldMapStorage::getFields($this) as $key => $value) {
+            if ($value instanceof IdType) {
+                return $key;
+            }
         }
-        return static::$mappedFieldNames[$key];
+        throw new IdentifierDoesNotExistsException();
+    }
+
+    final public function getIdentifier(): string
+    {
+        foreach(FieldMapStorage::getFields($this) as $key => $value) {
+            if ($value instanceof IdType) {
+                if ($value->getIdentifierField()) {
+                    return $value->getIdentifierField();
+                }
+                return $key;
+            }
+        }
+        throw new IdentifierDoesNotExistsException();
     }
 
     /**
@@ -53,7 +75,7 @@ abstract class AbstractEntity implements EntityInterface
 
 	final public function getIdValue(): ?int
 	{
-		return ReflectionHelper::getEntityProperty($this, $this->getMapper()->getIdentifierEntityField());
+		return ReflectionHelper::getEntityProperty($this, $this->getIdentifierEntityField());
 	}
 
 	private function relatedEntityExists(array $list, EntityInterface $entity): bool
@@ -89,7 +111,7 @@ abstract class AbstractEntity implements EntityInterface
 	 */
 	final public function isNew(): bool
 	{
-		return ReflectionHelper::getEntityProperty($this, $this->getMapper()->getIdentifierEntityField()) ? false : true;
+		return ReflectionHelper::getEntityProperty($this, $this->getIdentifierEntityField()) ? false : true;
 	}
 
 	private function changeRelation(string $relation, string $type, int $id): void
@@ -103,7 +125,7 @@ abstract class AbstractEntity implements EntityInterface
 
 	private function getEntityRelationField(EntityInterface $entity): array
 	{
-		foreach ($this->getMapper()->getFields() as $entityFieldName => $field) {
+		foreach (FieldMapStorage::getFields($this) as $entityFieldName => $field) {
 			if ($field instanceof RelationInterface && $field instanceof ManyToMany && $field->getEntityClass() === get_class($entity)) {
 				return [$entityFieldName, $field];
 			}
@@ -113,7 +135,7 @@ abstract class AbstractEntity implements EntityInterface
 
 	private function getEntityRelationByKey(string $key): array
     {
-        foreach ($this->getMapper()->getFields() as $entityFieldName => $field) {
+        foreach (FieldMapStorage::getFields($this) as $entityFieldName => $field) {
             if ($key === $entityFieldName && $field instanceof ToOneInterface) {
                 return [
                     $entityFieldName,

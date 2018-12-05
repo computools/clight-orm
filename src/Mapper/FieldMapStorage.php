@@ -3,6 +3,7 @@
 namespace Computools\CLightORM\Mapper;
 
 use Computools\CLightORM\Entity\EntityInterface;
+use Computools\CLightORM\Exception\InvalidFieldMapException;
 use Computools\CLightORM\Helper\StringHelper;
 
 class FieldMapStorage
@@ -10,6 +11,31 @@ class FieldMapStorage
     private static $fieldMap = [];
 
     private static $mappedFieldNames = [];
+
+    private static $reflectionProperties = [];
+
+    public static function getReflectionProperty(EntityInterface $entity, string $key): \ReflectionProperty
+    {
+        if (!(self::$reflectionProperties[get_class($entity)] ?? null)) {
+            self::$reflectionProperties[get_class($entity)] = [];
+        }
+
+        if (!(self::$reflectionProperties[get_class($entity)][$key] ?? null)) {
+            $reflection = new \ReflectionClass($entity);
+            list($camelCase, $underScore) = self::getMappedFieldNames($entity, $key);
+            if ($reflection->hasProperty($camelCase)) {
+                $property = $reflection->getProperty($camelCase);
+            } else if ($reflection->hasProperty($underScore)) {
+                $property = $reflection->getProperty($underScore);
+            } else {
+                throw new InvalidFieldMapException(get_class($entity), $key);
+            }
+            $property->setAccessible(true);
+            self::$reflectionProperties[get_class($entity)][$key] = $property;
+        }
+
+        return self::$reflectionProperties[get_class($entity)][$key];
+    }
 
     public static function getFields(EntityInterface $entity)
     {

@@ -8,11 +8,11 @@ class FloatType extends ColumnType
 {
     public function serialize($value, EntityInterface $entity)
     {
-        return $value ? floatval($value) : null;
+        return floatval($value);
     }
 
     public function unserialize($value, EntityInterface $entity)
     {
-        return $value ? floatval($value) : null;
+        return floatval($value);
     }
 }

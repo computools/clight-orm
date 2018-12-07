@@ -24,6 +24,12 @@ Lets have a look:
 
 *AbstractEntity* inheritance involves implementation of *getTable()* method, that will define database table name and *getFields()* method, that returns array of rules.
 
+Also, you can provide some optional fields that will be mapped if field presents in query result only. For example we can add some *count* field that will not be related to table, but will present in query result.
+
+For that puproses you can use *getOptionalFields()* method.
+
+
+
 Keys must be specified as table column names.
 
  
@@ -68,7 +74,14 @@ Keys must be specified as table column names.
                 'themes' => new ManyToMany(new Theme(), 'books_theme', 'book_id', 'theme_id')
             ];
         }
-
+        
+        public functnion getOptionalFields(): array
+        {
+            return [
+                'themes_count' => new IntegerType()
+            ];     
+        }
+       
         private $id;
     
         private $name;
@@ -78,6 +91,13 @@ Keys must be specified as table column names.
         private $themes = [];
     
         private $price;
+        
+        private $themesCount;
+        
+        public function getThemesCount()
+        {
+            return $this->themesCount;
+        }
     
         public function getId(): ?int
         {

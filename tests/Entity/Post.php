@@ -8,6 +8,7 @@ use Computools\CLightORM\Mapper\Relations\ManyToOne;
 use Computools\CLightORM\Mapper\Types\BooleanType;
 use Computools\CLightORM\Mapper\Types\DateTimeType;
 use Computools\CLightORM\Mapper\Types\IdType;
+use Computools\CLightORM\Mapper\Types\IntegerType;
 use Computools\CLightORM\Mapper\Types\StringType;
 
 class Post extends AbstractEntity
@@ -26,11 +27,18 @@ class Post extends AbstractEntity
             'is_published' => new BooleanType(),
             'date_published' => new DateTimeType(),
             'title' => new StringType('post_title'),
-            'categories' => new ManyToMany(new Category(), 'categorization', 'post_id', 'category_id')
+            'categories' => new ManyToMany(new Category(), 'categorization', 'post_id', 'category_id'),
         ];
     }
 
-	public function getId(): ?int
+    public function getOptionalFields(): array
+    {
+        return [
+            'categories_count' => new IntegerType()
+        ];
+    }
+
+    public function getId(): ?int
 	{
 		return $this->id;
 	}
@@ -53,6 +61,8 @@ class Post extends AbstractEntity
 	private $title;
 
 	private $categories;
+
+	private $categoriesCount;
 
 	public function getAuthor(): ?User
 	{
@@ -116,4 +126,12 @@ class Post extends AbstractEntity
 	{
 		$this->categories = $categories;
 	}
+
+    /**
+     * @return mixed
+     */
+    public function getCategoriesCount(): ?int
+    {
+        return $this->categoriesCount;
+    }
 }

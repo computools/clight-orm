@@ -2,6 +2,7 @@
 
 namespace Computools\CLightORM\Test\Repository;
 
+use Computools\CLightORM\Database\Query\Structure\Join;
 use Computools\CLightORM\Repository\AbstractRepository;
 use Computools\CLightORM\Test\Entity\Post;
 
@@ -11,6 +12,19 @@ class PostRepository extends AbstractRepository
 	{
 		return Post::class;
 	}
+
+	public function getPostsWithCategoriesCount()
+    {
+        $query = $this->orm->createQuery();
+        $query
+            ->from($this->table, 'p')
+            ->select('p.*, count(c.post_id) AS categories_count')
+            ->join(new Join('left', 'categorization', 'ON c.post_id = p.id', 'c'))
+            ->groupBy('p.id')
+            ->orderBy('p.id')
+            ->execute();
+        return $this->mapToEntities($query);
+    }
 
 	public function findLastNative()
 	{

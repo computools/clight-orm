@@ -33,4 +33,6 @@ interface EntityInterface
     public function getIdentifierFromArray(array $data): ?int;
 
     public function getFields(): array;
+
+    public function getOptionalFields(): array;
 }

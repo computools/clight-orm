@@ -238,4 +238,22 @@ class DatabaseFindTest extends BaseTest
 		$this->assertInstanceOf(Post::class, $post);
 		$this->assertInstanceOf(User::class, $post->getAuthor());
 	}
+
+	public function testOptionalEntityFields()
+    {
+        /**
+         * @var PostRepository $postRepository
+         */
+        $postRepository = $this->cligtORM->createRepository(PostRepository::class);
+
+        $postsWithOptionalField = $postRepository->getPostsWithCategoriesCount();
+        $postsWithoutOptionalField = $postRepository->findBy([]);
+
+        $this->assertNotEquals(0, count($postsWithOptionalField));
+        $this->assertNotEquals(0, count($postsWithoutOptionalField));
+        $this->assertInstanceOf(Post::class, $postsWithOptionalField[0]);
+        $this->assertInstanceOf(Post::class, $postsWithoutOptionalField[0]);
+        $this->assertNotNull($postsWithOptionalField[0]->getCategoriesCount());
+        $this->assertNull($postsWithoutOptionalField[0]->getCategoriesCount());
+    }
 }

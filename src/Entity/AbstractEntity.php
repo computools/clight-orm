@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Entity;
 
 use Computools\CLightORM\{
-    Exception\EntityFieldDoesNotExistsException, Exception\EntityRelationDoesNotExistsException, Exception\IdentifierDoesNotExistsException, Helper\StringHelper, Mapper\FieldMapStorage, Mapper\Relations\ManyToMany, Mapper\Relations\RelationChangesList, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface, Mapper\Types\IdType
+    Exception\EntityFieldDoesNotExistsException, Exception\EntityRelationDoesNotExistsException, Exception\IdentifierDoesNotExistsException, Mapper\FieldMapStorage, Mapper\Relations\ManyToMany, Mapper\Relations\RelationChangesList, Mapper\Relations\RelationInterface, Mapper\Relations\ToOneInterface, Mapper\Types\IdType
 };
 use Computools\CLightORM\Helper\ReflectionHelper;
 
@@ -12,6 +12,11 @@ abstract class AbstractEntity implements EntityInterface
     abstract public function getTable(): string;
 
     abstract public function getFields(): array;
+
+    public function getOptionalFields(): array
+    {
+        return [];
+    }
 
     final public function getIdentifierFromArray(array $data): ?int
     {

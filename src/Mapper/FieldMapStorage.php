@@ -10,6 +10,8 @@ class FieldMapStorage
 {
     private static $fieldMap = [];
 
+    private static $optionalFieldMap = [];
+
     private static $mappedFieldNames = [];
 
     private static $reflectionProperties = [];
@@ -37,15 +39,23 @@ class FieldMapStorage
         return self::$reflectionProperties[get_class($entity)][$key];
     }
 
-    public static function getFields(EntityInterface $entity)
+    public static function getFields(EntityInterface $entity): array
     {
         if (!(self::$fieldMap[get_class($entity)] ?? null)) {
-            self::$fieldMap[get_class($entity)] = $entity->getFields();
+            self::$fieldMap[get_class($entity)] = array_merge($entity->getFields());
         }
         return self::$fieldMap[get_class($entity)];
     }
 
-    public static function getMappedFieldNames(EntityInterface $entity, string $key)
+    public static function getOptionalFields(EntityInterface $entity): array
+    {
+        if (!(self::$optionalFieldMap[get_class($entity)] ?? null)) {
+            self::$optionalFieldMap[get_class($entity)] = array_merge($entity->getOptionalFields());
+        }
+        return self::$optionalFieldMap[get_class($entity)];
+    }
+
+    public static function getMappedFieldNames(EntityInterface $entity, string $key): array
     {
         if (!(self::$mappedFieldNames[get_class($entity)][$key] ?? null)) {
             if (!(self::$mappedFieldNames[get_class($entity)] ?? null)) {

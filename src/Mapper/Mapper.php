@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Mapper;
 
 use Computools\CLightORM\{
-    Entity\EntityInterface, Exception\InvalidFieldMapException, Exception\NestedEntityDoesNotExistsException, Exception\RelationCantBeOptionalException, Helper\ReflectionHelper, Helper\StringHelper
+    Entity\EntityInterface, Exception\InvalidFieldMapException, Exception\NestedEntityDoesNotExistsException, Exception\RelationCantBeOptionalException, Helper\ReflectionHelper
 };
 use Computools\CLightORM\Mapper\Relations\{
 	ManyToMany, ManyToOne, RelationInterface, ToManyInterface, ToOneInterface

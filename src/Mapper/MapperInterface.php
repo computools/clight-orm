@@ -3,7 +3,6 @@
 namespace Computools\CLightORM\Mapper;
 
 use Computools\CLightORM\Entity\EntityInterface;
-use Computools\CLightORM\Mapper\Types\ColumnType;
 
 interface MapperInterface
 {

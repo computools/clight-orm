@@ -12,7 +12,7 @@ interface SelectQueryInterface extends ResultQueryInterface
 
 	public function whereArray(array $criteria): SelectQueryInterface;
 
-	public function where(string $field, string $value): SelectQueryInterface;
+	public function where(string $field, $value): SelectQueryInterface;
 
 	public function whereExpr(string $whereExpr): SelectQueryInterface;
 

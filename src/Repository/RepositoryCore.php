@@ -190,8 +190,12 @@ abstract class RepositoryCore
 			}
 
 			if ($relation = $relations[$relatedTable] ?? null) {
-				$query = $this->getRelatedDataResult($parentEntityQuery, $relation, $relatedData);
-				$this->getInnerData($innerWith, $query, $relation, $relatedData);
+				$this->getInnerData(
+				    $innerWith,
+                    $this->getRelatedDataResult($parentEntityQuery, $relation, $relatedData),
+                    $relation,
+                    $relatedData
+                );
 			}
 		}
 

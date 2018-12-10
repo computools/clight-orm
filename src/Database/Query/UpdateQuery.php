@@ -17,7 +17,7 @@ abstract class UpdateQuery extends AbstractQuery implements UpdateQueryInterface
 
 	protected $params = [];
 
-	public function where(string $field, string $value): UpdateQueryInterface
+	public function where(string $field, $value): UpdateQueryInterface
 	{
         $paramName = $this->generateParamName($field);
         $this->where[$field] = ':' . $paramName;

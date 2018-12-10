@@ -11,9 +11,9 @@ class CreatedAtType extends DateTimeType
         return $entity->isNew()
             ? (new \DateTime())->format($this->getFormat())
             : (
-            $value
-            ? $value->format($this->getFormat())
-            : null
-        );
+                $value
+                ? $value->format($this->getFormat())
+                : null
+            );
     }
 }

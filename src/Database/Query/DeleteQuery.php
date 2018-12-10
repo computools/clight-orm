@@ -21,7 +21,7 @@ abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
 		return $this;
 	}
 
-	public function where(string $field, string $value): DeleteQueryInterface
+	public function where(string $field, $value): DeleteQueryInterface
 	{
 		$paramName = $this->generateParamName($field);
 		$this->where[$field] = ':' . $paramName;

@@ -23,7 +23,7 @@ abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
 
 	public function where(string $field, $value): DeleteQueryInterface
 	{
-		$paramName = $this->generateParamName($field);
+		$paramName = self::generateParamName($field);
 		$this->where[$field] = ':' . $paramName;
 		$this->params[$paramName] = $value;
 
@@ -33,7 +33,7 @@ abstract class DeleteQuery extends AbstractQuery implements DeleteQueryInterface
     public function whereArray(array $criteria): DeleteQueryInterface
     {
         foreach ($criteria as $key => $value) {
-            $paramName = $this->generateParamName($key);
+            $paramName = self::generateParamName($key);
             $this->where[$key] = ':' . $paramName;
             if (is_bool($value)) {
                 $value = $value ? 'TRUE' : 'FALSE';

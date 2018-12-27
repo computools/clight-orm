@@ -3,7 +3,7 @@
 namespace Computools\CLightORM\Repository;
 
 use Computools\CLightORM\{
-    Cache\CacheInterface, CLightORM, Database\Query\Contract\ResultQueryInterface, Database\Query\Contract\SelectQueryInterface, Entity\EntityInterface, Exception\NestedEntityDoesNotExistsException, Mapper\FieldMapStorage, Mapper\RelationMap, Mapper\MapperInterface
+    Cache\CacheInterface, CLightORM, Database\Query\Contract\ResultQueryInterface, Database\Query\Contract\SelectQueryInterface, Entity\EntityInterface, Exception\InvalidWithTypeException, Exception\NestedEntityDoesNotExistsException, Mapper\FieldMapStorage, Mapper\RelationMap, Mapper\MapperInterface, Tools\RelatedDataSet
 };
 
 use Computools\CLightORM\Mapper\Relations\{
@@ -168,36 +168,67 @@ abstract class RepositoryCore
 	}
 
 	/**
-	 * Gets related data for objects. Requires SelectQueryInterface, that filters parent entity and 'with' array
+	 * Gets related data for objects. Requires ResultQueryInterface, that filters parent entity and 'with' array
 	 *
-	 * @param SelectQueryInterface $parentEntityQuery
+	 * @param ResultQueryInterface $parentEntityQuery
 	 * @param array $with
 	 * @param array $relations
 	 * @return array
 	 */
-	final protected function getRelatedData(ResultQueryInterface $parentEntityQuery, array $with = [], array $relations = null): array
+	final protected function getRelatedData(ResultQueryInterface $parentEntityQuery, $with = [], array $relations = null): array
 	{
 		$relatedData = [];
 		$innerWith = [];
-		foreach($with as $key => $relatedTable) {
-			if (is_array($relatedTable)) {
-				$innerWith = $relatedTable;
-				$relatedTable = $key;
-			}
 
-			if (!$relations) {
-				$relations = $this->relations;
-			}
+		if (is_array($with)) {
+		    $with = new RelatedDataSet($with);
+        }
 
-			if ($relation = $relations[$relatedTable] ?? null) {
-				$this->getInnerData(
-				    $innerWith,
-                    $this->getRelatedDataResult($parentEntityQuery, $relation, $relatedData),
-                    $relation,
-                    $relatedData
-                );
-			}
-		}
+		if ($with instanceof RelatedDataSet) {
+            foreach ($with->getRelatedData() as $relatedDataObject) {
+                $relatedTable = $relatedDataObject->getRelation();
+                if ($relatedDataObject->getRelatedDataSet()) {
+                    $innerWith = $relatedDataObject->getRelatedDataSet();
+                }
+
+                if (!$relations) {
+                    $relations = $this->relations;
+                }
+
+                if ($relation = $relations[$relatedTable] ?? null) {
+                    $this->getInnerData(
+                        $innerWith,
+                        $this->getRelatedDataResult($parentEntityQuery, $relation, $relatedData, $relatedDataObject),
+                        $relation,
+                        $relatedData
+                    );
+                }
+		    }
+        } else if (is_array($with)) {
+            foreach($with as $key => $relatedTable) {
+                if (is_array($relatedTable)) {
+                    $innerWith = $relatedTable;
+                    $relatedTable = $key;
+                }
+
+                if (!$relations) {
+                    $relations = $this->relations;
+                }
+
+                if ($relation = $relations[$relatedTable] ?? null) {
+                    $this->getInnerData(
+                        $innerWith,
+                        $this->getRelatedDataResult($parentEntityQuery, $relation, $relatedData),
+                        $relation,
+                        $relatedData
+                    );
+                }
+            }
+        } else {
+		    throw new InvalidWithTypeException();
+        }
+
+
 
 		return $relatedData;
 	}

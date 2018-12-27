@@ -22,7 +22,7 @@ abstract class InsertQuery extends AbstractQuery implements InsertQueryInterface
 	public function values(array $values): InsertQueryInterface
 	{
         foreach ($values as $key => $value) {
-            $paramName = $this->generateParamName($key);
+            $paramName = self::generateParamName($key);
             $this->values[$key] = ':' . $paramName;
             if (is_bool($value)) {
                 $value = $value ? 'TRUE' : 'FALSE';

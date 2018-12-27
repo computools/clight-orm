@@ -2,6 +2,7 @@
 
 namespace Computools\CLightORM\Repository;
 
+use Computools\CLightORM\Database\Query\AbstractQuery;
 use Computools\CLightORM\Database\Query\Contract\ResultQueryInterface;
 use Computools\CLightORM\Database\Query\Contract\SelectQueryInterface;
 use Computools\CLightORM\Database\Query\Structure\Join;
@@ -12,6 +13,7 @@ use Computools\CLightORM\Mapper\Relations\ManyToMany;
 use Computools\CLightORM\Mapper\Relations\OneToMany;
 use Computools\CLightORM\Mapper\Relations\ToManyInterface;
 use Computools\CLightORM\Mapper\Relations\ToOneInterface;
+use Computools\CLightORM\Tools\RelatedData;
 
 trait RelatedDataTrait
 {
@@ -39,19 +41,19 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getRelatedDataResult(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getRelatedDataResult(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData, RelatedData $relatedDataObject): SelectQueryInterface
 	{
 		$this->createEmptyRelatedDataItem($relation, $relatedData);
 
 		switch (true) {
 			case $relation->getRelationType() instanceof ToOneInterface:
-				$query = $this->getManyOrOneToOneRelatedData($parentEntityQuery, $relation, $relatedData);
+				$query = $this->getManyOrOneToOneRelatedData($parentEntityQuery, $relation, $relatedData, $relatedDataObject);
 				break;
 			case $relation->getRelationType() instanceof OneToMany:
-				$query = $this->getOneToManyRelatedData($parentEntityQuery, $relation, $relatedData);
+				$query = $this->getOneToManyRelatedData($parentEntityQuery, $relation, $relatedData, $relatedDataObject);
 				break;
 			case $relation->getRelationType() instanceof ManyToMany:
-				$query = $this->getManyToManyRelatedData($parentEntityQuery, $relation, $relatedData);
+				$query = $this->getManyToManyRelatedData($parentEntityQuery, $relation, $relatedData, $relatedDataObject);
 				break;
 			default:
 				throw new InvalidFieldMapException($relation->getRelationType()->getEntityClass());
@@ -67,7 +69,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getOneToManyRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getOneToManyRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData, RelatedData $relatedDataObject): SelectQueryInterface
 	{
 		$table = $relation->getRelationType()->getRelatedEntity()->getTable();
 
@@ -87,8 +89,25 @@ trait RelatedDataTrait
 			))
 		;
 
+		$params = [];
+
+		foreach ($relatedDataObject->getConditions() as $condition) {
+		    $generatedKey = AbstractQuery::generateParamName($condition->getField());
+		    $params[$generatedKey] = $condition->getValue();
+		    $query->whereExpr($condition->getField() . $condition->getOperator() . ':' . $generatedKey);
+        }
+
+        if ($order = $relatedDataObject->getOrder()) {
+		    $query->orderBy($order->getField(), $order->getDirection());
+        }
+
+        if ($pagination = $relatedDataObject->getPagination()) {
+		    list($limit, $offset) = $relatedDataObject->getPagination()->getLimitOffset();
+		    $query->limit($limit, $offset);
+        }
+
 		if (!empty($parentIds)) {
-			$query->execute();
+			$query->execute($params);
 		} else {
 			$query->setResult([]);
 		}
@@ -109,7 +128,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getManyOrOneToOneRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getManyOrOneToOneRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData, RelatedData $relatedDataObject): SelectQueryInterface
 	{
 		$table = $relation->getTableName();
 
@@ -127,8 +146,15 @@ trait RelatedDataTrait
 				$parentIds
 			));
 
+		$params = [];
+        foreach ($relatedDataObject->getConditions() as $condition) {
+            $generatedKey = AbstractQuery::generateParamName($condition->getField());
+            $params[$generatedKey] = $condition->getValue();
+            $query->whereExpr($condition->getField() . $condition->getOperator() . ':' . $generatedKey);
+        }
+
 		if (!empty($parentIds)) {
-			$query->execute();
+			$query->execute($params);
 		} else {
 			$query->setResult([]);
 		}
@@ -157,7 +183,7 @@ trait RelatedDataTrait
 	 * @param array $relatedData
 	 * @return SelectQueryInterface
 	 */
-	private function getManyToManyRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData): SelectQueryInterface
+	private function getManyToManyRelatedData(ResultQueryInterface $parentEntityQuery, RelationMap $relation, array &$relatedData, RelatedData $relatedDataObject): SelectQueryInterface
 	{
 		$table = $relation->getRelationType()->getTable();
 		$relatedTableName = $relation->getTableName();
@@ -194,7 +220,6 @@ trait RelatedDataTrait
 			$relatedTableName
 		);
 
-
 		$query
 			->select($select)
 			->from($table)
@@ -202,8 +227,23 @@ trait RelatedDataTrait
 			->whereExpr($where)
 			->groupBy($relation->getTableName() . '.' . $relatedTableIdentifier);
 
+		$params = [];
+        foreach ($relatedDataObject->getConditions() as $condition) {
+            $field = $relatedTableName . '.' . $condition->getField();
+            $generatedKey = AbstractQuery::generateParamName($field);
+            $params[$generatedKey] = $condition->getValue();
+            $query->whereExpr($field . $condition->getOperator() . ':' . $generatedKey);
+        }
+
+		if ($order = $relatedDataObject->getOrder()) {
+		    $query->orderBy($relation->getTableName() . '.' . $order->getField(), $order->getDirection());
+        }
+        if ($pagination = $relatedDataObject->getPagination()) {
+            list($limit, $offset) = $pagination->getLimitOffset();
+		    $query->limit($limit, $offset);
+        }
 		if (!empty($parentIds)) {
-			$query->execute();
+			$query->execute($params);
 		} else {
 			$query->setResult([]);
 		}
@@ -249,7 +289,7 @@ trait RelatedDataTrait
 	 * @param RelationMap $relation
 	 * @param $relatedData
 	 */
-	private function getInnerData(array $innerWith = [], ResultQueryInterface $query, RelationMap $relation, &$relatedData): void
+	private function getInnerData($innerWith = [], ResultQueryInterface $query, RelationMap $relation, &$relatedData): void
 	{
 		if ($query && !empty($innerWith)) {
 			$innerData = $this->getRelatedData(

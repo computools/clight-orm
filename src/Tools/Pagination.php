@@ -57,6 +57,21 @@ class Pagination
 		return $this->isPagination;
 	}
 
+	public function getLimitOffset()
+    {
+        if ($this->isPagination()) {
+            return [
+                $this->perPage,
+                ($this->page - 1) * $this->perPage
+            ];
+        } else {
+            return [
+                $this->limit,
+                $this->offset
+            ];
+        }
+    }
+
 	public function toArray(): array
 	{
 		return [

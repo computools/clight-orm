@@ -99,7 +99,7 @@ abstract class AbstractEntity implements EntityInterface
 	/**
 	 * Get list of relation changes (use for many-to-many)
 	 *
-	 * @return array
+	 * @return RelationChangesList
 	 */
 	final public function getRelationChangesList(): RelationChangesList
 	{
@@ -164,6 +164,10 @@ abstract class AbstractEntity implements EntityInterface
 
 	/**
 	 * This method must be used to add many-to-many relation
+     *
+     * @param EntityInterface
+     *
+     * @return EntityInterface
 	 */
 	final public function addRelation(EntityInterface $entity): EntityInterface
 	{
@@ -184,6 +188,10 @@ abstract class AbstractEntity implements EntityInterface
 
 	/**
 	 * This method must be used to remove many-to-many relation
+     *
+     * @param EntityInterface
+     *
+     * @return EntityInterface
 	 */
 	final public function removeRelation(EntityInterface $entity): EntityInterface
 	{

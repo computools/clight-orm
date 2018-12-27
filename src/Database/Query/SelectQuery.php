@@ -76,7 +76,7 @@ abstract class SelectQuery extends AbstractQuery implements SelectQueryInterface
 
 	public function where(string $field, $value): SelectQueryInterface
 	{
-        $paramName = $this->generateParamName($field);
+        $paramName = self::generateParamName($field);
         $this->where[$field] = ':' . $paramName;
         if (is_bool($value)) {
             $value = $value ? 'TRUE' : 'FALSE';

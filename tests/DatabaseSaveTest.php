@@ -24,6 +24,46 @@ use Computools\CLightORM\Test\Repository\{
 
 class DatabaseSaveTest extends BaseTest
 {
+    public function testSave()
+    {
+        $user = new User();
+        $user->setName('Test name');
+        $userRepository = $this->cligtORM->createRepository(UserRepository::class);
+
+        $userRepository->save($user);
+
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertInternalType('integer', $user->getId());
+    }
+
+    public function testMultipleSave()
+    {
+        $theme = new Theme();
+        $theme->setTitle('bunch saved theme');
+
+        $theme1 = new Theme();
+        $theme1->setTitle('bunch saved theme 1');
+
+        $theme2 = new Theme();
+        $theme2->setTitle('bunch saved theme 2');
+
+        $userRepository = $this->cligtORM->createRepository(ThemeRepository::class);
+        $themes = $userRepository->saveBunch([
+            $theme, $theme1, $theme2
+        ]);
+
+        $this->assertEquals(count($themes), 3);
+
+        $this->assertInstanceOf(Theme::class, $themes[0]);
+        $this->assertNotNull($themes[0]->getId());
+
+        $this->assertInstanceOf(Theme::class, $themes[1]);
+        $this->assertNotNull($themes[1]->getId());
+
+        $this->assertInstanceOf(Theme::class, $themes[2]);
+        $this->assertNotNull($themes[2]->getId());
+    }
+
     public function testJsonType()
     {
         $book = new Book();
@@ -65,18 +105,6 @@ class DatabaseSaveTest extends BaseTest
         $this->assertEquals($price, $book->price);
         $this->assertNotNull($book->id);
     }
-
-    public function testSave()
-	{
-		$user = new User();
-		$user->setName('Test name');
-		$userRepository = $this->cligtORM->createRepository(UserRepository::class);
-
-		$userRepository->save($user);
-
-		$this->assertInstanceOf(User::class, $user);
-		$this->assertInternalType('integer', $user->getId());
-	}
 
 	public function testUpdate()
 	{

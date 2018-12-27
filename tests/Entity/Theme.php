@@ -42,6 +42,6 @@ class Theme extends AbstractEntity
 
 	public function setTitle(string $title)
 	{
-		$this->name = $title;
+		$this->title = $title;
 	}
 }
